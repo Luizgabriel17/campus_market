@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Market - Marketplace Universitário</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        nav a:hover {
+            opacity: 0.8;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 150px 2rem 100px;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #ff6b6b;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background: #ff5252;
+        }
+
+        .features {
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 0 2rem;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #333;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .feature-card p {
+            color: #666;
+        }
+
+        .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .about {
+            background: #f8f9fa;
+            padding: 80px 2rem;
+            text-align: center;
+        }
+
+        .about-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .about h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .about p {
+            font-size: 1.1rem;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 2rem;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .features h2,
+            .about h2,
+            .cta h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">🛍️ Campus Market</div>
+            <ul>
+                <li><a href="#features">Recursos</a></li>
+                <li><a href="#about">Sobre</a></li>
+                <li><a href="#cta">Contato</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Bem-vindo ao Campus Market</h1>
+        <p>Seu marketplace universitário para compra, venda e troca de produtos entre estudantes</p>
+        <a href="#" class="btn">Comece Agora</a>
+    </section>
+
+    <section class="features" id="features">
+        <h2>Por Que Usar Campus Market?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="icon">💰</div>
+                <h3>Melhor Preço</h3>
+                <p>Produtos com preços acessíveis para estudantes, negociação direta com vendedores</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🤝</div>
+                <h3>Comunidade Segura</h3>
+                <p>Transações entre membros da comunidade universitária verificados</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📦</div>
+                <h3>Variedade de Produtos</h3>
+                <p>Livros, eletrônicos, roupas, móveis e muito mais para sua necessidade</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">⚡</div>
+                <h3>Fácil de Usar</h3>
+                <p>Interface intuitiva para anunciar, buscar e comprar com poucos cliques</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📍</div>
+                <h3>Próximo a Você</h3>
+                <p>Encontre produtos perto do seu campus, facilitando retirada e entrega</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🔒</div>
+                <h3>Seguro e Confiável</h3>
+                <p>Sistema de avaliações e comentários para garantir transações seguras</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="about" id="about">
+        <div class="about-content">
+            <h2>Sobre Campus Market</h2>
+            <p>Campus Market é uma plataforma desenvolvida para simplificar o comércio entre estudantes universitários. Nossa missão é criar um marketplace seguro, eficiente e amigável onde a comunidade acadêmica pode trocar produtos e serviços com confiança.</p>
+            <p>Conectamos milhares de studantes em um único lugar, facilitando a economia compartilhada dentro do campus.</p>
+        </div>
+    </section>
+
+    <section class="cta" id="cta">
+        <h2>Pronto para Começar?</h2>
+        <p>Faça parte da comunidade Campus Market hoje mesmo</p>
+        <a href="#" class="btn">Cadastre-se Agora</a>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Campus Market. Todos os direitos reservados.</p>
+        <p>Conectando a comunidade universitária</p>
+    </footer>
+</body>
+</html>
