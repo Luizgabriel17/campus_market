@@ -41,18 +41,18 @@
 - Criptografar senha (bcrypt) - (URGENTE)
 - Criar sessão (express-session)
 
-### 👤 Usuários
+### Usuários
 - `GET /usuarios`
 - `GET /usuarios/:id`
 
-### 🥪 Produtos
+### Produtos
 - `POST /produtos` (vendedor cadastra)
 - `GET /produtos` (listar todos)
 - `GET /produtos/:id`
 - `PUT /produtos/:id`
 - `DELETE /produtos/:id`
 
-### 🛒 Pedidos
+### Pedidos
 - `POST /pedidos`
 - `GET /pedidos`
 - `GET /pedidos/:id`
@@ -81,7 +81,7 @@
 ## 5. DIFERENCIAIS (Sistema avançado) - CUMPRIDO PARCIALMENTE
 - Filtro de produtos (vendedor)
 - Upload de imagem do lanche - (URGENTE)
-- Sistema de avaliações ⭐
+- Sistema de avaliações
 - Dashboard do vendedor
 - Controle de estoque - (URGENTE)
 - Notificações (pedido realizado) - (URGENTE)

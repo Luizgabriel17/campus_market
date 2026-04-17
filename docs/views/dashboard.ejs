@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Vendedor - CampusMarket</title>
+
+<link rel="stylesheet" href="/css/dashboard.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body>
+
+<%- include('partials/header') %>
+
+<div class="dashboard">
+
+  <!-- TOPO -->
+  <div class="top">
+    <h2>Dashboard do Vendedor</h2>
+  </div>
+
+  <!-- MÉTRICAS -->
+  <div class="resumo-grid">
+
+    <div class="card-resumo bg-vendas">
+      Vendas Hoje <br>
+      R$ <%= vendasHoje || 0 %>
+    </div>
+
+    <div class="card-resumo bg-pedidos">
+      Pedidos Hoje <br>
+      <%= pedidosHoje || 0 %>
+    </div>
+
+    <div class="card-resumo bg-faturamento">
+      Faturamento Hoje <br>
+      R$ <%= faturamentoHoje || 0 %>
+    </div>
+
+  </div>
+
+  <!-- FATURAMENTO SEMANAL -->
+  <div class="top mt-4">
+    <h2>Faturamento da Semana</h2>
+  </div>
+
+  <div class="grid">
+    <% faturamentoSemana.forEach(dia => { %>
+      <div class="produto-card">
+        <strong><%= dia.dia %></strong>
+        <p>R$ <%= dia.total %></p>
+      </div>
+    <% }) %>
+  </div>
+
+  <!-- MAIS VENDIDOS -->
+  <div class="top mt-4">
+    <h2>Produtos mais vendidos</h2>
+  </div>
+
+  <div class="grid">
+    <% maisVendidos.forEach(p => { %>
+      <div class="produto-card">
+        <h5><%= p.nome %></h5>
+        <p>Vendas: <%= p.total %></p>
+      </div>
+    <% }) %>
+  </div>
+
+  <!-- PREVIEW PRODUTOS -->
+  <div class="top mt-4">
+    <h2>Meus Produtos</h2>
+  </div>
+
+  <div class="grid">
+    <% produtos.slice(0,4).forEach(p => { %>
+      <div class="produto-card">
+        <h5><%= p.nome %></h5>
+        <p><%= p.descricao %></p>
+        <strong>R$ <%= p.preco %></strong>
+        <p>Estoque: <%= p.estoque %></p>
+      </div>
+    <% }) %>
+  </div>
+
+  <!-- PEDIDOS RECENTES -->
+  <div class="top mt-4">
+    <h2>Pedidos Recentes</h2>
+  </div>
+
+  <% pedidos.slice(0,5).forEach(p => { %>
+    <div class="pedido-card">
+      <strong>#<%= p.id %></strong>
+      <p><%= p.cliente_nome %></p>
+      <p>Itens: <%= p.quantidade %></p>
+      <p>R$ <%= p.valor_total %></p>
+    </div>
+  <% }) %>
+
+</div>
+
+<%- include('partials/footer') %>
+
+</body>
+</html>
