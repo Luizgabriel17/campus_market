@@ -91,7 +91,7 @@ router.get("/", authVendedor, async (req, res) => {
 });
 
 /* =========================
-   📦 ATUALIZAR STATUS PEDIDO
+   ATUALIZAR STATUS PEDIDO
 ========================= */
 router.post("/pedidos/status/:id", authVendedor, async (req, res) => {
   const { status } = req.body;

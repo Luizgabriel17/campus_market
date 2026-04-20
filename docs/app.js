@@ -30,7 +30,7 @@ app.set("trust proxy", 1);
 
 // CORS (ADICIONADO)
 app.use(cors({
-  origin: "https://seu-usuario.github.io",
+  origin: "https://luizgabriel17.github.io",
   credentials: true
 }));
 
