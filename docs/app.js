@@ -8,6 +8,8 @@ const logger = require("morgan");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
+require("dotenv").config();
+
 const isProduction = process.env.NODE_ENV === "production";
 
 // ROTAS
@@ -19,18 +21,19 @@ const pedidosRoutes = require("./routes/pedidos");
 const carrinhoRoutes = require("./routes/carrinho");
 const avaliacoesRoutes = require("./routes/avaliacoes");
 
-// SESSION STORE (AJUSTADO)
+// SESSION STORE (compatível com Railway)
 const sessionStore = new MySQLStore(process.env.DATABASE_URL);
 
-// CONFIG
+// CONFIG VIEWS (EJS)
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
+// NECESSÁRIO PRA RENDER / PROXY
 app.set("trust proxy", 1);
 
-// CORS (ADICIONADO)
+// CORS (libera acesso do seu frontend)
 app.use(cors({
-  origin: "https://luizgabriel17.github.io",
+  origin: "https://seu-usuario.github.io", // ⚠️ TROQUE PELO SEU
   credentials: true
 }));
 
@@ -73,6 +76,11 @@ app.use("/pedidos", pedidosRoutes);
 app.use("/carrinho", carrinhoRoutes);
 app.use("/avaliacoes", avaliacoesRoutes);
 
+// TESTE
+app.get("/api/test", (req, res) => {
+  res.json({ status: "ok" });
+});
+
 // PÁGINAS
 app.get("/", (req, res) => res.render("landing"));
 app.get("/redirect", (req, res) => res.render("redirect"));
@@ -85,6 +93,7 @@ app.use((err, req, res, next) => {
   res.status(500).send("Erro interno");
 });
 
+// PORTA (Render usa dinâmica)
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
