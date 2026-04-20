@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../database/database");
+const bcrypt = require("bcrypt");
 
 // LOGIN PAGE
 router.get("/login", (req, res) => {
@@ -8,55 +9,60 @@ router.get("/login", (req, res) => {
 });
 
 // LOGIN
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
   const { email, senha } = req.body;
 
-  if (!email || !senha) {
-    return res.send("Preencha todos os campos");
-  }
+  try {
+    // CLIENTE
+    const [clientes] = await db.query(
+      "SELECT * FROM cliente WHERE email = ?",
+      [email]
+    );
 
-  const sqlCliente = "SELECT * FROM cliente WHERE email = ? AND senha = ?";
-  const sqlVendedor = "SELECT * FROM vendedor WHERE email = ? AND senha = ?";
+    if (clientes.length > 0) {
+      const cliente = clientes[0];
 
-  db.query(sqlCliente, [email, senha], (err, resultCliente) => {
-    if (err) return res.status(500).send("Erro no servidor");
+      if (await bcrypt.compare(senha, cliente.senha)) {
+        req.session.user = {
+          id: cliente.id,
+          nome: cliente.nome,
+          tipo: "cliente"
+        };
 
-    if (resultCliente.length > 0) {
-      const cliente = resultCliente[0];
-
-      req.session.user = {
-        id: cliente.id,
-        nome: cliente.nome,
-        email: cliente.email,
-        tipo: "cliente"
-      };
-
-      return req.session.save(() => {
-        res.redirect("/redirect-cliente");
-      });
+        return req.session.save(() =>
+          res.redirect("/redirect-cliente")
+        );
+      }
     }
 
-    db.query(sqlVendedor, [email, senha], (err, resultVendedor) => {
-      if (err) return res.status(500).send("Erro no servidor");
+    // VENDEDOR
+    const [vendedores] = await db.query(
+      "SELECT * FROM vendedor WHERE email = ?",
+      [email]
+    );
 
-      if (resultVendedor.length > 0) {
-        const vendedor = resultVendedor[0];
+    if (vendedores.length > 0) {
+      const vendedor = vendedores[0];
 
+      if (await bcrypt.compare(senha, vendedor.senha)) {
         req.session.user = {
           id: vendedor.id,
           nome: vendedor.nome,
-          email: vendedor.email,
           tipo: "vendedor"
         };
 
-        return req.session.save(() => {
-          res.redirect("/dashboard");
-        });
+        return req.session.save(() =>
+          res.redirect("/dashboard")
+        );
       }
+    }
 
-      res.send("Email ou senha inválidos");
-    });
-  });
+    res.send("Email ou senha inválidos");
+
+  } catch (err) {
+    console.error(err);
+    res.send("Erro no servidor");
+  }
 });
 
 // LOGOUT

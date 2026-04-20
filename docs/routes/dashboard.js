@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../database/database");
 
-// Middleware vendedor
+// 🔒 Middleware
 function authVendedor(req, res, next) {
   if (!req.session.user || req.session.user.tipo !== "vendedor") {
     return res.redirect("/login");
@@ -11,248 +11,258 @@ function authVendedor(req, res, next) {
 }
 
 /* =========================
-   DASHBOARD PRINCIPAL
+   📊 DASHBOARD PRINCIPAL
 ========================= */
-router.get("/", authVendedor, (req, res) => {
+router.get("/", authVendedor, async (req, res) => {
   const vendedorId = req.session.user.id;
   const hoje = new Date().toISOString().slice(0, 10);
 
-  // PRODUTOS
-  db.query(
-    "SELECT * FROM produtos WHERE vendedor_id = ?",
-    [vendedorId],
-    (err, produtos) => {
-      if (err) return res.send(err);
+  try {
+    // 🛍️ PRODUTOS
+    const [produtos] = await db.query(
+      "SELECT * FROM produtos WHERE vendedor_id = ?",
+      [vendedorId]
+    );
 
-      // PEDIDOS (AGORA COM CLIENTE CORRETO)
-      db.query(
-        `
-        SELECT 
-          p.id,
-          p.valor_total,
-          p.status,
-          p.data_pedido,
-          c.nome AS cliente_nome,
-          COUNT(i.id) as quantidade,
-          GROUP_CONCAT(pr.nome SEPARATOR ', ') AS itens
-        FROM pedidos p
-        JOIN itens_pedido i ON i.pedido_id = p.id
-        JOIN produtos pr ON pr.id = i.produto_id
-        JOIN cliente c ON c.id = p.cliente_id
-        WHERE pr.vendedor_id = ?
-        GROUP BY p.id
-        ORDER BY p.id DESC
-        `,
-        [vendedorId],
-        (err2, pedidos) => {
-          if (err2) return res.send(err2);
+    // 📦 PEDIDOS
+    const [pedidos] = await db.query(`
+      SELECT 
+        p.id,
+        p.valor_total,
+        p.status,
+        p.data_pedido,
+        c.nome AS cliente_nome,
+        GROUP_CONCAT(pr.nome SEPARATOR ', ') AS itens
+      FROM pedidos p
+      JOIN cliente c ON c.id = p.cliente_id
+      JOIN itens_pedido i ON i.pedido_id = p.id
+      JOIN produtos pr ON pr.id = i.produto_id
+      WHERE p.vendedor_id = ?
+      GROUP BY p.id
+      ORDER BY p.id DESC
+    `, [vendedorId]);
 
-          // MÉTRICAS DO DIA
-          db.query(
-            `
-            SELECT 
-              COUNT(*) as pedidosHoje,
-              SUM(valor_total) as faturamentoHoje
-            FROM pedidos
-            WHERE DATE(data_pedido) = ?
-            `,
-            [hoje],
-            (err3, hojeData) => {
-              if (err3) return res.send(err3);
+    // 📅 MÉTRICAS DO DIA
+    const [[hojeData]] = await db.query(`
+      SELECT 
+        COUNT(*) as pedidosHoje,
+        IFNULL(SUM(valor_total), 0) as faturamentoHoje
+      FROM pedidos
+      WHERE vendedor_id = ? AND DATE(data_pedido) = ?
+    `, [vendedorId, hoje]);
 
-              const pedidosHoje = hojeData[0].pedidosHoje || 0;
-              const faturamentoHoje = hojeData[0].faturamentoHoje || 0;
+    // 📈 FATURAMENTO SEMANA
+    const [faturamentoSemana] = await db.query(`
+      SELECT 
+        DATE(data_pedido) as dia,
+        SUM(valor_total) as total
+      FROM pedidos
+      WHERE vendedor_id = ?
+      GROUP BY DATE(data_pedido)
+      ORDER BY dia DESC
+      LIMIT 7
+    `, [vendedorId]);
 
-              // FATURAMENTO DA SEMANA
-              db.query(
-                `
-                SELECT 
-                  DATE(data_pedido) as dia,
-                  SUM(valor_total) as total
-                FROM pedidos
-                GROUP BY DATE(data_pedido)
-                ORDER BY dia DESC
-                LIMIT 7
-                `,
-                (err4, faturamentoSemana) => {
-                  if (err4) return res.send(err4);
+    // 🏆 MAIS VENDIDOS
+    const [maisVendidos] = await db.query(`
+      SELECT pr.nome, COUNT(*) as total
+      FROM itens_pedido i
+      JOIN produtos pr ON pr.id = i.produto_id
+      WHERE pr.vendedor_id = ?
+      GROUP BY pr.id
+      ORDER BY total DESC
+      LIMIT 5
+    `, [vendedorId]);
 
-                  // PRODUTOS MAIS VENDIDOS
-                  db.query(
-                    `
-                    SELECT pr.nome, COUNT(i.produto_id) as total
-                    FROM itens_pedido i
-                    JOIN produtos pr ON pr.id = i.produto_id
-                    WHERE pr.vendedor_id = ?
-                    GROUP BY pr.id
-                    ORDER BY total DESC
-                    LIMIT 5
-                    `,
-                    [vendedorId],
-                    (err5, maisVendidos) => {
-                      if (err5) return res.send(err5);
+    res.render("dashboard", {
+      user: req.session.user,
+      produtos,
+      pedidos,
+      pedidosHoje: hojeData.pedidosHoje || 0,
+      faturamentoHoje: hojeData.faturamentoHoje || 0,
+      faturamentoSemana,
+      maisVendidos
+    });
 
-                      // RENDER FINAL
-                      res.render("dashboard", {
-                        user: req.session.user,
-                        produtos: produtos || [],
-                        pedidos: pedidos || [],
-                        pedidosHoje,
-                        faturamentoHoje,
-                        vendasHoje: faturamentoHoje,
-                        faturamentoSemana: faturamentoSemana || [],
-                        maisVendidos: maisVendidos || []
-                      });
-                    }
-                  );
-                }
-              );
-            }
-          );
-        }
-      );
-    }
-  );
+  } catch (err) {
+    console.error(err);
+    res.send("Erro no dashboard");
+  }
 });
 
 /* =========================
-   NOVO PRODUTO
+   📦 ATUALIZAR STATUS PEDIDO
+========================= */
+router.post("/pedidos/status/:id", authVendedor, async (req, res) => {
+  const { status } = req.body;
+
+  const statusValidos = ["PENDENTE", "CONFIRMADO", "ENTREGUE", "CANCELADO"];
+
+  if (!statusValidos.includes(status)) {
+    return res.redirect("/dashboard?erro=Status inválido");
+  }
+
+  try {
+    await db.query(
+      "UPDATE pedidos SET status = ? WHERE id = ? AND vendedor_id = ?",
+      [status, req.params.id, req.session.user.id]
+    );
+
+    res.redirect("/dashboard");
+
+  } catch (err) {
+    console.error(err);
+    res.send("Erro ao atualizar status");
+  }
+});
+
+/* =========================
+   ➕ NOVO PRODUTO (TELA)
 ========================= */
 router.get("/produtos/novo", authVendedor, (req, res) => {
   res.render("novo-produto");
 });
 
 /* =========================
-   CRIAR PRODUTO
+   ➕ CRIAR PRODUTO
 ========================= */
-router.post("/produtos", authVendedor, (req, res) => {
+router.post("/produtos", authVendedor, async (req, res) => {
   const { nome, descricao, preco, estoque } = req.body;
   const vendedorId = req.session.user.id;
 
-  const sql = `
-    INSERT INTO produtos (nome, descricao, preco, estoque, vendedor_id, status)
-    VALUES (?, ?, ?, ?, ?, 'ATIVO')
-  `;
+  try {
+    await db.query(
+      `INSERT INTO produtos (nome, descricao, preco, estoque, vendedor_id, status)
+       VALUES (?, ?, ?, ?, ?, 'ATIVO')`,
+      [nome, descricao, preco, estoque, vendedorId]
+    );
 
-  db.query(sql, [nome, descricao, preco, estoque, vendedorId], (err) => {
-    if (err) return res.send(err);
     res.redirect("/dashboard");
-  });
+
+  } catch (err) {
+    console.error(err);
+    res.send("Erro ao criar produto");
+  }
 });
 
 /* =========================
-   EDITAR PRODUTO
+   ✏️ EDITAR PRODUTO (TELA)
 ========================= */
-router.get("/produtos/editar/:id", authVendedor, (req, res) => {
-  db.query(
-    "SELECT * FROM produtos WHERE id = ?",
-    [req.params.id],
-    (err, result) => {
-      if (err) return res.send(err);
-      res.render("editar-produto", { produto: result[0] });
+router.get("/produtos/editar/:id", authVendedor, async (req, res) => {
+  try {
+    const [result] = await db.query(
+      "SELECT * FROM produtos WHERE id = ? AND vendedor_id = ?",
+      [req.params.id, req.session.user.id]
+    );
+
+    if (result.length === 0) {
+      return res.redirect("/dashboard");
     }
-  );
+
+    res.render("editar-produto", { produto: result[0] });
+
+  } catch (err) {
+    console.error(err);
+    res.send("Erro ao carregar produto");
+  }
 });
 
 /* =========================
-   SALVAR EDIÇÃO
+   💾 SALVAR EDIÇÃO
 ========================= */
-router.post("/produtos/editar/:id", authVendedor, (req, res) => {
+router.post("/produtos/editar/:id", authVendedor, async (req, res) => {
   const { nome, descricao, preco, estoque } = req.body;
 
-  const sql = `
-    UPDATE produtos 
-    SET nome=?, descricao=?, preco=?, estoque=? 
-    WHERE id=?
-  `;
+  try {
+    await db.query(
+      `UPDATE produtos 
+       SET nome = ?, descricao = ?, preco = ?, estoque = ?
+       WHERE id = ? AND vendedor_id = ?`,
+      [nome, descricao, preco, estoque, req.params.id, req.session.user.id]
+    );
 
-  db.query(sql, [nome, descricao, preco, estoque, req.params.id], (err) => {
-    if (err) return res.send(err);
     res.redirect("/dashboard");
-  });
+
+  } catch (err) {
+    console.error(err);
+    res.send("Erro ao atualizar produto");
+  }
 });
 
 /* =========================
-   DELETAR PRODUTO
+   ❌ DELETAR PRODUTO
 ========================= */
-router.post("/produtos/deletar/:id", authVendedor, (req, res) => {
-  db.query(
-    "DELETE FROM produtos WHERE id = ?",
-    [req.params.id],
-    (err) => {
-      if (err) return res.send(err);
-      res.redirect("/dashboard");
-    }
-  );
+router.post("/produtos/deletar/:id", authVendedor, async (req, res) => {
+  try {
+    await db.query(
+      "DELETE FROM produtos WHERE id = ? AND vendedor_id = ?",
+      [req.params.id, req.session.user.id]
+    );
+
+    res.redirect("/dashboard");
+
+  } catch (err) {
+    console.error(err);
+    res.send("Erro ao deletar produto");
+  }
 });
 
 /* =========================
-   ATUALIZAR STATUS PEDIDO
+   📋 LISTAR PRODUTOS
 ========================= */
-router.post("/pedidos/status/:id", authVendedor, (req, res) => {
-  const { status } = req.body;
-
-  db.query(
-    "UPDATE pedidos SET status = ? WHERE id = ?",
-    [status, req.params.id],
-    (err) => {
-      if (err) return res.send(err);
-      res.redirect("/dashboard");
-    }
-  );
-});
-
-/* =========================
-   LISTAR PRODUTOS
-========================= */
-router.get("/produtos", authVendedor, (req, res) => {
+router.get("/produtos", authVendedor, async (req, res) => {
   const vendedorId = req.session.user.id;
 
-  db.query(
-    "SELECT * FROM produtos WHERE vendedor_id = ?",
-    [vendedorId],
-    (err, produtos) => {
-      if (err) return res.send(err);
+  try {
+    const [produtos] = await db.query(
+      "SELECT * FROM produtos WHERE vendedor_id = ?",
+      [vendedorId]
+    );
 
-      res.render("dashboard-produtos", {
-        produtos: produtos || [],
-        user: req.session.user
-      });
-    }
-  );
+    res.render("dashboard-produtos", {
+      produtos,
+      user: req.session.user
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.send("Erro ao listar produtos");
+  }
 });
 
 /* =========================
-   LISTAR PEDIDOS
+   📦 LISTAR PEDIDOS
 ========================= */
-router.get("/pedidos", authVendedor, (req, res) => {
+router.get("/pedidos", authVendedor, async (req, res) => {
   const vendedorId = req.session.user.id;
 
-  db.query(
-    `
-    SELECT 
-      p.id,
-      p.valor_total,
-      p.status,
-      p.data_pedido,
-      GROUP_CONCAT(pr.nome SEPARATOR ', ') AS itens
-    FROM pedidos p
-    JOIN itens_pedido i ON i.pedido_id = p.id
-    JOIN produtos pr ON pr.id = i.produto_id
-    WHERE pr.vendedor_id = ?
-    GROUP BY p.id
-    ORDER BY p.id DESC
-    `,
-    [vendedorId],
-    (err, pedidos) => {
-      if (err) return res.send(err);
+  try {
+    const [pedidos] = await db.query(`
+      SELECT 
+        p.id,
+        p.valor_total,
+        p.status,
+        p.data_pedido,
+        c.nome AS cliente_nome,
+        GROUP_CONCAT(pr.nome SEPARATOR ', ') AS itens
+      FROM pedidos p
+      JOIN cliente c ON c.id = p.cliente_id
+      JOIN itens_pedido i ON i.pedido_id = p.id
+      JOIN produtos pr ON pr.id = i.produto_id
+      WHERE p.vendedor_id = ?
+      GROUP BY p.id
+      ORDER BY p.id DESC
+    `, [vendedorId]);
 
-      res.render("dashboard-pedidos", {
-        pedidos: pedidos || [],
-        user: req.session.user
-      });
-    }
-  );
+    res.render("dashboard-pedidos", {
+      pedidos,
+      user: req.session.user
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.send("Erro ao listar pedidos");
+  }
 });
 
 module.exports = router;

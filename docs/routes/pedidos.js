@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../database/database");
 
-// Middleware cliente
+// 🔒 Middleware
 function authCliente(req, res, next) {
   if (!req.session.user || req.session.user.tipo !== "cliente") {
     return res.redirect("/login");
@@ -10,38 +10,41 @@ function authCliente(req, res, next) {
   next();
 }
 
-// LISTAR PEDIDOS DO CLIENTE
-router.get("/", authCliente, (req, res) => {
+// 📦 LISTAR PEDIDOS
+router.get("/", authCliente, async (req, res) => {
   const clienteId = req.session.user.id;
 
-  const sql = `
-    SELECT 
-      p.id,
-      p.valor_total,
-      p.status,
-      p.data_pedido,
-      MIN(pr.vendedor_id) AS vendedor_id,
-      GROUP_CONCAT(pr.nome SEPARATOR ', ') AS itens
-    FROM pedidos p
-    JOIN itens_pedido i ON i.pedido_id = p.id
-    JOIN produtos pr ON pr.id = i.produto_id
-    WHERE p.cliente_id = ?
-    GROUP BY p.id
-    ORDER BY p.id DESC
-  `;
-
-  db.query(sql, [clienteId], (err, pedidos) => {
-    if (err) return res.send(err);
+  try {
+    const [pedidos] = await db.query(`
+      SELECT 
+        p.id,
+        p.valor_total,
+        p.status,
+        p.data_pedido,
+        v.nome AS vendedor_nome,
+        GROUP_CONCAT(pr.nome SEPARATOR ', ') AS itens
+      FROM pedidos p
+      JOIN vendedor v ON v.id = p.vendedor_id
+      JOIN itens_pedido i ON i.pedido_id = p.id
+      JOIN produtos pr ON pr.id = i.produto_id
+      WHERE p.cliente_id = ?
+      GROUP BY p.id
+      ORDER BY p.id DESC
+    `, [clienteId]);
 
     res.render("pedidos", {
       pedidos: pedidos || [],
       user: req.session.user
     });
-  });
+
+  } catch (err) {
+    console.error(err);
+    res.send("Erro ao buscar pedidos");
+  }
 });
 
-// FINALIZAR PEDIDO (SEPARADO POR VENDEDOR)
-router.post("/finalizar", authCliente, (req, res) => {
+// 🛒 FINALIZAR PEDIDO
+router.post("/finalizar", authCliente, async (req, res) => {
   const clienteId = req.session.user.id;
   const carrinho = req.session.carrinho || [];
 
@@ -49,47 +52,45 @@ router.post("/finalizar", authCliente, (req, res) => {
     return res.redirect("/cliente");
   }
 
-  // AGRUPAR POR VENDEDOR
-  const pedidosPorVendedor = {};
+  const connection = await db.getConnection();
 
-  carrinho.forEach(item => {
-    if (!pedidosPorVendedor[item.vendedor_id]) {
-      pedidosPorVendedor[item.vendedor_id] = [];
-    }
-    pedidosPorVendedor[item.vendedor_id].push(item);
-  });
+  try {
+    await connection.beginTransaction();
 
-  const vendedores = Object.keys(pedidosPorVendedor);
+    const vendedorId = carrinho[0].vendedor_id;
 
-  vendedores.forEach(vendedorId => {
-    const itens = pedidosPorVendedor[vendedorId];
-
-    const total = itens.reduce((soma, item) => {
+    const total = carrinho.reduce((soma, item) => {
       return soma + item.preco * item.quantidade;
     }, 0);
 
-    db.query(
-      "INSERT INTO pedidos (cliente_id, valor_total, status) VALUES (?, ?, 'PENDENTE')",
-      [clienteId, total],
-      (err, result) => {
-        if (err) return res.send(err);
-
-        const pedidoId = result.insertId;
-
-        itens.forEach(item => {
-          db.query(
-            "INSERT INTO itens_pedido (pedido_id, produto_id, quantidade, preco_unitario) VALUES (?, ?, ?, ?)",
-            [pedidoId, item.id, item.quantidade, item.preco]
-          );
-        });
-      }
+    // ✅ agora salva com vendedor_id
+    const [pedidoResult] = await connection.query(
+      "INSERT INTO pedidos (cliente_id, vendedor_id, valor_total, status) VALUES (?, ?, ?, 'PENDENTE')",
+      [clienteId, vendedorId, total]
     );
-  });
 
-  // LIMPA CARRINHO
-  req.session.carrinho = [];
+    const pedidoId = pedidoResult.insertId;
 
-  res.redirect("/pedidos");
+    for (const item of carrinho) {
+      await connection.query(
+        "INSERT INTO itens_pedido (pedido_id, produto_id, quantidade, preco_unitario) VALUES (?, ?, ?, ?)",
+        [pedidoId, item.id, item.quantidade, item.preco]
+      );
+    }
+
+    await connection.commit();
+
+    req.session.carrinho = [];
+
+    res.redirect("/pedidos");
+
+  } catch (err) {
+    await connection.rollback();
+    console.error(err);
+    res.send("Erro ao finalizar pedido");
+  } finally {
+    connection.release();
+  }
 });
 
 module.exports = router;

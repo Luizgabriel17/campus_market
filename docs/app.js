@@ -3,8 +3,11 @@ const app = express();
 
 const path = require("path");
 const session = require("express-session");
+const MySQLStore = require("express-mysql-session")(session);
 const logger = require("morgan");
 const cookieParser = require("cookie-parser");
+
+const isProduction = process.env.NODE_ENV === "production";
 
 // ROTAS
 const authRoutes = require("./routes/auth");
@@ -15,34 +18,48 @@ const pedidosRoutes = require("./routes/pedidos");
 const carrinhoRoutes = require("./routes/carrinho");
 const avaliacoesRoutes = require("./routes/avaliacoes");
 
+// DB SESSION STORE
+const sessionStore = new MySQLStore({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
+});
+
 // CONFIG
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+
+app.set("trust proxy", 1);
 
 // MIDDLEWARES
 app.use(logger("dev"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 
-// SESSÃO
+// SESSION
 app.use(session({
-  secret: "tcc_secret",
+  key: "session_cookie",
+  secret: process.env.SESSION_SECRET || "tcc_secret",
+  store: sessionStore,
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false,
+    secure: isProduction,
     httpOnly: true,
+    sameSite: isProduction ? "none" : "lax",
     maxAge: 1000 * 60 * 60
   }
 }));
 
-// USER + URL GLOBAL (IMPORTANTE)
+// GLOBALS
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   res.locals.session = req.session;
-  res.locals.url = req.originalUrl; // ESSA LINHA É A CHAVE
+  res.locals.url = req.originalUrl;
   next();
 });
 
@@ -56,19 +73,19 @@ app.use("/carrinho", carrinhoRoutes);
 app.use("/avaliacoes", avaliacoesRoutes);
 
 // PÁGINAS
-app.get('/', (req, res) => {
-  res.render('landing');
+app.get("/", (req, res) => res.render("landing"));
+app.get("/redirect", (req, res) => res.render("redirect"));
+app.get("/redirect-cliente", (req, res) => res.render("redirect-cliente"));
+
+// ERROS
+app.use((req, res) => res.status(404).send("Página não encontrada"));
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send("Erro interno");
 });
 
-app.get('/redirect', (req, res) => {
-  res.render('redirect');
-});
+const PORT = process.env.PORT || 3000;
 
-app.get('/redirect-cliente', (req, res) => {
-  res.render('redirect-cliente');
-});
-
-// START
-app.listen(3000, () => {
-  console.log("Servidor rodando em http://localhost:3000");
+app.listen(PORT, () => {
+  console.log("Servidor rodando na porta", PORT);
 });
