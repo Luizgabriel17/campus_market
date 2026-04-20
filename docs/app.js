@@ -6,6 +6,7 @@ const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
 const logger = require("morgan");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -18,20 +19,20 @@ const pedidosRoutes = require("./routes/pedidos");
 const carrinhoRoutes = require("./routes/carrinho");
 const avaliacoesRoutes = require("./routes/avaliacoes");
 
-// DB SESSION STORE
-const sessionStore = new MySQLStore({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
-});
+// SESSION STORE (AJUSTADO)
+const sessionStore = new MySQLStore(process.env.DATABASE_URL);
 
 // CONFIG
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 app.set("trust proxy", 1);
+
+// CORS (ADICIONADO)
+app.use(cors({
+  origin: "https://seu-usuario.github.io",
+  credentials: true
+}));
 
 // MIDDLEWARES
 app.use(logger("dev"));
