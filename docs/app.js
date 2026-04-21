@@ -7,8 +7,12 @@ const MySQLStore = require("express-mysql-session")(session);
 const logger = require("morgan");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 
 require("dotenv").config();
+
+const db = require("./database/database");
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -21,28 +25,26 @@ const pedidosRoutes = require("./routes/pedidos");
 const carrinhoRoutes = require("./routes/carrinho");
 const avaliacoesRoutes = require("./routes/avaliacoes");
 
-// 🔥 CONFIG CORRETA DO BANCO PARA SESSÃO
-const sessionStore = new MySQLStore({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
+// SESSION STORE (usando o mesmo pool)
+const sessionStore = new MySQLStore({}, db);
 
-// CONFIG VIEWS (EJS)
+// VIEWS
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// NECESSÁRIO PRA RENDER
 app.set("trust proxy", 1);
+
+// SEGURANÇA
+app.use(helmet());
+
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100
+}));
 
 // CORS
 app.use(cors({
-  origin: "https://seu-usuario.github.io", // ⚠️ TROQUE
+  origin: true,
   credentials: true
 }));
 
@@ -53,7 +55,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-// 🔐 SESSION
+// SESSION
 app.use(session({
   key: "session_cookie",
   secret: process.env.SESSION_SECRET || "tcc_secret",
@@ -61,7 +63,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: isProduction, // true no Render
+    secure: isProduction,
     httpOnly: true,
     sameSite: isProduction ? "none" : "lax",
     maxAge: 1000 * 60 * 60
@@ -71,8 +73,6 @@ app.use(session({
 // GLOBALS
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
-  res.locals.session = req.session;
-  res.locals.url = req.originalUrl;
   next();
 });
 

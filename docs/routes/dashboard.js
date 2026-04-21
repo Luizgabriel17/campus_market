@@ -55,7 +55,7 @@ router.get("/", authVendedor, async (req, res) => {
     const [faturamentoSemana] = await db.query(`
       SELECT 
         DATE(data_pedido) as dia,
-        SUM(valor_total) as total
+        IFNULL(SUM(valor_total), 0) as total
       FROM pedidos
       WHERE vendedor_id = ?
       GROUP BY DATE(data_pedido)
@@ -74,19 +74,30 @@ router.get("/", authVendedor, async (req, res) => {
       LIMIT 5
     `, [vendedorId]);
 
+    // 🔥 RENDER COM SEGURANÇA
     res.render("dashboard", {
       user: req.session.user,
-      produtos,
-      pedidos,
-      pedidosHoje: hojeData.pedidosHoje || 0,
-      faturamentoHoje: hojeData.faturamentoHoje || 0,
-      faturamentoSemana,
-      maisVendidos
+      produtos: produtos || [],
+      pedidos: pedidos || [],
+      pedidosHoje: hojeData?.pedidosHoje || 0,
+      faturamentoHoje: hojeData?.faturamentoHoje || 0,
+      faturamentoSemana: faturamentoSemana || [],
+      maisVendidos: maisVendidos || []
     });
 
   } catch (err) {
-    console.error(err);
-    res.send("Erro no dashboard");
+    console.error("🔥 ERRO DASHBOARD:", err);
+
+    // fallback seguro (NUNCA quebra o EJS)
+    res.render("dashboard", {
+      user: req.session.user,
+      produtos: [],
+      pedidos: [],
+      pedidosHoje: 0,
+      faturamentoHoje: 0,
+      faturamentoSemana: [],
+      maisVendidos: []
+    });
   }
 });
 
@@ -112,7 +123,7 @@ router.post("/pedidos/status/:id", authVendedor, async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.send("Erro ao atualizar status");
+    res.redirect("/dashboard?erro=Erro ao atualizar status");
   }
 });
 
@@ -141,7 +152,7 @@ router.post("/produtos", authVendedor, async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.send("Erro ao criar produto");
+    res.redirect("/dashboard?erro=Erro ao criar produto");
   }
 });
 
@@ -155,7 +166,7 @@ router.get("/produtos/editar/:id", authVendedor, async (req, res) => {
       [req.params.id, req.session.user.id]
     );
 
-    if (result.length === 0) {
+    if (!result || result.length === 0) {
       return res.redirect("/dashboard");
     }
 
@@ -163,7 +174,7 @@ router.get("/produtos/editar/:id", authVendedor, async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.send("Erro ao carregar produto");
+    res.redirect("/dashboard?erro=Erro ao carregar produto");
   }
 });
 
@@ -185,7 +196,7 @@ router.post("/produtos/editar/:id", authVendedor, async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.send("Erro ao atualizar produto");
+    res.redirect("/dashboard?erro=Erro ao atualizar produto");
   }
 });
 
@@ -203,7 +214,7 @@ router.post("/produtos/deletar/:id", authVendedor, async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.send("Erro ao deletar produto");
+    res.redirect("/dashboard?erro=Erro ao deletar produto");
   }
 });
 
@@ -220,13 +231,13 @@ router.get("/produtos", authVendedor, async (req, res) => {
     );
 
     res.render("dashboard-produtos", {
-      produtos,
+      produtos: produtos || [],
       user: req.session.user
     });
 
   } catch (err) {
     console.error(err);
-    res.send("Erro ao listar produtos");
+    res.redirect("/dashboard?erro=Erro ao listar produtos");
   }
 });
 
@@ -255,13 +266,13 @@ router.get("/pedidos", authVendedor, async (req, res) => {
     `, [vendedorId]);
 
     res.render("dashboard-pedidos", {
-      pedidos,
+      pedidos: pedidos || [],
       user: req.session.user
     });
 
   } catch (err) {
     console.error(err);
-    res.send("Erro ao listar pedidos");
+    res.redirect("/dashboard?erro=Erro ao listar pedidos");
   }
 });
 
