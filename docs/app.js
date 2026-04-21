@@ -3,18 +3,10 @@ const app = express();
 
 const path = require("path");
 const session = require("express-session");
-const MySQLStore = require("express-mysql-session")(session);
 const logger = require("morgan");
 const cookieParser = require("cookie-parser");
-const cors = require("cors");
-const helmet = require("helmet");
-const rateLimit = require("express-rate-limit");
 
 require("dotenv").config();
-
-const db = require("./database/database");
-
-const isProduction = process.env.NODE_ENV === "production";
 
 // ROTAS
 const authRoutes = require("./routes/auth");
@@ -25,28 +17,9 @@ const pedidosRoutes = require("./routes/pedidos");
 const carrinhoRoutes = require("./routes/carrinho");
 const avaliacoesRoutes = require("./routes/avaliacoes");
 
-// SESSION STORE (usando o mesmo pool)
-const sessionStore = new MySQLStore({}, db);
-
 // VIEWS
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-
-app.set("trust proxy", 1);
-
-// SEGURANÇA
-app.use(helmet());
-
-app.use(rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100
-}));
-
-// CORS
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
 
 // MIDDLEWARES
 app.use(logger("dev"));
@@ -55,19 +28,14 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-// SESSION
+// 🔥 SESSION SIMPLES (SEM MYSQL)
 app.use(session({
-  key: "session_cookie",
-  secret: process.env.SESSION_SECRET || "tcc_secret",
-  store: sessionStore,
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
-  secure: false,
-  httpOnly: true,
-  sameSite: "lax",
-  maxAge: 1000 * 60 * 60
-}
+    maxAge: 1000 * 60 * 60
+  }
 }));
 
 // GLOBALS
@@ -98,7 +66,7 @@ app.get("/redirect-cliente", (req, res) => res.render("redirect-cliente"));
 // ERROS
 app.use((req, res) => res.status(404).send("Página não encontrada"));
 app.use((err, req, res, next) => {
-  console.error("🔥 ERRO:", err);
+  console.error(err);
   res.status(500).send("Erro interno");
 });
 

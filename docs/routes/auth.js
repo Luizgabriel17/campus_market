@@ -29,9 +29,7 @@ router.post("/login", async (req, res) => {
           tipo: "cliente"
         };
 
-        return req.session.save(() =>
-          res.redirect("/redirect-cliente")
-        );
+        return res.redirect("/redirect-cliente");
       }
     }
 
@@ -51,9 +49,7 @@ router.post("/login", async (req, res) => {
           tipo: "vendedor"
         };
 
-        return req.session.save(() =>
-          res.redirect("/dashboard")
-        );
+        return res.redirect("/dashboard");
       }
     }
 
