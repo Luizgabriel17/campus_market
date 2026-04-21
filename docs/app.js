@@ -21,19 +21,28 @@ const pedidosRoutes = require("./routes/pedidos");
 const carrinhoRoutes = require("./routes/carrinho");
 const avaliacoesRoutes = require("./routes/avaliacoes");
 
-// SESSION STORE (compatível com Railway)
-const sessionStore = new MySQLStore(process.env.DATABASE_URL);
+// 🔥 CONFIG CORRETA DO BANCO PARA SESSÃO
+const sessionStore = new MySQLStore({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 // CONFIG VIEWS (EJS)
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// NECESSÁRIO PRA RENDER / PROXY
+// NECESSÁRIO PRA RENDER
 app.set("trust proxy", 1);
 
-// CORS (libera acesso do seu frontend)
+// CORS
 app.use(cors({
-  origin: "https://seu-usuario.github.io", // ⚠️ TROQUE PELO SEU
+  origin: "https://seu-usuario.github.io", // ⚠️ TROQUE
   credentials: true
 }));
 
@@ -44,7 +53,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-// SESSION
+// 🔐 SESSION
 app.use(session({
   key: "session_cookie",
   secret: process.env.SESSION_SECRET || "tcc_secret",
@@ -52,7 +61,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: isProduction,
+    secure: isProduction, // true no Render
     httpOnly: true,
     sameSite: isProduction ? "none" : "lax",
     maxAge: 1000 * 60 * 60
@@ -89,13 +98,13 @@ app.get("/redirect-cliente", (req, res) => res.render("redirect-cliente"));
 // ERROS
 app.use((req, res) => res.status(404).send("Página não encontrada"));
 app.use((err, req, res, next) => {
-  console.error(err);
+  console.error("🔥 ERRO:", err);
   res.status(500).send("Erro interno");
 });
 
-// PORTA (Render usa dinâmica)
+// PORTA
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log("Servidor rodando na porta", PORT);
+  console.log("🚀 Servidor rodando na porta", PORT);
 });
