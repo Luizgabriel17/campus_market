@@ -193,28 +193,28 @@ select{
 
 <select id="filtro">
   <option value="">Todos vendedores</option>
-  <% vendedores.forEach(v => { %>
+  <% (vendedores || []).forEach(v => { %>
     <option value="<%= v.nome %>"><%= v.nome %></option>
   <% }) %>
 </select>
 
 <div class="grid" id="lista">
 
-<% produtos.forEach(p => { %>
+<% (produtos || []).forEach(p => { %>
 
   <div class="produto"
-       data-nome="<%= p.nome %>"
-       data-vendedor="<%= p.vendedor_nome %>">
+       data-nome="<%= p.nome || '' %>"
+       data-vendedor="<%= p.vendedor_nome || '' %>">
 
     <div class="card-produto">
 
-      <h5><%= p.nome %></h5>
+      <h5><%= p.nome || 'Sem nome' %></h5>
 
-      <p><%= p.vendedor_nome %></p>
+      <p><%= p.vendedor_nome || 'Sem vendedor' %></p>
 
-      <p><%= p.descricao %></p>
+      <p><%= p.descricao || '' %></p>
 
-      <strong>R$ <%= p.preco %></strong>
+      <strong>R$ <%= p.preco || 0 %></strong>
 
       <p><%= p.media_avaliacao || "Sem avaliações" %></p>
 
@@ -238,7 +238,7 @@ select{
 </div>
 
 <div class="floating-cart" data-bs-toggle="offcanvas" data-bs-target="#carrinho">
-  <span id="cartCount"><%= session.carrinho ? session.carrinho.length : 0 %></span>
+  <span id="cartCount"><%= (session && session.carrinho) ? session.carrinho.length : 0 %></span>
 </div>
 
 <script>
@@ -267,7 +267,6 @@ function filtrar(){
 <script>
 document.querySelectorAll(".add-btn").forEach(btn => {
   btn.addEventListener("click", function(){
-
     const original = btn.innerHTML;
 
     btn.innerHTML = "✔ Adicionado";
@@ -277,7 +276,6 @@ document.querySelectorAll(".add-btn").forEach(btn => {
       btn.innerHTML = original;
       btn.classList.remove("added");
     },1000);
-
   });
 });
 </script>

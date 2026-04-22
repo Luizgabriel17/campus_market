@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../database/database");
 
-// 🔒 Middleware
+// Middleware
 function authCliente(req, res, next) {
   if (!req.session.user || req.session.user.tipo !== "cliente") {
     return res.redirect("/login");
@@ -10,7 +10,7 @@ function authCliente(req, res, next) {
   next();
 }
 
-// 🏠 HOME CLIENTE
+// SESSÃO INICIAL CLIENTE
 router.get("/", authCliente, async (req, res) => {
   try {
     const [produtos] = await db.query(`
@@ -36,11 +36,11 @@ router.get("/", authCliente, async (req, res) => {
     );
 
     res.render("cliente", {
-      user: req.session.user,
-      produtos: produtos || [],
-      vendedores: vendedores || [],
-      carrinho: req.session.carrinho || []
-    });
+  user: req.session.user,
+  produtos: produtos || [],
+  vendedores: vendedores || [],
+  carrinho: req.session.carrinho || []
+});
 
   } catch (err) {
     console.error(err);
@@ -48,7 +48,7 @@ router.get("/", authCliente, async (req, res) => {
   }
 });
 
-// 🏪 PRODUTOS POR VENDEDOR
+// PRODUTOS POR VENDEDOR
 router.get("/vendedor/:id", authCliente, async (req, res) => {
   const vendedorId = req.params.id;
 
@@ -66,11 +66,11 @@ router.get("/vendedor/:id", authCliente, async (req, res) => {
     `, [vendedorId]);
 
     res.render("cliente", {
-      produtos,
-      vendedores: [],
-      user: req.session.user,
-      carrinho: req.session.carrinho || []
-    });
+  user: req.session.user,
+  produtos: produtos || [],
+  vendedores: vendedores || [],
+  carrinho: req.session.carrinho || []
+});
 
   } catch (err) {
     console.error(err);

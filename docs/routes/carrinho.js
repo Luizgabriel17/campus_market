@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../database/database");
 
-// 🔒 Middleware
+// Middleware
 function authCliente(req, res, next) {
   if (!req.session.user || req.session.user.tipo !== "cliente") {
     return res.redirect("/login");
@@ -10,19 +10,19 @@ function authCliente(req, res, next) {
   next();
 }
 
-// 🛒 VER CARRINHO
+// VER CARRINHO
 router.get("/", authCliente, (req, res) => {
   res.render("carrinho", {
     carrinho: req.session.carrinho || []
   });
 });
 
-// ➕ ADICIONAR PRODUTO
+// ADICIONAR PRODUTO
 router.post("/add", authCliente, async (req, res) => {
   const { id } = req.body;
 
   try {
-    // 🔎 busca produto no banco (SEGURANÇA)
+    // busca produto no banco (SEGURANÇA)
     const [produtos] = await db.query(
       "SELECT id, nome, preco, vendedor_id FROM produtos WHERE id = ?",
       [id]
@@ -40,7 +40,7 @@ router.post("/add", authCliente, async (req, res) => {
 
     const carrinho = req.session.carrinho;
 
-    // 🚫 impedir múltiplos vendedores
+    // impedir múltiplos vendedores
     if (carrinho.length > 0 && carrinho[0].vendedor_id !== produto.vendedor_id) {
       return res.redirect("/cliente?erro=Você só pode comprar de um vendedor por vez");
     }
@@ -67,7 +67,7 @@ router.post("/add", authCliente, async (req, res) => {
   }
 });
 
-// 🔄 ALTERAR QUANTIDADE
+// ALTERAR QUANTIDADE
 router.post("/update", authCliente, (req, res) => {
   const { id, acao } = req.body;
 
@@ -86,7 +86,7 @@ router.post("/update", authCliente, (req, res) => {
   res.redirect("/carrinho");
 });
 
-// ❌ REMOVER ITEM
+// REMOVER ITEM
 router.post("/remove", authCliente, (req, res) => {
   const { id } = req.body;
 
