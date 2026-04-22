@@ -82,6 +82,46 @@ router.get("/", authVendedor, async (req, res) => {
 
   } catch (err) {
     console.error("ERRO DASHBOARD:", err);
+    // =========================
+// PRODUTOS
+// =========================
+router.get("/produtos", authVendedor, async (req, res) => {
+  const vendedorId = req.session.user.id;
+
+  const [produtos] = await db.query(
+    "SELECT * FROM produtos WHERE vendedor_id = ?",
+    [vendedorId]
+  );
+
+  res.render("dashboard-produtos", {
+    produtos: produtos || []
+  });
+});
+
+// =========================
+// PEDIDOS
+// =========================
+router.get("/pedidos", authVendedor, async (req, res) => {
+  const vendedorId = req.session.user.id;
+
+  const [pedidos] = await db.query(`
+    SELECT 
+      p.id,
+      p.valor_total,
+      p.status,
+      GROUP_CONCAT(pr.nome SEPARATOR ', ') AS itens
+    FROM pedidos p
+    JOIN itens_pedido i ON i.pedido_id = p.id
+    JOIN produtos pr ON pr.id = i.produto_id
+    WHERE p.vendedor_id = ?
+    GROUP BY p.id
+    ORDER BY p.id DESC
+  `, [vendedorId]);
+
+  res.render("dashboard-pedidos", {
+    pedidos: pedidos || []
+  });
+});
 
     res.render("dashboard", {
   user: req.session.user,

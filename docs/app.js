@@ -46,11 +46,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// ROTAS PRINCIPAIS
+// =========================
+// FLUXO PRINCIPAL
+// =========================
+
+// LANDING
 app.get("/", (req, res) => {
   res.render("landing");
 });
 
+// BOTÃO ENTRAR -> redirect
 app.get("/redirect", (req, res) => {
   if (!req.session.user) {
     return res.redirect("/login");
@@ -63,11 +68,15 @@ app.get("/redirect", (req, res) => {
   return res.redirect("/cliente");
 });
 
+// REDIRECT CLIENTE
 app.get("/redirect-cliente", (req, res) => {
   res.redirect("/cliente");
 });
 
-// ROTAS DO SISTEMA
+// =========================
+// ROTAS
+// =========================
+
 app.use("/", authRoutes);
 app.use("/register", registerRoutes);
 app.use("/cliente", clienteRoutes);

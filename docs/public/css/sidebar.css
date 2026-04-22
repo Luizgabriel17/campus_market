@@ -1,0 +1,87 @@
+/* DESKTOP PADRÃO */
+.sidebar {
+  width: 230px;
+  height: 100vh;
+  background: #ffffff;
+  padding: 25px 20px;
+  position: fixed;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: #ff5a1f;
+  margin-bottom: 30px;
+  text-decoration: none;
+}
+
+.menu a {
+  display: block;
+  padding: 10px;
+  border-radius: 10px;
+  color: #334155;
+  text-decoration: none;
+  margin-bottom: 8px;
+}
+
+.menu .active {
+  background: #ff5a1f;
+  color: white;
+}
+
+/* MOBILE TOP BAR */
+.mobile-top {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: white;
+  border-bottom: 1px solid #ddd;
+  align-items: center;
+  padding: 0 15px;
+  z-index: 1000;
+}
+
+.menu-btn {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+}
+
+.mobile-title {
+  margin-left: 10px;
+  font-weight: 700;
+}
+
+/* MOBILE MENU LINKS */
+.menu-item {
+  display: block;
+  padding: 12px;
+  border-radius: 8px;
+  color: #333;
+  text-decoration: none;
+  margin-bottom: 8px;
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+
+  .sidebar.desktop {
+    display: none;
+  }
+
+  .mobile-top {
+    display: flex;
+  }
+
+  .content {
+    margin-left: 0 !important;
+    padding-top: 70px !important;
+  }
+}

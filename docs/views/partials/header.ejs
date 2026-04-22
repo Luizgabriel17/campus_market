@@ -1,22 +1,49 @@
-<div class="sidebar">
+<% if (user) { %>
 
-  <h3 class="logo">CampusMarket</h3>
+<!-- BOTÃO MOBILE -->
+<div class="mobile-top">
+  <button class="menu-btn" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+    ☰
+  </button>
+  <span class="mobile-title">CampusMarket</span>
+</div>
 
-  <div class="menu">
+<!-- SIDEBAR DESKTOP -->
+<div class="sidebar desktop">
 
-    <% if (user && user.tipo === "cliente") { %>
+  <a href="/" class="logo">CampusMarket</a>
+
+  <nav class="menu">
+
+    <% if (user.tipo === "cliente") { %>
+
       <a href="/cliente" class="<%= url === '/cliente' ? 'active' : '' %>">Início</a>
-      <a href="#" data-bs-toggle="offcanvas" data-bs-target="#carrinho">Carrinho</a>
+
+      <a href="#" data-bs-toggle="offcanvas" data-bs-target="#carrinho">
+        Carrinho
+      </a>
+
       <a href="/pedidos" class="<%= url === '/pedidos' ? 'active' : '' %>">Pedidos</a>
+
     <% } %>
 
-    <% if (user && user.tipo === "vendedor") { %>
+    <% if (user.tipo === "vendedor") { %>
+
       <a href="/dashboard" class="<%= url === '/dashboard' ? 'active' : '' %>">Dashboard</a>
-      <a href="/dashboard/produtos" class="<%= url.includes('/dashboard/produtos') ? 'active' : '' %>">Produtos</a>
-      <a href="/dashboard/pedidos" class="<%= url.includes('/dashboard/pedidos') ? 'active' : '' %>">Pedidos</a>
+
+      <a href="/dashboard/produtos"
+         class="<%= url && url.includes('/dashboard/produtos') ? 'active' : '' %>">
+         Produtos
+      </a>
+
+      <a href="/dashboard/pedidos"
+         class="<%= url && url.includes('/dashboard/pedidos') ? 'active' : '' %>">
+         Pedidos
+      </a>
+
     <% } %>
 
-  </div>
+  </nav>
 
   <div class="user">
     <p><%= user.nome %></p>
@@ -25,47 +52,39 @@
 
 </div>
 
-<style>
-.sidebar{
-  width:230px;
-  height:100vh;
-  background:#ffffff;
-  padding:25px 20px;
-  position:fixed;
-  border-right:1px solid #e2e8f0;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-}
+<!-- MENU MOBILE -->
+<div class="offcanvas offcanvas-start" id="mobileMenu">
 
-.logo{
-  font-weight:800;
-  font-size:1.3rem;
-  color:#ff5a1f;
-  margin-bottom:30px;
-}
+  <div class="offcanvas-header">
+    <h5>Menu</h5>
+    <button class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
 
-.menu a{
-  display:block;
-  padding:10px;
-  border-radius:10px;
-  color:#334155;
-  text-decoration:none;
-  margin-bottom:8px;
-  transition:.2s;
-}
+  <div class="offcanvas-body">
 
-.menu a:hover{
-  background:#f1f5f9;
-}
+    <% if (user.tipo === "cliente") { %>
 
-.menu .active{
-  background:#ff5a1f;
-  color:white;
-}
+      <a href="/cliente" class="menu-item">Início</a>
+      <a href="#" data-bs-toggle="offcanvas" data-bs-target="#carrinho" class="menu-item">Carrinho</a>
+      <a href="/pedidos" class="menu-item">Pedidos</a>
 
-.user{
-  font-size:0.9rem;
-  color:#475569;
-}
-</style>
+    <% } %>
+
+    <% if (user.tipo === "vendedor") { %>
+
+      <a href="/dashboard" class="menu-item">Dashboard</a>
+      <a href="/dashboard/produtos" class="menu-item">Produtos</a>
+      <a href="/dashboard/pedidos" class="menu-item">Pedidos</a>
+
+    <% } %>
+
+    <hr>
+
+    <p><%= user.nome %></p>
+    <a href="/logout">Sair</a>
+
+  </div>
+
+</div>
+
+<% } %>
