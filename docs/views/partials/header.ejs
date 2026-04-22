@@ -1,6 +1,6 @@
-<% if (user) { %>
+<% if (typeof user !== 'undefined' && user) { %>
 
-<!-- BOTÃO MOBILE -->
+<!-- MOBILE TOP -->
 <div class="mobile-top">
   <button class="menu-btn" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
     ☰
@@ -8,7 +8,7 @@
   <span class="mobile-title">CampusMarket</span>
 </div>
 
-<!-- SIDEBAR DESKTOP -->
+<!-- SIDEBAR -->
 <div class="sidebar desktop">
 
   <a href="/" class="logo">CampusMarket</a>
@@ -52,7 +52,7 @@
 
 </div>
 
-<!-- MENU MOBILE -->
+<!-- MOBILE MENU -->
 <div class="offcanvas offcanvas-start" id="mobileMenu">
 
   <div class="offcanvas-header">
@@ -63,19 +63,15 @@
   <div class="offcanvas-body">
 
     <% if (user.tipo === "cliente") { %>
-
       <a href="/cliente" class="menu-item">Início</a>
       <a href="#" data-bs-toggle="offcanvas" data-bs-target="#carrinho" class="menu-item">Carrinho</a>
       <a href="/pedidos" class="menu-item">Pedidos</a>
-
     <% } %>
 
     <% if (user.tipo === "vendedor") { %>
-
       <a href="/dashboard" class="menu-item">Dashboard</a>
       <a href="/dashboard/produtos" class="menu-item">Produtos</a>
       <a href="/dashboard/pedidos" class="menu-item">Pedidos</a>
-
     <% } %>
 
     <hr>
