@@ -9,9 +9,9 @@
 
     <% let total = 0; %>
 
-    <% if (session.carrinho && session.carrinho.length > 0) { %>
+    <% if (carrinho && carrinho.length > 0) { %>
 
-      <% session.carrinho.forEach(item => { 
+      <% carrinho.forEach(item => { 
         total += item.preco * item.quantidade;
       %>
 

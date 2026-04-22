@@ -36,11 +36,11 @@ router.get("/", authCliente, async (req, res) => {
     );
 
     res.render("cliente", {
-  user: req.session.user,
-  produtos: produtos || [],
-  vendedores: vendedores || [],
-  carrinho: req.session.carrinho || []
-});
+      user: req.session.user,
+      produtos: produtos || [],
+      vendedores: vendedores || [],
+      carrinho: req.session.carrinho || []
+    });
 
   } catch (err) {
     console.error(err);
@@ -65,12 +65,16 @@ router.get("/vendedor/:id", authCliente, async (req, res) => {
       GROUP BY p.id
     `, [vendedorId]);
 
+    const [vendedores] = await db.query(
+      "SELECT id, nome FROM vendedor"
+    );
+
     res.render("cliente", {
-  user: req.session.user,
-  produtos: produtos || [],
-  vendedores: vendedores || [],
-  carrinho: req.session.carrinho || []
-});
+      user: req.session.user,
+      produtos: produtos || [],
+      vendedores: vendedores || [],
+      carrinho: req.session.carrinho || []
+    });
 
   } catch (err) {
     console.error(err);

@@ -10,9 +10,9 @@ function authVendedor(req, res, next) {
   next();
 }
 
-/* =========================
-   DASHBOARD PRINCIPAL
-========================= */
+// =========================
+// DASHBOARD PRINCIPAL
+// =========================
 router.get("/", authVendedor, async (req, res) => {
   const vendedorId = req.session.user.id;
   const hoje = new Date().toISOString().slice(0, 10);
@@ -82,20 +82,31 @@ router.get("/", authVendedor, async (req, res) => {
 
   } catch (err) {
     console.error("ERRO DASHBOARD:", err);
-    // =========================
+    res.send("Erro ao carregar dashboard");
+  }
+});
+
+// =========================
 // PRODUTOS
 // =========================
 router.get("/produtos", authVendedor, async (req, res) => {
   const vendedorId = req.session.user.id;
 
-  const [produtos] = await db.query(
-    "SELECT * FROM produtos WHERE vendedor_id = ?",
-    [vendedorId]
-  );
+  try {
+    const [produtos] = await db.query(
+      "SELECT * FROM produtos WHERE vendedor_id = ?",
+      [vendedorId]
+    );
 
-  res.render("dashboard-produtos", {
-    produtos: produtos || []
-  });
+    res.render("dashboard-produtos", {
+      user: req.session.user,
+      produtos: produtos || []
+    });
+
+  } catch (err) {
+    console.error("ERRO PRODUTOS:", err);
+    res.send("Erro ao carregar produtos");
+  }
 });
 
 // =========================
@@ -104,35 +115,32 @@ router.get("/produtos", authVendedor, async (req, res) => {
 router.get("/pedidos", authVendedor, async (req, res) => {
   const vendedorId = req.session.user.id;
 
-  const [pedidos] = await db.query(`
-    SELECT 
-      p.id,
-      p.valor_total,
-      p.status,
-      GROUP_CONCAT(pr.nome SEPARATOR ', ') AS itens
-    FROM pedidos p
-    JOIN itens_pedido i ON i.pedido_id = p.id
-    JOIN produtos pr ON pr.id = i.produto_id
-    WHERE p.vendedor_id = ?
-    GROUP BY p.id
-    ORDER BY p.id DESC
-  `, [vendedorId]);
+  try {
+    const [pedidos] = await db.query(`
+      SELECT 
+        p.id,
+        p.valor_total,
+        p.status,
+        p.data_pedido,
+        c.nome AS cliente_nome,
+        GROUP_CONCAT(pr.nome SEPARATOR ', ') AS itens
+      FROM pedidos p
+      JOIN cliente c ON c.id = p.cliente_id
+      JOIN itens_pedido i ON i.pedido_id = p.id
+      JOIN produtos pr ON pr.id = i.produto_id
+      WHERE p.vendedor_id = ?
+      GROUP BY p.id
+      ORDER BY p.id DESC
+    `, [vendedorId]);
 
-  res.render("dashboard-pedidos", {
-    pedidos: pedidos || []
-  });
-});
+    res.render("dashboard-pedidos", {
+      user: req.session.user,
+      pedidos: pedidos || []
+    });
 
-    res.render("dashboard", {
-  user: req.session.user,
-  produtos: produtos || [],
-  pedidos: pedidos || [],
-  pedidosHoje: hojeData?.pedidosHoje || 0,
-  faturamentoHoje: hojeData?.faturamentoHoje || 0,
-  vendasHoje: hojeData?.faturamentoHoje || 0, // 🔥 importante
-  faturamentoSemana: faturamentoSemana || [],
-  maisVendidos: maisVendidos || []
-});
+  } catch (err) {
+    console.error("ERRO PEDIDOS:", err);
+    res.send("Erro ao carregar pedidos");
   }
 });
 
