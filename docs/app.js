@@ -17,46 +17,57 @@ const pedidosRoutes = require("./routes/pedidos");
 const carrinhoRoutes = require("./routes/carrinho");
 const avaliacoesRoutes = require("./routes/avaliacoes");
 
-// =========================
-// CONFIG VIEWS
-// =========================
+// VIEWS
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// =========================
 // MIDDLEWARES
-// =========================
 app.use(logger("dev"));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-// =========================
-// SESSION SIMPLES
-// =========================
+// SESSION
 app.use(session({
   secret: process.env.SESSION_SECRET || "tcc_secret",
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 1000 * 60 * 60 // 1 hora
+    maxAge: 1000 * 60 * 60
   }
 }));
 
-// =========================
-// VARIÁVEIS GLOBAIS (EJS)
-// =========================
+// GLOBALS
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
+  res.locals.url = req.originalUrl;
   res.locals.carrinho = req.session.carrinho || [];
-  res.locals.url = req.originalUrl || ""; // 🔥 evita erro no header
   next();
 });
 
-// =========================
-// ROTAS
-// =========================
+// ROTAS PRINCIPAIS
+app.get("/", (req, res) => {
+  res.render("landing");
+});
+
+app.get("/redirect", (req, res) => {
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
+
+  if (req.session.user.tipo === "vendedor") {
+    return res.redirect("/dashboard");
+  }
+
+  return res.redirect("/cliente");
+});
+
+app.get("/redirect-cliente", (req, res) => {
+  res.redirect("/cliente");
+});
+
+// ROTAS DO SISTEMA
 app.use("/", authRoutes);
 app.use("/register", registerRoutes);
 app.use("/cliente", clienteRoutes);
@@ -65,23 +76,12 @@ app.use("/pedidos", pedidosRoutes);
 app.use("/carrinho", carrinhoRoutes);
 app.use("/avaliacoes", avaliacoesRoutes);
 
-// =========================
-// TESTE API
-// =========================
+// TESTE
 app.get("/api/test", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// =========================
-// PÁGINAS
-// =========================
-app.get("/", (req, res) => res.render("landing"));
-app.get("/redirect", (req, res) => res.render("redirect"));
-app.get("/redirect-cliente", (req, res) => res.render("redirect-cliente"));
-
-// =========================
 // ERROS
-// =========================
 app.use((req, res) => res.status(404).send("Página não encontrada"));
 
 app.use((err, req, res, next) => {
@@ -89,9 +89,7 @@ app.use((err, req, res, next) => {
   res.status(500).send("Erro interno");
 });
 
-// =========================
 // PORTA
-// =========================
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
