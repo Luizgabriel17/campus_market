@@ -4,234 +4,260 @@
 <meta charset="UTF-8">
 <title>Cliente - CampusMarket</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-
-body{
-  background:#f8fafc;
-  display:flex;
-}
-
-/* SIDEBAR */
-.sidebar{
-  width:240px;
-  height:100vh;
-  background:#111827;
-  color:#fff;
-  padding:25px;
-  position:fixed;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-}
-
-.logo{
-  font-weight:700;
-  font-size:18px;
-  margin-bottom:30px;
-}
-
-.nav-link{
-  display:block;
-  color:#9ca3af;
-  margin-bottom:12px;
-  text-decoration:none;
-  font-size:14px;
-}
-
-.nav-link:hover{
-  color:#fff;
-}
-
-/* CONTENT */
-.content{
-  margin-left:240px;
-  padding:40px;
-  width:100%;
-}
-
-/* TOP */
-.top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:25px;
-}
-
-.search-box{
-  padding:12px 15px;
-  border-radius:12px;
-  border:1px solid #e5e7eb;
-  width:260px;
-  background:#fff;
-}
-
-/* FILTRO */
-select{
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #e5e7eb;
-  margin-bottom:25px;
-  background:#fff;
-}
-
-/* GRID */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-  gap:25px;
-}
-
-/* CARD */
-.card-produto{
-  background:#fff;
-  padding:18px;
-  border-radius:18px;
-  box-shadow:0 8px 20px rgba(0,0,0,0.06);
-  transition:0.2s;
-}
-
-.card-produto:hover{
-  transform:translateY(-5px);
-}
-
-/* TEXTO */
-.nome{
-  font-weight:600;
-  font-size:16px;
-}
-
-.vendedor{
-  font-size:12px;
-  color:#6b7280;
-}
-
-.desc{
-  font-size:13px;
-  margin:10px 0;
-  color:#374151;
-}
-
-.preco{
-  color:#ea580c;
-  font-weight:700;
-  font-size:15px;
-}
-
-/* BOTÃO */
-.btn-add{
-  margin-top:12px;
-  width:100%;
-  padding:10px;
-  border:none;
-  border-radius:12px;
-  background:#ea580c;
-  color:white;
-  font-weight:600;
-  transition:0.2s;
-}
-
-.btn-add:hover{
-  background:#c2410c;
-}
-
-/* CARRINHO FLOAT */
-.floating-cart{
-  position:fixed;
-  bottom:25px;
-  right:25px;
-  width:60px;
-  height:60px;
-  background:#ea580c;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-  box-shadow:0 10px 20px rgba(0,0,0,0.2);
-}
-</style>
+  *{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+  }
+  
+  body{
+    background:#f8fafc;
+    display:flex;
+  }
+  
+  /* SIDEBAR */
+  .sidebar{
+    width:230px;
+    height:100vh;
+    background:#111827;
+    color:#fff;
+    padding:25px 20px;
+    position:fixed;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+  }
+  
+  .sidebar a{
+    color:#9ca3af;
+    text-decoration:none;
+    display:block;
+    margin-bottom:12px;
+    font-size:14px;
+  }
+  
+  .sidebar a:hover{
+    color:#fff;
+  }
+  
+  /* CONTENT */
+  .content{
+    margin-left:230px;
+    padding:40px;
+    width:100%;
+  }
+  
+  /* TOPO */
+  .top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+  }
+  
+  .top h2{
+    font-weight:600;
+    color:#111827;
+  }
+  
+  /* BUSCA */
+  .search-box{
+    padding:12px 15px;
+    border-radius:12px;
+    border:1px solid #e5e7eb;
+    width:280px;
+    background:#fff;
+  }
+  
+  .search-box:focus{
+    outline:none;
+    border-color:#ea580c;
+  }
+  
+  /* FILTRO */
+  select{
+    padding:10px;
+    border-radius:10px;
+    border:1px solid #e5e7eb;
+    margin-bottom:25px;
+    background:#fff;
+  }
+  
+  /* GRID */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:25px;
+  }
+  
+  /* CARD */
+  .card-produto{
+    background:#fff;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 8px 20px rgba(0,0,0,0.06);
+    transition:0.2s;
+  }
+  
+  .card-produto:hover{
+    transform:translateY(-5px);
+    box-shadow:0 15px 30px rgba(0,0,0,0.1);
+  }
+  
+  /* IMAGEM */
+  .prod-img{
+    height:140px;
+    background:#e5e7eb;
+  }
+  
+  /* BODY */
+  .card-body{
+    padding:15px;
+  }
+  
+  /* TEXTOS */
+  .card-body h5{
+    font-size:15px;
+    font-weight:600;
+    color:#111827;
+  }
+  
+  .vendedor{
+    font-size:12px;
+    color:#6b7280;
+  }
+  
+  .desc{
+    font-size:13px;
+    margin:8px 0;
+    color:#374151;
+  }
+  
+  /* AVALIAÇÃO */
+  .rating{
+    font-size:12px;
+    color:#6b7280;
+  }
+  
+  /* PREÇO + BOTÃO */
+  .bottom{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:10px;
+  }
+  
+  .preco{
+    font-size:16px;
+    font-weight:700;
+    color:#ea580c;
+  }
+  
+  /* BOTÃO */
+  .btn-add{
+    background:#ea580c;
+    border:none;
+    color:white;
+    padding:8px 12px;
+    border-radius:10px;
+    font-weight:600;
+    transition:0.2s;
+  }
+  
+  .btn-add:hover{
+    background:#c2410c;
+  }
+  
+  /* CARRINHO */
+  .floating-cart{
+    position:fixed;
+    bottom:25px;
+    right:25px;
+    width:60px;
+    height:60px;
+    background:#ea580c;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
+  }
+  </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <div>
-    <div class="logo">CampusMarket</div>
+<%- include('partials/header') %>
+<%- include('partials/carrinho') %>
 
-    <a href="#" class="nav-link">🏠 Início</a>
-    <a href="#" class="nav-link">🛒 Carrinho</a>
-    <a href="#" class="nav-link">📦 Pedidos</a>
-  </div>
-
-  <div>
-    <p style="font-size:13px;"><%= usuario?.nome || "Usuário" %></p>
-    <a href="/logout" class="nav-link">Sair</a>
-  </div>
-</div>
-
-<!-- CONTEÚDO -->
 <div class="content">
 
-  <div class="top">
-    <h2>Explorar lanches</h2>
+<div class="top">
+  <h2>Explorar lanches</h2>
+  <input type="text" id="search" class="search-box" placeholder="Buscar...">
+</div>
 
-    <input type="text" id="search" class="search-box" placeholder="Buscar...">
-  </div>
+<select id="filtro">
+  <option value="">Todos vendedores</option>
+  <% (vendedores || []).forEach(v => { %>
+    <option value="<%= v.nome %>"><%= v.nome %></option>
+  <% }) %>
+</select>
 
-  <select id="filtro">
-    <option value="">Todos vendedores</option>
-    <% (vendedores || []).forEach(v => { %>
-      <option value="<%= v.nome %>"><%= v.nome %></option>
-    <% }) %>
-  </select>
+<div class="grid" id="lista">
 
-  <div class="grid" id="lista">
+<% (produtos || []).forEach(p => { %>
 
-  <% (produtos || []).forEach(p => { %>
+  <div class="produto"
+       data-nome="<%= p.nome || '' %>"
+       data-vendedor="<%= p.vendedor_nome || '' %>">
 
-    <div class="produto"
-         data-nome="<%= p.nome || '' %>"
-         data-vendedor="<%= p.vendedor_nome || '' %>">
+       <div class="card-produto">
 
-      <div class="card-produto">
-
-        <div class="nome"><%= p.nome || 'Sem nome' %></div>
-
-        <div class="vendedor"><%= p.vendedor_nome || 'Sem vendedor' %></div>
-
-        <div class="desc"><%= p.descricao || '' %></div>
-
-        <div class="preco">R$ <%= Number(p.preco || 0).toFixed(2) %></div>
-
-        <small style="color:#9ca3af;">
-          ⭐ <%= p.media_avaliacao || "Sem avaliações" %>
-        </small>
-
-        <form action="/carrinho/add" method="POST">
-          <input type="hidden" name="id" value="<%= p.id %>">
-          <button class="btn-add">Adicionar</button>
-        </form>
-
+        <div class="prod-img"></div>
+      
+        <div class="card-body">
+      
+          <h5><%= p.nome || 'Sem nome' %></h5>
+      
+          <div class="vendedor"><%= p.vendedor_nome || 'Sem vendedor' %></div>
+      
+          <div class="desc"><%= p.descricao || '' %></div>
+      
+          <div class="rating">
+            Avaliação: <%= p.media_avaliacao || "Sem avaliações" %>
+          </div>
+      
+          <div class="bottom">
+            <span class="preco">R$ <%= Number(p.preco || 0).toFixed(2) %></span>
+      
+            <form action="/carrinho/add" method="POST">
+              <input type="hidden" name="id" value="<%= p.id %>">
+              <button class="btn-add">Adicionar</button>
+            </form>
+          </div>
+      
+        </div>
+      
       </div>
 
-    </div>
-
-  <% }) %>
-
-  </div>
+<% }) %>
 
 </div>
 
-<!-- CARRINHO -->
+</div>
+
+<!-- CORRIGIDO -->
 <div class="floating-cart" data-bs-toggle="offcanvas" data-bs-target="#carrinho">
-  <span><%= carrinho ? carrinho.length : 0 %></span>
+  <span id="cartCount"><%= carrinho ? carrinho.length : 0 %></span>
 </div>
 
 <script>
@@ -256,6 +282,15 @@ function filtrar(){
 search.addEventListener("keyup", filtrar);
 filtro.addEventListener("change", filtrar);
 </script>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  
+  if(params.get("openCart")){
+    const carrinho = new bootstrap.Offcanvas(document.getElementById("carrinho"));
+    carrinho.show();
+  }
+  </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

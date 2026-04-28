@@ -1,87 +1,156 @@
-/* DESKTOP PADRÃO */
-.sidebar {
-  width: 230px;
-  height: 100vh;
-  background: #ffffff;
-  padding: 25px 20px;
-  position: fixed;
-  border-right: 1px solid #e2e8f0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+/* TOPBAR */
+.topbar{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  height:65px;
+  background:#ffffff;
+  border-bottom:1px solid #e5e7eb;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  z-index:1000;
 }
 
-.logo {
-  font-weight: 800;
-  font-size: 1.3rem;
-  color: #ff5a1f;
-  margin-bottom: 30px;
-  text-decoration: none;
+.topbar .left{
+  display:flex;
+  align-items:center;
+  gap:15px;
 }
 
-.menu a {
-  display: block;
-  padding: 10px;
-  border-radius: 10px;
-  color: #334155;
-  text-decoration: none;
-  margin-bottom: 8px;
+.brand{
+  font-weight:600;
+  font-size:18px;
+  color:#111827;
 }
 
-.menu .active {
-  background: #ff5a1f;
-  color: white;
+/* MENU BUTTON */
+.menu-btn{
+  background:none;
+  border:none;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
 }
 
-/* MOBILE TOP BAR */
-.mobile-top {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 60px;
-  background: white;
-  border-bottom: 1px solid #ddd;
-  align-items: center;
-  padding: 0 15px;
-  z-index: 1000;
+.menu-btn span{
+  width:22px;
+  height:2px;
+  background:#111827;
 }
 
-.menu-btn {
-  font-size: 1.5rem;
-  background: none;
-  border: none;
+/* RIGHT SIDE */
+.topbar .right{
+  display:flex;
+  align-items:center;
+  gap:20px;
 }
 
-.mobile-title {
-  margin-left: 10px;
-  font-weight: 700;
+/* CART */
+.cart-btn{
+  position:relative;
+  padding:8px 14px;
+  border-radius:10px;
+  background:#f3f4f6;
+  cursor:pointer;
+  font-size:14px;
 }
 
-/* MOBILE MENU LINKS */
-.menu-item {
-  display: block;
-  padding: 12px;
-  border-radius: 8px;
-  color: #333;
-  text-decoration: none;
-  margin-bottom: 8px;
+.cart-btn:hover{
+  background:#e5e7eb;
 }
 
-/* RESPONSIVO */
-@media (max-width: 768px) {
+.badge{
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  background:#ea580c;
+  color:white;
+  font-size:11px;
+  padding:3px 6px;
+  border-radius:50%;
+}
 
-  .sidebar.desktop {
-    display: none;
-  }
+/* USER */
+.user-box{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
 
-  .mobile-top {
-    display: flex;
-  }
+.avatar{
+  width:34px;
+  height:34px;
+  background:#ea580c;
+  color:white;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:600;
+}
 
-  .content {
-    margin-left: 0 !important;
-    padding-top: 70px !important;
-  }
+.user-name{
+  font-size:14px;
+  color:#111827;
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:240px;
+  height:100vh;
+  background:#111827;
+  color:white;
+  padding:25px;
+  position:fixed;
+  top:65px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+
+.logo{
+  font-weight:600;
+  margin-bottom:25px;
+}
+
+/* NAV */
+.nav-link{
+  display:block;
+  padding:10px 12px;
+  border-radius:10px;
+  color:#9ca3af;
+  text-decoration:none;
+  margin-bottom:6px;
+  transition:0.2s;
+}
+
+.nav-link:hover{
+  background:#1f2937;
+  color:white;
+}
+
+.nav-link.active{
+  background:#ea580c;
+  color:white;
+}
+
+/* USER SIDEBAR */
+.sidebar-user{
+  font-size:13px;
+}
+
+.sidebar-user a{
+  display:block;
+  margin-top:5px;
+  color:#ea580c;
+  text-decoration:none;
+}
+
+/* CONTENT OFFSET */
+.content{
+  margin-left:240px;
+  margin-top:65px;
 }

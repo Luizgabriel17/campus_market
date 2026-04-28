@@ -10,7 +10,7 @@ function authCliente(req, res, next) {
   next();
 }
 
-// VER CARRINHO
+// VER CARRINHO (opcional, pode nem usar)
 router.get("/", authCliente, (req, res) => {
   res.render("carrinho", {
     carrinho: req.session.carrinho || []
@@ -22,7 +22,6 @@ router.post("/add", authCliente, async (req, res) => {
   const { id } = req.body;
 
   try {
-    // busca produto no banco (SEGURANÇA)
     const [produtos] = await db.query(
       "SELECT id, nome, preco, vendedor_id FROM produtos WHERE id = ?",
       [id]
@@ -59,11 +58,11 @@ router.post("/add", authCliente, async (req, res) => {
       });
     }
 
-    res.redirect("/cliente");
+    return res.redirect("/cliente?openCart=1");
 
   } catch (err) {
     console.error(err);
-    res.redirect("/cliente?erro=Erro ao adicionar produto");
+    return res.redirect("/cliente?erro=Erro ao adicionar produto");
   }
 });
 
@@ -71,28 +70,38 @@ router.post("/add", authCliente, async (req, res) => {
 router.post("/update", authCliente, (req, res) => {
   const { id, acao } = req.body;
 
-  const carrinho = req.session.carrinho || [];
+  let carrinho = req.session.carrinho || [];
   const item = carrinho.find(p => p.id == id);
 
-  if (!item) return res.redirect("/carrinho");
+  if (!item) return res.redirect("/cliente");
 
-  if (acao === "mais") item.quantidade++;
-  if (acao === "menos") item.quantidade--;
-
-  if (item.quantidade <= 0) {
-    req.session.carrinho = carrinho.filter(p => p.id != id);
+  if (acao === "mais") {
+    item.quantidade++;
   }
 
-  res.redirect("/carrinho");
+  if (acao === "menos") {
+    item.quantidade--;
+  }
+
+  // remove automaticamente se chegar a 0
+  if (item.quantidade <= 0) {
+    carrinho = carrinho.filter(p => p.id != id);
+  }
+
+  req.session.carrinho = carrinho;
+
+  return res.redirect("/cliente?openCart=1");
 });
 
 // REMOVER ITEM
 router.post("/remove", authCliente, (req, res) => {
   const { id } = req.body;
 
-  req.session.carrinho = (req.session.carrinho || []).filter(p => p.id != id);
+  const carrinho = req.session.carrinho || [];
 
-  res.redirect("/carrinho");
+  req.session.carrinho = carrinho.filter(p => p.id != id);
+
+  return res.redirect("/cliente?openCart=1");
 });
 
 module.exports = router;
