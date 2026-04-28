@@ -99,9 +99,9 @@
 
 /* SIDEBAR */
 .sidebar{
-  width:240px;
+  width:200px;
   height:100vh;
-  background:#111827;
+  background:#0f172a;
   color:white;
   padding:25px;
   position:fixed;
