@@ -2,32 +2,24 @@ const express = require("express");
 const router = express.Router();
 const db = require("../database/database");
 
-// Middleware
-function authCliente(req, res, next) {
-  if (!req.session.user || req.session.user.tipo !== "cliente") {
-    return res.redirect("/login");
-  }
-  next();
-}
-
 // LISTAR PEDIDOS
-router.get("/", authCliente, async (req, res) => {
-  const clienteId = req.session.user.id;
+router.get("/:clienteId", async (req, res) => {
+  const { clienteId } = req.params;
 
   try {
     const [pedidos] = await db.query(`
       SELECT 
-  p.id,
-  p.valor_total,
-  p.status,
-  p.data_pedido,
-  v.nome AS vendedor_nome,
-  v.id AS vendedor_id,
-  GROUP_CONCAT(pr.nome SEPARATOR ', ') AS itens,
-  EXISTS(
-    SELECT 1 FROM avaliacoes a WHERE a.pedido_id = p.id
-  ) AS avaliado
-  FROM pedidos p
+        p.id,
+        p.valor_total,
+        p.status,
+        p.data_pedido,
+        v.nome AS vendedor_nome,
+        v.id AS vendedor_id,
+        GROUP_CONCAT(pr.nome SEPARATOR ', ') AS itens,
+        EXISTS(
+          SELECT 1 FROM avaliacoes a WHERE a.pedido_id = p.id
+        ) AS avaliado
+      FROM pedidos p
       JOIN vendedor v ON v.id = p.vendedor_id
       JOIN itens_pedido i ON i.pedido_id = p.id
       JOIN produtos pr ON pr.id = i.produto_id
@@ -36,24 +28,17 @@ router.get("/", authCliente, async (req, res) => {
       ORDER BY p.id DESC
     `, [clienteId]);
 
-    res.render("pedidos", {
-      pedidos: pedidos || [],
-      user: req.session.user
-    });
+    res.json({ success: true, data: pedidos });
 
   } catch (err) {
-    console.error(err);
-    res.send("Erro ao buscar pedidos");
+    res.status(500).json({ success: false, error: "Erro ao buscar pedidos" });
   }
 });
+router.post("/finalizar", async (req, res) => {
+  const { cliente_id, carrinho } = req.body;
 
-// FINALIZAR PEDIDO
-router.post("/finalizar", authCliente, async (req, res) => {
-  const clienteId = req.session.user.id;
-  const carrinho = req.session.carrinho || [];
-
-  if (carrinho.length === 0) {
-    return res.redirect("/cliente");
+  if (!carrinho || carrinho.length === 0) {
+    return res.status(400).json({ success: false, error: "Carrinho vazio" });
   }
 
   const connection = await db.getConnection();
@@ -67,10 +52,9 @@ router.post("/finalizar", authCliente, async (req, res) => {
       return soma + item.preco * item.quantidade;
     }, 0);
 
-    // agora salva com vendedor_id
     const [pedidoResult] = await connection.query(
       "INSERT INTO pedidos (cliente_id, vendedor_id, valor_total, status) VALUES (?, ?, ?, 'PENDENTE')",
-      [clienteId, vendedorId, total]
+      [cliente_id, vendedorId, total]
     );
 
     const pedidoId = pedidoResult.insertId;
@@ -84,14 +68,11 @@ router.post("/finalizar", authCliente, async (req, res) => {
 
     await connection.commit();
 
-    req.session.carrinho = [];
-
-    res.redirect("/pedidos");
+    res.json({ success: true, pedidoId });
 
   } catch (err) {
     await connection.rollback();
-    console.error(err);
-    res.send("Erro ao finalizar pedido");
+    res.status(500).json({ success: false, error: "Erro ao finalizar pedido" });
   } finally {
     connection.release();
   }

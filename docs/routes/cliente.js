@@ -2,16 +2,8 @@ const express = require("express");
 const router = express.Router();
 const db = require("../database/database");
 
-// Middleware
-function authCliente(req, res, next) {
-  if (!req.session.user || req.session.user.tipo !== "cliente") {
-    return res.redirect("/login");
-  }
-  next();
-}
-
-// SESSÃO INICIAL CLIENTE
-router.get("/", authCliente, async (req, res) => {
+// TODOS PRODUTOS
+router.get("/", async (req, res) => {
   try {
     const [produtos] = await db.query(`
       SELECT 
@@ -20,7 +12,6 @@ router.get("/", authCliente, async (req, res) => {
         p.descricao,
         p.preco,
         p.estoque,
-        p.vendedor_id,
         v.nome AS vendedor_nome,
         ROUND(IFNULL(AVG(a.nota), 0), 1) AS media_avaliacao
       FROM produtos p
@@ -31,25 +22,15 @@ router.get("/", authCliente, async (req, res) => {
       ORDER BY p.id DESC
     `);
 
-    const [vendedores] = await db.query(
-      "SELECT id, nome FROM vendedor"
-    );
-
-    res.render("cliente", {
-      user: req.session.user,
-      produtos: produtos || [],
-      vendedores: vendedores || [],
-      carrinho: req.session.carrinho || []
-    });
+    res.json({ success: true, data: produtos });
 
   } catch (err) {
-    console.error(err);
-    res.send("Erro ao carregar página");
+    res.status(500).json({ success: false, error: "Erro ao buscar produtos" });
   }
 });
 
 // PRODUTOS POR VENDEDOR
-router.get("/vendedor/:id", authCliente, async (req, res) => {
+router.get("/vendedor/:id", async (req, res) => {
   const vendedorId = req.params.id;
 
   try {
@@ -65,20 +46,10 @@ router.get("/vendedor/:id", authCliente, async (req, res) => {
       GROUP BY p.id
     `, [vendedorId]);
 
-    const [vendedores] = await db.query(
-      "SELECT id, nome FROM vendedor"
-    );
-
-    res.render("cliente", {
-      user: req.session.user,
-      produtos: produtos || [],
-      vendedores: vendedores || [],
-      carrinho: req.session.carrinho || []
-    });
+    res.json({ success: true, data: produtos });
 
   } catch (err) {
-    console.error(err);
-    res.send("Erro ao buscar produtos");
+    res.status(500).json({ success: false, error: "Erro ao buscar produtos" });
   }
 });
 

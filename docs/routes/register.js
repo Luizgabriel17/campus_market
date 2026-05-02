@@ -3,11 +3,6 @@ const router = express.Router();
 const db = require("../database/database");
 const bcrypt = require("bcrypt");
 
-// TELA
-router.get("/", (req, res) => {
-  res.render("register");
-});
-
 // CADASTRO
 router.post("/", async (req, res) => {
   const { nome, email, senha, tipo } = req.body;
@@ -22,11 +17,10 @@ router.post("/", async (req, res) => {
       [nome, email, hash]
     );
 
-    res.redirect("/login");
+    res.json({ success: true });
 
   } catch (err) {
-    console.error(err);
-    res.send("Erro ao cadastrar");
+    res.status(500).json({ success: false, error: "Erro ao cadastrar" });
   }
 });
 
