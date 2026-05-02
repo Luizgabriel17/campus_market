@@ -3,11 +3,6 @@ const router = express.Router();
 const db = require("../database/database");
 const bcrypt = require("bcrypt");
 
-// LOGIN PAGE
-router.get("/login", (req, res) => {
-  res.render("login");
-});
-
 // LOGIN
 router.post("/login", async (req, res) => {
   const { email, senha } = req.body;
@@ -22,14 +17,17 @@ router.post("/login", async (req, res) => {
     if (clientes.length > 0) {
       const cliente = clientes[0];
 
-      if (await bcrypt.compare(senha, cliente.senha)) {
-        req.session.user = {
-          id: cliente.id,
-          nome: cliente.nome,
-          tipo: "cliente"
-        };
+      const senhaValida = await bcrypt.compare(senha, cliente.senha);
 
-        return res.redirect("/redirect");
+      if (senhaValida) {
+        return res.json({
+          success: true,
+          user: {
+            id: cliente.id,
+            nome: cliente.nome,
+            tipo: "cliente"
+          }
+        });
       }
     }
 
@@ -42,30 +40,32 @@ router.post("/login", async (req, res) => {
     if (vendedores.length > 0) {
       const vendedor = vendedores[0];
 
-      if (await bcrypt.compare(senha, vendedor.senha)) {
-        req.session.user = {
-          id: vendedor.id,
-          nome: vendedor.nome,
-          tipo: "vendedor"
-        };
+      const senhaValida = await bcrypt.compare(senha, vendedor.senha);
 
-        return res.redirect("/redirect");
+      if (senhaValida) {
+        return res.json({
+          success: true,
+          user: {
+            id: vendedor.id,
+            nome: vendedor.nome,
+            tipo: "vendedor"
+          }
+        });
       }
     }
 
-    res.send("Email ou senha inválidos");
+    return res.status(401).json({
+      success: false,
+      error: "Email ou senha inválidos"
+    });
 
   } catch (err) {
     console.error(err);
-    res.send("Erro no servidor");
+    res.status(500).json({
+      success: false,
+      error: "Erro no servidor"
+    });
   }
-});
-
-// LOGOUT
-router.get("/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.redirect("/login");
-  });
 });
 
 module.exports = router;
