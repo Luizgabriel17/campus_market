@@ -21,40 +21,80 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## Descrição
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+API do **Campus Market** construída com [NestJS](https://nestjs.com), [Prisma](https://www.prisma.io) e PostgreSQL.
 
-## Project setup
+---
+
+## Executando no GitHub Codespaces
+
+### 1. Banco de dados (PostgreSQL via Docker)
+
+Suba o container do PostgreSQL com o Docker Compose:
 
 ```bash
-$ npm install
+docker compose up -d
 ```
 
-## Compile and run the project
+Verifique se o container está saudável:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+docker compose ps
 ```
 
-## Run tests
+### 2. Variáveis de ambiente
+
+Copie o arquivo de exemplo e ajuste os valores se necessário:
 
 ```bash
-# unit tests
-$ npm run test
+cp .env.example .env
+```
 
-# e2e tests
-$ npm run test:e2e
+> O arquivo `.env` já vem pré-configurado para a instância Docker local do Codespace.
 
-# test coverage
-$ npm run test:cov
+### 3. Instalar dependências
+
+```bash
+npm install
+```
+
+### 4. Migrations do banco de dados
+
+Aplique as migrations e gere o Prisma Client:
+
+```bash
+npx prisma migrate dev
+```
+
+### 5. Iniciar a aplicação
+
+```bash
+# modo desenvolvimento (watch)
+npm run start:dev
+
+# modo padrão
+npm run start
+
+# modo produção
+npm run start:prod
+```
+
+A API ficará disponível em `http://localhost:3000`.
+
+---
+
+## Testes
+
+```bash
+# testes unitários
+npm run test
+
+# testes e2e
+npm run test:e2e
+
+# cobertura
+npm run test:cov
 ```
 
 ## Deployment
