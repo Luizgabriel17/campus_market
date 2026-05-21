@@ -1,0 +1,121 @@
+<% if (typeof user !== 'undefined' && user) { %>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+  
+    <div class="left">
+      <button class="menu-btn d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+  
+      <span class="brand">CampusMarket</span>
+    </div>
+  
+    <div class="right">
+  
+      <% if (user.tipo === "cliente") { %>
+      <div class="cart-btn" data-bs-toggle="offcanvas" data-bs-target="#carrinho">
+        Carrinho
+        <span class="badge"><%= carrinho ? carrinho.length : 0 %></span>
+      </div>
+      <% } %>
+  
+      <div class="user-box">
+        <div class="avatar">
+          <%= user.nome.charAt(0).toUpperCase() %>
+        </div>
+        <div class="user-name"><%= user.nome %></div>
+      </div>
+  
+    </div>
+  
+  </div>
+  
+  <!-- SIDEBAR -->
+  <div class="sidebar d-none d-lg-flex">
+  
+    <div>
+  
+      <div class="logo">CampusMarket</div>
+  
+      <nav>
+  
+        <% if (user.tipo === "cliente") { %>
+  
+          <a href="/cliente" class="nav-link <%= url === '/cliente' ? 'active' : '' %>">
+            Início
+          </a>
+  
+          <a href="#" data-bs-toggle="offcanvas" data-bs-target="#carrinho" class="nav-link">
+            Carrinho
+          </a>
+  
+          <a href="/pedidos" class="nav-link <%= url === '/pedidos' ? 'active' : '' %>">
+            Pedidos
+          </a>
+  
+        <% } %>
+  
+        <% if (user.tipo === "vendedor") { %>
+  
+          <a href="/dashboard" class="nav-link <%= url === '/dashboard' ? 'active' : '' %>">
+            Dashboard
+          </a>
+  
+          <a href="/dashboard/produtos"
+             class="nav-link <%= url && url.includes('/dashboard/produtos') ? 'active' : '' %>">
+             Produtos
+          </a>
+  
+          <a href="/dashboard/pedidos"
+             class="nav-link <%= url && url.includes('/dashboard/pedidos') ? 'active' : '' %>">
+             Pedidos
+          </a>
+  
+        <% } %>
+  
+      </nav>
+  
+    </div>
+  
+    <div class="sidebar-user">
+      <span><%= user.nome %></span>
+      <a href="/logout">Sair</a>
+    </div>
+  
+  </div>
+  
+  <!-- MOBILE MENU -->
+  <div class="offcanvas offcanvas-start" id="mobileMenu">
+  
+    <div class="offcanvas-header">
+      <h5>Menu</h5>
+      <button class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+  
+    <div class="offcanvas-body">
+  
+      <% if (user.tipo === "cliente") { %>
+        <a href="/cliente" class="menu-item">Início</a>
+        <a href="#" data-bs-toggle="offcanvas" data-bs-target="#carrinho" class="menu-item">Carrinho</a>
+        <a href="/pedidos" class="menu-item">Pedidos</a>
+      <% } %>
+  
+      <% if (user.tipo === "vendedor") { %>
+        <a href="/dashboard" class="menu-item">Dashboard</a>
+        <a href="/dashboard/produtos" class="menu-item">Produtos</a>
+        <a href="/dashboard/pedidos" class="menu-item">Pedidos</a>
+      <% } %>
+  
+      <hr>
+  
+      <p><%= user.nome %></p>
+      <a href="/logout">Sair</a>
+  
+    </div>
+  
+  </div>
+  
+  <% } %>

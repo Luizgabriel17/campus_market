@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>CampusMarket</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+body{background:#f9fafb;}
+
+/* TOPBAR */
+.topbar{
+  position:sticky;
+  top:0;
+  background:#fff;
+  padding:12px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid #e5e7eb;
+  z-index:1000;
+}
+
+/* CONTAINER */
+.container-main{
+  padding:16px;
+}
+
+/* SEARCH */
+.search-box{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #e5e7eb;
+  margin-top:10px;
+}
+
+/* SELECT */
+select{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #e5e7eb;
+  margin-top:10px;
+}
+
+/* GRID */
+.grid{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  margin-top:16px;
+}
+
+/* CARD */
+.card-produto{
+  background:#fff;
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 6px 20px rgba(0,0,0,0.05);
+  transition:0.2s;
+}
+
+.card-produto:hover{
+  transform:translateY(-3px);
+}
+
+/* IMAGE */
+.img-placeholder{
+  height:140px;
+  background:#e5e7eb;
+}
+
+/* BODY */
+.card-body{padding:14px;}
+
+.nome{font-weight:600;}
+.vendedor{font-size:12px;color:#6b7280;}
+.desc{font-size:12px;color:#6b7280;margin:6px 0;}
+.preco{font-weight:700;}
+
+.bottom{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:10px;
+}
+
+/* BUTTON */
+.btn-add{
+  background:#ea580c;
+  color:white;
+  border:none;
+  padding:8px 14px;
+  border-radius:10px;
+  transition:0.2s;
+  cursor:pointer;
+}
+
+.btn-add:active{
+  transform:scale(0.95);
+}
+
+/* CART */
+.floating-cart{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:60px;
+  height:60px;
+  background:#ea580c;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:white;
+  font-weight:600;
+  box-shadow:0 8px 20px rgba(0,0,0,0.2);
+  cursor:pointer;
+}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  bottom:90px;
+  right:20px;
+  background:#111827;
+  color:white;
+  padding:10px 15px;
+  border-radius:10px;
+  z-index:9999;
+}
+
+/* DESKTOP */
+@media(min-width:768px){
+  .container-main{
+    max-width:1100px;
+    margin:auto;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  }
+}
+</style>
+</head>
+
+<body>
+
+<%- include('partials/carrinho') %>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <strong>CampusMarket</strong>
+  <div>
+    <span><%= (user && user.nome) ? user.nome : 'Usuário' %></span>
+    |
+    <a href="/logout">Sair</a>
+  </div>
+</div>
+
+<div class="container-main">
+
+<h5>Explorar lanches</h5>
+
+<input type="text" id="search" class="search-box" placeholder="Buscar...">
+
+<select id="filtro">
+  <option value="">Todos vendedores</option>
+  <% (vendedores || []).forEach(function(v){ %>
+    <option value="<%= v.nome %>"><%= v.nome %></option>
+  <% }) %>
+</select>
+
+<div class="grid">
+
+<% (produtos || []).forEach(function(p){ %>
+
+<div class="produto"
+ data-nome="<%= p.nome || '' %>"
+ data-vendedor="<%= p.vendedor_nome || '' %>">
+
+  <div class="card-produto">
+
+    <div class="img-placeholder"></div>
+
+    <div class="card-body">
+
+      <div class="nome"><%= p.nome || 'Produto' %></div>
+      <div class="vendedor"><%= p.vendedor_nome || 'Vendedor' %></div>
+      <div class="desc"><%= p.descricao || '' %></div>
+
+      <div class="bottom">
+        <div class="preco">
+          R$ <%= Number(p.preco || 0).toFixed(2) %>
+        </div>
+
+        <button class="btn-add add-cart-btn" data-id="<%= p.id %>">
+          Adicionar
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<% }) %>
+
+</div>
+
+</div>
+
+<!-- BOTÃO CARRINHO -->
+<div class="floating-cart" data-bs-toggle="offcanvas" data-bs-target="#carrinho">
+  <span id="cartCount">
+    <%= (typeof carrinho !== 'undefined' && carrinho) ? carrinho.length : 0 %>
+  </span>
+</div>
+
+<script>
+// EVENTOS BOTÃO
+document.querySelectorAll(".add-cart-btn").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    var id = this.dataset.id;
+    addToCart(id);
+  });
+});
+
+// ADD
+async function addToCart(id){
+  try{
+    const res = await fetch("/carrinho/add", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({ id: id })
+    });
+
+    const data = await res.json();
+
+    if(data.erro){
+      showToast(data.erro);
+      return;
+    }
+
+    updateCart(data.carrinho);
+    showToast("Produto adicionado");
+
+  }catch(err){
+    console.error(err);
+    showToast("Erro ao adicionar");
+  }
+}
+
+// UPDATE UI
+function updateCart(carrinho){
+  var total = carrinho.reduce(function(acc, i){
+    return acc + i.quantidade;
+  }, 0);
+
+  document.getElementById("cartCount").innerText = total;
+}
+
+// TOAST
+function showToast(msg){
+  var t = document.createElement("div");
+  t.className="toast";
+  t.innerText=msg;
+  document.body.appendChild(t);
+
+  setTimeout(function(){
+    t.remove();
+  },2000);
+}
+
+// FILTRO
+var search = document.getElementById("search");
+var filtro = document.getElementById("filtro");
+
+function filtrar(){
+  var texto = search.value.toLowerCase();
+  var vend = filtro.value;
+
+  document.querySelectorAll(".produto").forEach(function(el){
+    var nome = el.dataset.nome.toLowerCase();
+    var vendedor = el.dataset.vendedor;
+
+    el.style.display =
+      (nome.includes(texto) && (!vend || vendedor === vend))
+      ? "block" : "none";
+  });
+}
+
+search.addEventListener("keyup", filtrar);
+filtro.addEventListener("change", filtrar);
+
+// REABRIR CARRINHO
+var params = new URLSearchParams(window.location.search);
+if(params.get("openCart")){
+  new bootstrap.Offcanvas(document.getElementById("carrinho")).show();
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
