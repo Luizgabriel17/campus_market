@@ -4,6 +4,8 @@ services:
     container_name: campus-market-postgres
     restart: unless-stopped
     environment:
+      GOOGLE_CLIENT_ID: 101670248735-penhkhl4tt0u4ehcbtvj48tqqb3l2h8v.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET: 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
       POSTGRES_DB: campus_market
       POSTGRES_USER: campus_user
       POSTGRES_PASSWORD: campus_pass
