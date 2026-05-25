@@ -1,23 +1,45 @@
 services:
   postgres:
     image: postgres:16-alpine
+
     container_name: campus-market-postgres
+
     restart: unless-stopped
+
     environment:
-      GOOGLE_CLIENT_ID: 101670248735-penhkhl4tt0u4ehcbtvj48tqqb3l2h8v.apps.googleusercontent.com
-      GOOGLE_CLIENT_SECRET: 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
       POSTGRES_DB: campus_market
       POSTGRES_USER: campus_user
       POSTGRES_PASSWORD: campus_pass
+
     ports:
       - "5432:5432"
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+
+  backend:
+    build: .
+
+    container_name: campus-market-backend
+
+    restart: unless-stopped
+
+    depends_on:
+      - postgres
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      PORT: 3000
+
+      DATABASE_URL: postgresql://campus_user:campus_pass@postgres:5432/campus_market
+
+      JWT_SECRET: campusmarketjwt
+
+      GOOGLE_CLIENT_ID: 101670248735-penhkhl4tt0u4ehcbtvj48tqqb3l2h8v.apps.googleusercontent.com
+
+      GOOGLE_CLIENT_SECRET: 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
 
 volumes:
   postgres_data:
