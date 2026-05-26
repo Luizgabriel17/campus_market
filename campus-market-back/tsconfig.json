@@ -8,7 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "target": "ES2021",
     "sourceMap": true,
-    "outDir": "./dist",
+    "outDir": "campus-market-back/dist",
     "rootDir": ".",
     "incremental": true,
     "skipLibCheck": true,
