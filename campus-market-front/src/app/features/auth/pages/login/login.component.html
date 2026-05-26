@@ -1,0 +1,50 @@
+<div class="login-container">
+  <div class="login-card">
+    <h1>CampusMarket</h1>
+
+    <p class="subtitle">
+      Entre na sua conta
+    </p>
+
+    <form (ngSubmit)="login()">
+      <div class="form-group">
+        <label>Email</label>
+
+        <input
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="Digite seu email"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Senha</label>
+
+        <input
+          type="password"
+          [(ngModel)]="senha"
+          name="senha"
+          placeholder="Digite sua senha"
+        />
+      </div>
+
+      <button type="submit" class="login-btn">
+        Entrar
+      </button>
+    </form>
+
+    <div class="divider">
+      <span>ou</span>
+    </div>
+    <p class="error-message" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </p>
+    <button
+      class="google-btn"
+      (click)="loginGoogle()"
+    >
+      Entrar com Google
+    </button>
+  </div>
+</div>
