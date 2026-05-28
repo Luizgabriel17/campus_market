@@ -1,0 +1,125 @@
+<div class="register-container">
+  <div class="register-card">
+    <div class="register-header">
+      <h1 class="logo-title">CampusMarket</h1>
+      <p class="subtitle">Crie sua conta</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="register()" class="register-form">
+      <!-- Mensagens de Erro -->
+      <div class="alert alert-error" *ngIf="errorMessage">
+        <span class="icon">⚠️</span>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <!-- Mensagens de Sucesso -->
+      <div class="alert alert-success" *ngIf="successMessage">
+        <span class="icon">✓</span>
+        <span>{{ successMessage }}</span>
+      </div>
+
+      <!-- Campo Nome -->
+      <div class="form-group">
+        <label for="nome">Nome Completo</label>
+        <input
+          id="nome"
+          type="text"
+          formControlName="nome"
+          placeholder="Seu nome completo"
+          class="form-input"
+          [class.input-error]="nomeControl?.invalid && (nomeControl?.dirty || nomeControl?.touched)"
+        />
+        <div class="field-error" *ngIf="nomeControl?.invalid && (nomeControl?.dirty || nomeControl?.touched)">
+          <span *ngIf="nomeControl?.errors?.['required']">Nome é obrigatório</span>
+          <span *ngIf="nomeControl?.errors?.['minlength']">Mínimo 3 caracteres</span>
+        </div>
+      </div>
+
+      <!-- Campo Email -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="seu.email@example.com"
+          class="form-input"
+          [class.input-error]="emailControl?.invalid && (emailControl?.dirty || emailControl?.touched)"
+        />
+        <div class="field-error" *ngIf="emailControl?.invalid && (emailControl?.dirty || emailControl?.touched)">
+          <span *ngIf="emailControl?.errors?.['required']">Email é obrigatório</span>
+          <span *ngIf="emailControl?.errors?.['email']">Email inválido</span>
+        </div>
+      </div>
+
+      <!-- Campo Senha -->
+      <div class="form-group">
+        <div class="password-label">
+          <label for="senha">Senha</label>
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility()"
+            tabindex="-1"
+          >
+            {{ showPassword ? '👁️ Ocultar' : '👁️ Mostrar' }}
+          </button>
+        </div>
+        <input
+          id="senha"
+          [type]="showPassword ? 'text' : 'password'"
+          formControlName="senha"
+          placeholder="Mínimo 6 caracteres"
+          class="form-input"
+          [class.input-error]="senhaControl?.invalid && (senhaControl?.dirty || senhaControl?.touched)"
+        />
+        <div class="field-error" *ngIf="senhaControl?.invalid && (senhaControl?.dirty || senhaControl?.touched)">
+          <span *ngIf="senhaControl?.errors?.['required']">Senha é obrigatória</span>
+          <span *ngIf="senhaControl?.errors?.['minlength']">Mínimo 6 caracteres</span>
+        </div>
+      </div>
+
+      <!-- Campo Confirmar Senha -->
+      <div class="form-group">
+        <div class="password-label">
+          <label for="confirmarSenha">Confirmar Senha</label>
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordConfirmVisibility()"
+            tabindex="-1"
+          >
+            {{ showPasswordConfirm ? '👁️ Ocultar' : '👁️ Mostrar' }}
+          </button>
+        </div>
+        <input
+          id="confirmarSenha"
+          [type]="showPasswordConfirm ? 'text' : 'password'"
+          formControlName="confirmarSenha"
+          placeholder="Repita sua senha"
+          class="form-input"
+          [class.input-error]="confirmarSenhaControl?.invalid && (confirmarSenhaControl?.dirty || confirmarSenhaControl?.touched)"
+        />
+        <div class="field-error" *ngIf="confirmarSenhaControl?.invalid && (confirmarSenhaControl?.dirty || confirmarSenhaControl?.touched)">
+          <span *ngIf="confirmarSenhaControl?.errors?.['required']">Confirmação de senha é obrigatória</span>
+          <span *ngIf="confirmarSenhaControl?.errors?.['senhasMismatch']">As senhas não coincidem</span>
+        </div>
+      </div>
+
+      <!-- Botão Registrar -->
+      <button
+        type="submit"
+        class="register-btn"
+        [disabled]="loading || registerForm.invalid"
+      >
+        <span *ngIf="!loading">Criar Conta</span>
+        <span *ngIf="loading" class="loading-spinner"></span>
+      </button>
+    </form>
+
+    <!-- Link para Login -->
+    <div class="login-link">
+      <p>Já tem uma conta? <a routerLink="/">Faça login</a></p>
+    </div>
+  </div>
+</div>

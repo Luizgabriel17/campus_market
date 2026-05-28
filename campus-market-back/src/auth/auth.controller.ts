@@ -5,7 +5,11 @@ import {
   Post,
   Req,
   UseGuards,
+  Res,
+  BadRequestException,
 } from '@nestjs/common';
+
+import { Response } from 'express';
 
 import { AuthGuard } from '@nestjs/passport';
 
@@ -39,8 +43,22 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  googleAuthRedirect(@Req() req) {
-    return req.user;
+  async googleAuthRedirect(@Req() req, @Res() res: Response) {
+    try {
+      if (!req.user) {
+        throw new BadRequestException('Falha na autenticação do Google');
+      }
+      
+      // O token já vem no req.user retornado pela estratégia
+      const token = req.user.token;
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+      
+      // Redirecionar para o frontend com o token na URL
+      res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
+    } catch (error) {
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+      res.redirect(`${frontendUrl}/auth/error?message=Falha na autenticação`);
+    }
   }
 
   @Get('me')

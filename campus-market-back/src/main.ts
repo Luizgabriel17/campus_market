@@ -31,12 +31,12 @@ async function bootstrap() {
   );
 
   await app.listen(
-    process.env.PORT ?? 3000,
+    process.env.PORT ?? 3001,
     '0.0.0.0',
   );
 
   console.log(
-    `Servidor rodando na porta ${process.env.PORT ?? 3000}`,
+    `Servidor rodando na porta ${process.env.PORT ?? 3001}`,
   );
 }
 

@@ -2,57 +2,88 @@ import { Component } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { AuthService } from '../../../../core/services/auth';
+
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
-  email = '';
-
-  senha = '';
+  loginForm!: FormGroup;
 
   loading = false;
 
+  googleLoading = false;
+
   errorMessage = '';
+
+  successMessage = '';
+
+  showPassword = false;
 
   constructor(
     private authService: AuthService,
-  ) {}
+    private fb: FormBuilder,
+    private router: Router,
+  ) {
+    this.initializeForm();
+  }
+
+  initializeForm() {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      senha: ['', [Validators.required, Validators.minLength(6)]],
+    });
+  }
+
+  get emailControl() {
+    return this.loginForm.get('email');
+  }
+
+  get senhaControl() {
+    return this.loginForm.get('senha');
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
 
   login() {
-    this.loading = true;
+    if (this.loginForm.invalid) {
+      this.errorMessage = 'Por favor, preencha todos os campos corretamente';
+      return;
+    }
 
+    this.loading = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
     this.authService
       .login({
-        email: this.email,
-        senha: this.senha,
+        email: this.loginForm.value.email,
+        senha: this.loginForm.value.senha,
       })
       .subscribe({
         next: (response) => {
-          console.log(response);
-
-          this.authService.saveToken(
-            response.token,
-          );
-
-          alert('Login realizado!');
+          this.authService.saveToken(response.token);
+          this.successMessage = 'Login realizado com sucesso!';
+          setTimeout(() => {
+            this.router.navigate(['/dashboard']);
+          }, 1500);
         },
 
         error: (error) => {
           console.error(error);
-
           this.errorMessage =
-            error.error.message ||
-            'Erro ao fazer login';
+            error.error?.message ||
+            'Email ou senha incorretos. Tente novamente.';
         },
 
         complete: () => {
@@ -62,6 +93,7 @@ export class LoginComponent {
   }
 
   loginGoogle() {
+    this.googleLoading = true;
     window.location.href =
       'http://localhost:3000/auth/google';
   }

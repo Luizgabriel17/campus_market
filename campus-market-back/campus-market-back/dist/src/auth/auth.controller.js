@@ -30,8 +30,19 @@ let AuthController = class AuthController {
         return this.authService.login(data);
     }
     async googleAuth() { }
-    googleAuthRedirect(req) {
-        return req.user;
+    async googleAuthRedirect(req, res) {
+        try {
+            if (!req.user) {
+                throw new common_1.BadRequestException('Falha na autenticação do Google');
+            }
+            const token = req.user.token;
+            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+            res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
+        }
+        catch (error) {
+            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+            res.redirect(`${frontendUrl}/auth/error?message=Falha na autenticação`);
+        }
     }
     getProfile(req) {
         return req.user;
@@ -63,9 +74,10 @@ __decorate([
     (0, common_1.Get)('google/callback'),
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)('google')),
     __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
 ], AuthController.prototype, "googleAuthRedirect", null);
 __decorate([
     (0, common_1.Get)('me'),

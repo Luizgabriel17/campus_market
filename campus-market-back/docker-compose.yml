@@ -28,10 +28,10 @@ services:
       - postgres
 
     ports:
-      - "3000:3000"
+      - "3001:3001"
 
     environment:
-      PORT: 3000
+      PORT: 3001
 
       DATABASE_URL: postgresql://campus_user:campus_pass@postgres:5432/campus_market
 
