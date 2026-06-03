@@ -12,12 +12,12 @@ export class ProductsService {
   create(data: CreateProductDto) {
   return this.prisma.produtos.create({
     data: {
-      nome: data.nome,
-      descricao: data.descricao,
-      preco: data.preco,
-      estoque: data.estoque,
+      name: data.name,
+      description: data.description,
+      price: data.price,
+      stock: data.stock,
 
-      vendedor: {
+      seller: {
         connect: {
           id: data.vendedor_id,
         },
@@ -27,24 +27,24 @@ export class ProductsService {
 }
 
   findAll() {
-    return this.prisma.produtos.findMany();
+    return this.prisma.product.findMany();
   }
 
   findOne(id: number) {
-    return this.prisma.produtos.findUnique({
+    return this.prisma.product.findUnique({
       where: { id },
     });
   }
 
   update(id: number, data: UpdateProductDto) {
-    return this.prisma.produtos.update({
+    return this.prisma.product.update({
       where: { id },
       data,
     });
   }
 
   remove(id: number) {
-    return this.prisma.produtos.delete({
+    return this.prisma.product.delete({
       where: { id },
     });
   }
