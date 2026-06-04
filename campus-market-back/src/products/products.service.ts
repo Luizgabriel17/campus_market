@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
-
 import { PrismaService } from '../prisma/prisma.service';
-
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
@@ -10,29 +8,37 @@ export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
   create(data: CreateProductDto) {
-  return this.prisma.produtos.create({
-    data: {
-      name: data.name,
-      description: data.description,
-      price: data.price,
-      stock: data.stock,
+    return this.prisma.product.create({
+      data: {
+        name: data.name,
+        description: data.description,
+        price: data.price,
+        stock: data.stock,
 
-      seller: {
-        connect: {
-          id: data.vendedor_id,
+        seller: {
+          connect: {
+            id: data.sellerId,
+          },
         },
       },
-    },
-  });
-}
+    });
+  }
 
   findAll() {
-    return this.prisma.product.findMany();
+    return this.prisma.product.findMany({
+      include: {
+        seller: true,
+      },
+    });
   }
 
   findOne(id: number) {
     return this.prisma.product.findUnique({
       where: { id },
+
+      include: {
+        seller: true,
+      },
     });
   }
 

@@ -14,5 +14,5 @@ export class CreateProductDto {
   stock: number;
 
   @IsNumber()
-  seller_id: number;
+  sellerId: number;
 }

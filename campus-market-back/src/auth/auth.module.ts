@@ -1,18 +1,9 @@
 import { Module } from '@nestjs/common';
-
 import { PassportModule } from '@nestjs/passport';
-
 import { JwtModule } from '@nestjs/jwt';
 
 import { AuthController } from './auth.controller';
-
 import { AuthService } from './auth.service';
-
-import { GoogleStrategy } from './google.strategy';
-
-import { JwtStrategy } from './jwt.strategy';
-
-import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
   imports: [
@@ -21,8 +12,7 @@ import { PrismaService } from '../prisma/prisma.service';
     }),
 
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
-
+      secret: process.env.JWT_SECRET || 'campus-market-secret',
       signOptions: {
         expiresIn: '7d',
       },
@@ -31,12 +21,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
   controllers: [AuthController],
 
-  providers: [
-    AuthService,
-    GoogleStrategy,
-    JwtStrategy,
-    PrismaService,
-  ],
+  providers: [AuthService],
 
   exports: [AuthService],
 })
