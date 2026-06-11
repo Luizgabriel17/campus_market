@@ -4,85 +4,131 @@ import { UpdateProductDto } from './dto/update-product.dto';
 export declare class ProductsController {
     private readonly productsService;
     constructor(productsService: ProductsService);
-    create(createProductDto: CreateProductDto): import(".prisma/client").Prisma.Prisma__ProductClient<{
-        id: number;
-        name: string;
-        description: string | null;
-        price: import("@prisma/client/runtime/library").Decimal;
-        stock: number;
-        sellerId: number;
-        status: import(".prisma/client").$Enums.ProductStatus;
-        createdAt: Date;
-        updatedAt: Date;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
-    findAll(): import(".prisma/client").Prisma.PrismaPromise<({
-        seller: {
-            id: number;
+    create(createProductDto: CreateProductDto): Promise<{
+        category: {
             name: string;
+            id: number;
+            createdAt: Date;
+        };
+        seller: {
+            name: string;
+            email: string;
+            password: string | null;
+            id: number;
+            googleId: string | null;
+            avatar: string | null;
+            role: import(".prisma/client").$Enums.Role;
             status: import(".prisma/client").$Enums.UserStatus;
             createdAt: Date;
             updatedAt: Date;
-            email: string;
-            googleId: string | null;
-            password: string | null;
-            avatar: string | null;
-            role: import(".prisma/client").$Enums.Role;
         };
     } & {
-        id: number;
         name: string;
-        description: string | null;
-        price: import("@prisma/client/runtime/library").Decimal;
-        stock: number;
-        sellerId: number;
+        id: number;
         status: import(".prisma/client").$Enums.ProductStatus;
         createdAt: Date;
         updatedAt: Date;
+        description: string | null;
+        price: import("@prisma/client/runtime/library").Decimal;
+        stock: number;
+        categoryId: number;
+        sellerId: number;
+        imageUrl: string | null;
+    }>;
+    findAll(): Promise<({
+        category: {
+            name: string;
+            id: number;
+            createdAt: Date;
+        };
+        seller: {
+            name: string;
+            email: string;
+            password: string | null;
+            id: number;
+            googleId: string | null;
+            avatar: string | null;
+            role: import(".prisma/client").$Enums.Role;
+            status: import(".prisma/client").$Enums.UserStatus;
+            createdAt: Date;
+            updatedAt: Date;
+        };
+    } & {
+        name: string;
+        id: number;
+        status: import(".prisma/client").$Enums.ProductStatus;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string | null;
+        price: import("@prisma/client/runtime/library").Decimal;
+        stock: number;
+        categoryId: number;
+        sellerId: number;
+        imageUrl: string | null;
     })[]>;
-    findOne(id: string): import(".prisma/client").Prisma.Prisma__ProductClient<{
-        seller: {
-            id: number;
+    findOne(id: string): Promise<{
+        category: {
             name: string;
+            id: number;
+            createdAt: Date;
+        };
+        seller: {
+            name: string;
+            email: string;
+            password: string | null;
+            id: number;
+            googleId: string | null;
+            avatar: string | null;
+            role: import(".prisma/client").$Enums.Role;
             status: import(".prisma/client").$Enums.UserStatus;
             createdAt: Date;
             updatedAt: Date;
-            email: string;
-            googleId: string | null;
-            password: string | null;
-            avatar: string | null;
-            role: import(".prisma/client").$Enums.Role;
         };
     } & {
-        id: number;
         name: string;
-        description: string | null;
-        price: import("@prisma/client/runtime/library").Decimal;
-        stock: number;
-        sellerId: number;
+        id: number;
         status: import(".prisma/client").$Enums.ProductStatus;
         createdAt: Date;
         updatedAt: Date;
-    }, null, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
-    update(id: string, updateProductDto: UpdateProductDto): import(".prisma/client").Prisma.Prisma__ProductClient<{
-        id: number;
-        name: string;
         description: string | null;
         price: import("@prisma/client/runtime/library").Decimal;
         stock: number;
+        categoryId: number;
         sellerId: number;
+        imageUrl: string | null;
+    }>;
+    update(id: string, updateProductDto: UpdateProductDto): Promise<{
+        category: {
+            name: string;
+            id: number;
+            createdAt: Date;
+        };
+        seller: {
+            name: string;
+            email: string;
+            password: string | null;
+            id: number;
+            googleId: string | null;
+            avatar: string | null;
+            role: import(".prisma/client").$Enums.Role;
+            status: import(".prisma/client").$Enums.UserStatus;
+            createdAt: Date;
+            updatedAt: Date;
+        };
+    } & {
+        name: string;
+        id: number;
         status: import(".prisma/client").$Enums.ProductStatus;
         createdAt: Date;
         updatedAt: Date;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
-    remove(id: string): import(".prisma/client").Prisma.Prisma__ProductClient<{
-        id: number;
-        name: string;
         description: string | null;
         price: import("@prisma/client/runtime/library").Decimal;
         stock: number;
+        categoryId: number;
         sellerId: number;
-        status: import(".prisma/client").$Enums.ProductStatus;
-        createdAt: Date;
-        updatedAt: Date;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
+        imageUrl: string | null;
+    }>;
+    remove(id: string): Promise<{
+        message: string;
+    }>;
 }

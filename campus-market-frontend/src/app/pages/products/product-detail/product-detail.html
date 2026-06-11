@@ -1,0 +1,134 @@
+<div class="product-detail-container" *ngIf="product">
+  <!-- Header -->
+  <header class="header">
+    <button (click)="goBack()" class="btn-back">← Voltar</button>
+    <h1>Detalhes do Produto</h1>
+    <div class="spacer"></div>
+  </header>
+
+  <div class="product-detail-content">
+    <!-- Product Image -->
+    <div class="product-image-section">
+      <div class="main-image">
+        <img [src]="product.image" [alt]="product.name" />
+        <span class="discount-badge">-15% OFF</span>
+      </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="product-info-section">
+      <div class="breadcrumb">
+        <span>{{ product.category }}</span>
+      </div>
+
+      <h1 class="product-title">{{ product.name }}</h1>
+
+      <div class="rating-section">
+        <span class="rating-stars">⭐⭐⭐⭐⭐ {{ product.rating }}/5</span>
+        <span class="rating-count">(128 avaliações)</span>
+      </div>
+
+      <p class="product-description">{{ product.description }}</p>
+
+      <!-- Price Section -->
+      <div class="price-section">
+        <div class="price-info">
+          <span class="old-price">R$ {{ (product.price * 1.176) | number: '1.2-2' }}</span>
+          <span class="current-price">R$ {{ product.price | number: '1.2-2' }}</span>
+          <span class="discount-percent">-15%</span>
+        </div>
+      </div>
+
+      <!-- Stock Info -->
+      <div class="stock-info">
+        <span [class.in-stock]="product.stock > 0" [class.out-of-stock]="product.stock <= 0">
+          {{ product.stock > 0 ? `${product.stock} em estoque` : 'Fora de estoque' }}
+        </span>
+      </div>
+
+      <!-- Seller Info -->
+      <div class="seller-info">
+        <div class="seller-avatar">👤</div>
+        <div class="seller-details">
+          <span class="seller-label">Vendedor</span>
+          <span class="seller-name">{{ product.seller }}</span>
+        </div>
+      </div>
+
+      <!-- Quantity Selector -->
+      <div class="quantity-section">
+        <label for="quantity">Quantidade:</label>
+        <div class="quantity-selector">
+          <button (click)="decreaseQuantity()" [disabled]="quantity <= 1" class="qty-btn">−</button>
+          <input type="number" [(ngModel)]="quantity" [max]="product.stock" readonly />
+          <button (click)="increaseQuantity()" [disabled]="quantity >= product.stock" class="qty-btn">+</button>
+        </div>
+      </div>
+
+      <!-- Add to Cart Button -->
+      <div class="action-buttons">
+        <button
+          (click)="addToCart()"
+          [disabled]="product.stock <= 0"
+          [class.success]="addedToCart"
+          class="btn-add-cart"
+        >
+          {{ addedToCart ? '✓ Adicionado ao carrinho!' : '🛒 Adicionar ao Carrinho' }}
+        </button>
+      </div>
+
+      <!-- Product Details Tabs -->
+      <div class="details-tabs">
+        <div class="tab">
+          <h3>📋 Especificações</h3>
+          <ul>
+            <li>Marca: Premium Tech</li>
+            <li>Garantia: 2 anos</li>
+            <li>Disponibilidade: Imediata</li>
+            <li>Peso: 500g</li>
+          </ul>
+        </div>
+
+        <div class="tab">
+          <h3>🚚 Envio</h3>
+          <ul>
+            <li>Frete grátis acima de R$ 100</li>
+            <li>Entrega em até 7 dias úteis</li>
+            <li>Acompanhamento de pedido</li>
+            <li>Devolução em 30 dias</li>
+          </ul>
+        </div>
+
+        <div class="tab">
+          <h3>❓ Dúvidas Frequentes</h3>
+          <ul>
+            <li>Como faço para rastrear meu pedido?</li>
+            <li>Qual é a política de devolução?</li>
+            <li>Vocês oferecem garantia?</li>
+            <li>Como entro em contato com o vendedor?</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Products -->
+  <section class="related-products">
+    <h2>Produtos Relacionados</h2>
+    <div class="related-grid">
+      <div class="related-card" *ngFor="let i of [1, 2, 3, 4]">
+        <div class="related-image">📦</div>
+        <h4>Produto relacionado {{ i }}</h4>
+        <span class="related-price">R$ 199,99</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Empty State -->
+<div *ngIf="!product" class="empty-state">
+  <div class="empty-icon">❌</div>
+  <h2>Produto não encontrado</h2>
+  <button (click)="goBack()" class="btn-back-empty">Voltar para produtos</button>
+</div>
+

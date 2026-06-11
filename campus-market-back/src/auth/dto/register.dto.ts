@@ -2,37 +2,15 @@ import {
   IsEmail,
   IsString,
   MinLength,
-  MaxLength,
 } from 'class-validator';
 
 export class RegisterDto {
-  @IsString({
-    message: 'Nome inválido',
-  })
-  @MinLength(3, {
-    message:
-      'Nome deve ter no mínimo 3 caracteres',
-  })
-  @MaxLength(100, {
-    message:
-      'Nome muito grande',
-    })
-  nome: string;
+  @IsString()
+  name: string;
 
-  @IsEmail(
-    {},
-    {
-      message: 'Email inválido',
-    },
-  )
+  @IsEmail()
   email: string;
 
-  @IsString({
-    message: 'Senha inválida',
-  })
-  @MinLength(6, {
-    message:
-      'Senha deve ter no mínimo 6 caracteres',
-  })
-  senha: string;
+  @MinLength(6)
+  password: string;
 }

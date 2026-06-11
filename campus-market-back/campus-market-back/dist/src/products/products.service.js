@@ -16,46 +16,114 @@ let ProductsService = class ProductsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    create(data) {
-        return this.prisma.product.create({
+    async create(data) {
+        const sellerExists = await this.prisma.user.findUnique({
+            where: { id: data.sellerId },
+        });
+        if (!sellerExists) {
+            throw new common_1.NotFoundException('Seller not found');
+        }
+        const categoryExists = await this.prisma.category.findUnique({
+            where: { id: data.categoryId },
+        });
+        if (!categoryExists) {
+            throw new common_1.NotFoundException('Category not found');
+        }
+        if (data.price <= 0) {
+            throw new common_1.BadRequestException('Price must be greater than 0');
+        }
+        if (data.stock < 0) {
+            throw new common_1.BadRequestException('Stock cannot be negative');
+        }
+        const product = await this.prisma.product.create({
             data: {
                 name: data.name,
                 description: data.description,
+                imageUrl: data.imageUrl,
                 price: data.price,
                 stock: data.stock,
-                seller: {
-                    connect: {
-                        id: data.sellerId,
-                    },
-                },
+                sellerId: data.sellerId,
+                categoryId: data.categoryId,
             },
-        });
-    }
-    findAll() {
-        return this.prisma.product.findMany({
             include: {
                 seller: true,
+                category: true,
             },
         });
+        return product;
     }
-    findOne(id) {
-        return this.prisma.product.findUnique({
+    async findAll() {
+        const products = await this.prisma.product.findMany({
+            include: {
+                seller: true,
+                category: true,
+            },
+        });
+        return products;
+    }
+    async findOne(id) {
+        const product = await this.prisma.product.findUnique({
             where: { id },
             include: {
                 seller: true,
+                category: true,
             },
         });
+        if (!product) {
+            throw new common_1.NotFoundException('Product not found');
+        }
+        return product;
     }
-    update(id, data) {
-        return this.prisma.product.update({
+    async update(id, data) {
+        const productExists = await this.prisma.product.findUnique({
+            where: { id },
+        });
+        if (!productExists) {
+            throw new common_1.NotFoundException('Product not found');
+        }
+        if (data.sellerId) {
+            const sellerExists = await this.prisma.user.findUnique({
+                where: { id: data.sellerId },
+            });
+            if (!sellerExists) {
+                throw new common_1.NotFoundException('Seller not found');
+            }
+        }
+        if (data.categoryId) {
+            const categoryExists = await this.prisma.category.findUnique({
+                where: { id: data.categoryId },
+            });
+            if (!categoryExists) {
+                throw new common_1.NotFoundException('Category not found');
+            }
+        }
+        if (data.price !== undefined && data.price <= 0) {
+            throw new common_1.BadRequestException('Price must be greater than 0');
+        }
+        if (data.stock !== undefined && data.stock < 0) {
+            throw new common_1.BadRequestException('Stock cannot be negative');
+        }
+        const updatedProduct = await this.prisma.product.update({
             where: { id },
             data,
+            include: {
+                seller: true,
+                category: true,
+            },
         });
+        return updatedProduct;
     }
-    remove(id) {
-        return this.prisma.product.delete({
+    async remove(id) {
+        const productExists = await this.prisma.product.findUnique({
             where: { id },
         });
+        if (!productExists) {
+            throw new common_1.NotFoundException('Product not found');
+        }
+        await this.prisma.product.delete({
+            where: { id },
+        });
+        return { message: 'Product deleted successfully' };
     }
 };
 exports.ProductsService = ProductsService;

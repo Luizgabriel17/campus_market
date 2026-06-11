@@ -4,9 +4,27 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 export declare class CategoriesController {
     private readonly categoriesService;
     constructor(categoriesService: CategoriesService);
-    create(createCategoryDto: CreateCategoryDto): string;
-    findAll(): string;
-    findOne(id: string): string;
-    update(id: string, updateCategoryDto: UpdateCategoryDto): string;
-    remove(id: string): string;
+    create(createCategoryDto: CreateCategoryDto): Promise<{
+        name: string;
+        id: number;
+        createdAt: Date;
+    }>;
+    findAll(): Promise<{
+        name: string;
+        id: number;
+        createdAt: Date;
+    }[]>;
+    findOne(id: string): Promise<{
+        name: string;
+        id: number;
+        createdAt: Date;
+    }>;
+    update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<{
+        name: string;
+        id: number;
+        createdAt: Date;
+    }>;
+    remove(id: string): Promise<{
+        message: string;
+    }>;
 }

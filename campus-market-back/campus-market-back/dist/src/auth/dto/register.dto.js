@@ -15,30 +15,15 @@ class RegisterDto {
 }
 exports.RegisterDto = RegisterDto;
 __decorate([
-    (0, class_validator_1.IsString)({
-        message: 'Nome inválido',
-    }),
-    (0, class_validator_1.MinLength)(3, {
-        message: 'Nome deve ter no mínimo 3 caracteres',
-    }),
-    (0, class_validator_1.MaxLength)(100, {
-        message: 'Nome muito grande',
-    }),
+    (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], RegisterDto.prototype, "nome", void 0);
+], RegisterDto.prototype, "name", void 0);
 __decorate([
-    (0, class_validator_1.IsEmail)({}, {
-        message: 'Email inválido',
-    }),
+    (0, class_validator_1.IsEmail)(),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "email", void 0);
 __decorate([
-    (0, class_validator_1.IsString)({
-        message: 'Senha inválida',
-    }),
-    (0, class_validator_1.MinLength)(6, {
-        message: 'Senha deve ter no mínimo 6 caracteres',
-    }),
+    (0, class_validator_1.MinLength)(6),
     __metadata("design:type", String)
-], RegisterDto.prototype, "senha", void 0);
+], RegisterDto.prototype, "password", void 0);
 //# sourceMappingURL=register.dto.js.map

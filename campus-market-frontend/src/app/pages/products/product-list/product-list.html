@@ -1,0 +1,115 @@
+<div class="product-list-container">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <button (click)="goBack()" class="btn-back">← Voltar</button>
+      <h1>Produtos</h1>
+      <button (click)="toggleViewMode()" class="btn-view-toggle">
+        {{ viewMode === 'grid' ? '📋' : '⊞' }}
+      </button>
+    </div>
+  </header>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="filters-container">
+      <!-- Search -->
+      <div class="filter-group">
+        <label for="search">Buscar Produto</label>
+        <input
+          type="text"
+          id="search"
+          placeholder="Nome ou descrição..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          class="search-input"
+        />
+      </div>
+
+      <!-- Category Filter -->
+      <div class="filter-group">
+        <label for="category">Categoria</label>
+        <select
+          id="category"
+          [(ngModel)]="selectedCategory"
+          (change)="onCategoryChange()"
+          class="category-select"
+        >
+          <option value="">Todas as categorias</option>
+          <option *ngFor="let cat of categories" [value]="cat">
+            {{ cat }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Count -->
+  <div class="results-info">
+    <p>Mostrando {{ filteredProducts.length }} produto(s)</p>
+  </div>
+
+  <!-- Products Display -->
+  <div class="products-section">
+    <!-- Grid View -->
+    <div
+      *ngIf="viewMode === 'grid'"
+      class="products-grid"
+    >
+      <div
+        *ngFor="let product of filteredProducts"
+        class="product-card-grid"
+        (click)="goToProductDetail(product.id)"
+      >
+        <div class="product-image">
+          <img [src]="product.image" [alt]="product.name" />
+          <span class="discount-badge">-15%</span>
+        </div>
+        <div class="product-info">
+          <span class="category-badge">{{ product.category }}</span>
+          <h3>{{ product.name }}</h3>
+          <p class="description">{{ product.description | slice: 0: 60 }}...</p>
+          <div class="rating">⭐ {{ product.rating }}</div>
+          <div class="price-stock">
+            <span class="price">R$ {{ product.price | number: '1.2-2' }}</span>
+            <span class="stock">{{ product.stock }} em estoque</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- List View -->
+    <div *ngIf="viewMode === 'list'" class="products-list">
+      <div
+        *ngFor="let product of filteredProducts"
+        class="product-card-list"
+        (click)="goToProductDetail(product.id)"
+      >
+        <img [src]="product.image" [alt]="product.name" class="product-image" />
+        <div class="product-details">
+          <div class="product-header">
+            <h3>{{ product.name }}</h3>
+            <span class="category-badge">{{ product.category }}</span>
+          </div>
+          <p>{{ product.description }}</p>
+          <div class="product-meta">
+            <span class="rating">⭐ {{ product.rating }}</span>
+            <span class="seller">Vendedor: {{ product.seller }}</span>
+          </div>
+        </div>
+        <div class="product-price">
+          <span class="price">R$ {{ product.price | number: '1.2-2' }}</span>
+          <span class="stock">{{ product.stock }} em estoque</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredProducts.length === 0" class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <h3>Nenhum produto encontrado</h3>
+      <p>Tente ajustar os filtros ou a busca</p>
+    </div>
+  </div>
+</div>
+

@@ -16,20 +16,56 @@ let CategoriesService = class CategoriesService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    create(createCategoryDto) {
-        return 'This action adds a new category';
+    async create(createCategoryDto) {
+        const { name } = createCategoryDto;
+        const existingCategory = await this.prisma.category.findUnique({
+            where: { name },
+        });
+        if (existingCategory) {
+            throw new common_1.BadRequestException('Category already exists');
+        }
+        const category = await this.prisma.category.create({
+            data: { name },
+        });
+        return category;
     }
-    findAll() {
-        return `This action returns all categories`;
+    async findAll() {
+        const categories = await this.prisma.category.findMany();
+        return categories;
     }
-    findOne(id) {
-        return `This action returns a #${id} category`;
+    async findOne(id) {
+        const category = await this.prisma.category.findUnique({
+            where: { id },
+        });
+        if (!category) {
+            throw new common_1.NotFoundException('Category not found');
+        }
+        return category;
     }
-    update(id, updateCategoryDto) {
-        return `This action updates a #${id} category`;
+    async update(id, updateCategoryDto) {
+        const category = await this.prisma.category.findUnique({
+            where: { id },
+        });
+        if (!category) {
+            throw new common_1.NotFoundException('Category not found');
+        }
+        const updatedCategory = await this.prisma.category.update({
+            where: { id },
+            data: updateCategoryDto,
+        });
+        return updatedCategory;
     }
-    remove(id) {
-        return `This action removes a #${id} category`;
+    async remove(id) {
+        const category = await this.prisma.category.findUnique({
+            where: { id },
+        });
+        if (!category) {
+            throw new common_1.NotFoundException('Category not found');
+        }
+        await this.prisma.category.delete({
+            where: { id },
+        });
+        return { message: 'Category deleted successfully' };
     }
 };
 exports.CategoriesService = CategoriesService;

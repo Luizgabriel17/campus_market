@@ -31,9 +31,23 @@ enum OrderStatus {
   CANCELADO
 }
 
+enum PaymentMethod {
+  PIX
+  CARD
+  CASH
+}
+
+enum PaymentStatus {
+  PENDENTE
+  APROVADO
+  RECUSADO
+}
+
 model User {
-  id    Int    @id @default(autoincrement())
-  name  String @db.VarChar(100)
+  id Int @id @default(autoincrement())
+
+  name String @db.VarChar(100)
+
   email String @unique @db.VarChar(150)
 
   password String? @db.VarChar(255)
@@ -42,22 +56,41 @@ model User {
 
   avatar String?
 
-  role Role
+  role Role @default(CLIENTE)
 
   status UserStatus @default(ATIVO)
 
   createdAt DateTime @default(now())
+
   updatedAt DateTime @updatedAt
 
+  // Produtos cadastrados pelo vendedor
   products Product[]
 
+  // Compras realizadas pelo cliente
   purchases Order[] @relation("CustomerOrders")
 
+  // Vendas realizadas pelo vendedor
   sales Order[] @relation("SellerOrders")
 
+  // Avaliações feitas
   reviewsMade Review[] @relation("CustomerReviews")
 
+  // Avaliações recebidas
   reviewsReceived Review[] @relation("SellerReviews")
+
+  // Carrinho
+  cart Cart?
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+
+  name String @unique @db.VarChar(100)
+
+  createdAt DateTime @default(now())
+
+  products Product[]
 }
 
 model Product {
@@ -65,9 +98,13 @@ model Product {
 
   sellerId Int
 
+  categoryId Int
+
   name String @db.VarChar(100)
 
   description String?
+
+  imageUrl String?
 
   price Decimal @db.Decimal(10, 2)
 
@@ -76,11 +113,45 @@ model Product {
   status ProductStatus @default(ATIVO)
 
   createdAt DateTime @default(now())
+
   updatedAt DateTime @updatedAt
 
   seller User @relation(fields: [sellerId], references: [id])
 
+  category Category @relation(fields: [categoryId], references: [id])
+
   orderItems OrderItem[]
+
+  cartItems CartItem[]
+
+  @@index([sellerId])
+  @@index([categoryId])
+}
+
+model Cart {
+  id Int @id @default(autoincrement())
+
+  userId Int @unique
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  items CartItem[]
+}
+
+model CartItem {
+  id Int @id @default(autoincrement())
+
+  cartId Int
+
+  productId Int
+
+  quantity Int
+
+  cart Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, productId])
 }
 
 model Order {
@@ -101,6 +172,11 @@ model Order {
   seller User @relation("SellerOrders", fields: [sellerId], references: [id])
 
   items OrderItem[]
+
+  payment Payment?
+
+  @@index([customerId])
+  @@index([sellerId])
 }
 
 model OrderItem {
@@ -119,6 +195,22 @@ model OrderItem {
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
+model Payment {
+  id Int @id @default(autoincrement())
+
+  orderId Int @unique
+
+  amount Decimal @db.Decimal(10, 2)
+
+  method PaymentMethod
+
+  status PaymentStatus @default(PENDENTE)
+
+  createdAt DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id])
+}
+
 model Review {
   id Int @id @default(autoincrement())
 
@@ -135,4 +227,6 @@ model Review {
   customer User @relation("CustomerReviews", fields: [customerId], references: [id])
 
   seller User @relation("SellerReviews", fields: [sellerId], references: [id])
+
+  @@unique([customerId, sellerId])
 }

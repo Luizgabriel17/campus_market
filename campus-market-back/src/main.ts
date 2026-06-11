@@ -5,27 +5,16 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(
-    AppModule,
-  );
+  const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: 'http://localhost:5173',
-
-    credentials: true,
-  });
-  app.enableCors({
-    origin: 'http://localhost:4200',
-
+    origin: true,
     credentials: true,
   });
 
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-
-      forbidNonWhitelisted: true,
-
       transform: true,
     }),
   );
@@ -33,10 +22,6 @@ async function bootstrap() {
   await app.listen(
     process.env.PORT ?? 3001,
     '0.0.0.0',
-  );
-
-  console.log(
-    `Servidor rodando na porta ${process.env.PORT ?? 3001}`,
   );
 }
 
