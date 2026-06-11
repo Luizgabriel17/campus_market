@@ -16,20 +16,67 @@ let UsersService = class UsersService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    create(createUserDto) {
-        return 'This action adds a new user';
+    async create(createUserDto) {
+        return this.prisma.user.create({
+            data: createUserDto,
+        });
     }
-    findAll() {
-        return `This action returns all users`;
+    async findAll() {
+        return this.prisma.user.findMany({
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                avatar: true,
+                role: true,
+                status: true,
+                createdAt: true,
+            },
+        });
     }
-    findOne(id) {
-        return `This action returns a #${id} user`;
+    async findOne(id) {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                avatar: true,
+                role: true,
+                status: true,
+                createdAt: true,
+            },
+        });
+        if (!user) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        return user;
     }
-    update(id, updateUserDto) {
-        return `This action updates a #${id} user`;
+    async update(id, updateUserDto) {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+        });
+        if (!user) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        return this.prisma.user.update({
+            where: { id },
+            data: updateUserDto,
+        });
     }
-    remove(id) {
-        return `This action removes a #${id} user`;
+    async remove(id) {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+        });
+        if (!user) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        await this.prisma.user.delete({
+            where: { id },
+        });
+        return {
+            message: 'User deleted successfully',
+        };
     }
 };
 exports.UsersService = UsersService;

@@ -16,20 +16,107 @@ let OrdersService = class OrdersService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    create(createOrderDto) {
-        return 'This action adds a new order';
+    async create(createOrderDto) {
+        let total = 0;
+        const itemsData = await Promise.all(createOrderDto.items.map(async (item) => {
+            const product = await this.prisma.product.findUnique({
+                where: {
+                    id: item.productId,
+                },
+            });
+            if (!product) {
+                throw new common_1.NotFoundException(`Product ${item.productId} not found`);
+            }
+            total +=
+                Number(product.price) * item.quantity;
+            return {
+                productId: item.productId,
+                quantity: item.quantity,
+                unitPrice: product.price,
+            };
+        }));
+        const order = await this.prisma.order.create({
+            data: {
+                customerId: createOrderDto.customerId,
+                sellerId: createOrderDto.sellerId,
+                total,
+                items: {
+                    create: itemsData,
+                },
+            },
+            include: {
+                items: {
+                    include: {
+                        product: true,
+                    },
+                },
+                customer: true,
+                seller: true,
+            },
+        });
+        return order;
     }
-    findAll() {
-        return `This action returns all orders`;
+    async findAll() {
+        return this.prisma.order.findMany({
+            include: {
+                customer: true,
+                seller: true,
+                items: {
+                    include: {
+                        product: true,
+                    },
+                },
+                payment: true,
+            },
+        });
     }
-    findOne(id) {
-        return `This action returns a #${id} order`;
+    async findOne(id) {
+        const order = await this.prisma.order.findUnique({
+            where: { id },
+            include: {
+                customer: true,
+                seller: true,
+                items: {
+                    include: {
+                        product: true,
+                    },
+                },
+                payment: true,
+            },
+        });
+        if (!order) {
+            throw new common_1.NotFoundException('Order not found');
+        }
+        return order;
     }
-    update(id, updateOrderDto) {
-        return `This action updates a #${id} order`;
+    async update(id, updateOrderDto) {
+        const order = await this.prisma.order.findUnique({
+            where: { id },
+        });
+        if (!order) {
+            throw new common_1.NotFoundException('Order not found');
+        }
+        return this.prisma.order.update({
+            where: { id },
+            data: {
+                customerId: updateOrderDto.customerId,
+                sellerId: updateOrderDto.sellerId,
+            },
+        });
     }
-    remove(id) {
-        return `This action removes a #${id} order`;
+    async remove(id) {
+        const order = await this.prisma.order.findUnique({
+            where: { id },
+        });
+        if (!order) {
+            throw new common_1.NotFoundException('Order not found');
+        }
+        await this.prisma.order.delete({
+            where: { id },
+        });
+        return {
+            message: 'Order removed successfully',
+        };
     }
 };
 exports.OrdersService = OrdersService;

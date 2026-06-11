@@ -33,7 +33,6 @@ enum OrderStatus {
 
 enum PaymentMethod {
   PIX
-  CARD
   CASH
 }
 

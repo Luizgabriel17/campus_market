@@ -1,54 +1,35 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
-interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-interface LoginResponse {
-  access_token: string;
-  user: {
-    id: number;
-    name: string;
-    email: string;
-    role: string;
-  };
-}
+import { API_URL } from './api';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
-export class Auth {
-  private http = inject(HttpClient);
+export class AuthService {
 
-  private apiUrl = 'http://localhost:3001/auth';
+  constructor(private http: HttpClient) {}
 
-  login(data: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(
-      `${this.apiUrl}/login`,
-      data
-    );
+  login(data: { email: string; password: string }) {
+    return this.http.post(`${API_URL}/auth/login`, data);
   }
 
   register(data: any) {
-    return this.http.post(
-      `${this.apiUrl}/register`,
-      data
-    );
+    return this.http.post(`${API_URL}/auth/register`, data);
   }
 
-  logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  getMe() {
+    return this.http.get(`${API_URL}/auth/me`);
+  }
+
+  saveToken(token: string) {
+    localStorage.setItem('token', token);
   }
 
   getToken() {
     return localStorage.getItem('token');
   }
 
-  isAuthenticated() {
-    return !!this.getToken();
+  logout() {
+    localStorage.removeItem('token');
   }
 }

@@ -1,34 +1,46 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { UploadService } from './upload.service';
-import { CreateUploadDto } from './dto/create-upload.dto';
-import { UpdateUploadDto } from './dto/update-upload.dto';
+import {
+  Controller,
+  Post,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
+
+import { FileInterceptor } from '@nestjs/platform-express';
+
+import { diskStorage } from 'multer';
+
+import { extname } from 'path';
 
 @Controller('upload')
 export class UploadController {
-  constructor(private readonly uploadService: UploadService) {}
+  @Post('product-image')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads/products',
 
-  @Post()
-  create(@Body() createUploadDto: CreateUploadDto) {
-    return this.uploadService.create(createUploadDto);
-  }
+        filename: (req, file, callback) => {
+          const uniqueName =
+            Date.now() +
+            '-' +
+            Math.round(Math.random() * 1e9);
 
-  @Get()
-  findAll() {
-    return this.uploadService.findAll();
-  }
+          callback(
+            null,
+            uniqueName +
+              extname(file.originalname),
+          );
+        },
+      }),
+    }),
+  )
+  uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return {
+      filename: file.filename,
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.uploadService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUploadDto: UpdateUploadDto) {
-    return this.uploadService.update(+id, updateUploadDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.uploadService.remove(+id);
+      url: `/uploads/products/${file.filename}`,
+    };
   }
 }
