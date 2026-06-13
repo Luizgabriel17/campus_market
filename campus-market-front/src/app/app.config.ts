@@ -1,15 +1,17 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors } from '@angular/common/http'; // Importe este
-
+import { provideHttpClient } from '@angular/common/http';
 import { routes } from './app.routes';
-import { authInterceptor } from './core/interceptors/auth-interceptor'; // Vamos criar logo abaixo
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    // Garante a detecção de eventos e atualizações de tela otimizadas
     provideZoneChangeDetection({ eventCoalescing: true }),
+    
+    // Provedor de Rotas do Sistema
     provideRouter(routes),
-    // Habilita o cliente HTTP e já deixa preparado o interceptor de Token JWT
-    provideHttpClient(withInterceptors([authInterceptor]))
+    
+    // Provedor para chamadas de API (Necessário para os Services funcionarem)
+    provideHttpClient()
   ]
 };

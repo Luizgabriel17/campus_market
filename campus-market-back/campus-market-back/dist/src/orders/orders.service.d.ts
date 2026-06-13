@@ -27,10 +27,10 @@ export declare class OrderService {
             };
         } & {
             id: number;
+            orderId: number;
             productId: number;
             quantity: number;
             unitPrice: import("@prisma/client/runtime/library").Decimal;
-            orderId: number;
         })[];
     } & {
         id: number;
@@ -68,10 +68,10 @@ export declare class OrderService {
             };
         } & {
             id: number;
+            orderId: number;
             productId: number;
             quantity: number;
             unitPrice: import("@prisma/client/runtime/library").Decimal;
-            orderId: number;
         })[];
     } & {
         id: number;
