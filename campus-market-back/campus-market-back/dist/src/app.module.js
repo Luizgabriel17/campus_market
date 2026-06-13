@@ -11,29 +11,34 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const prisma_module_1 = require("./prisma/prisma.module");
 const auth_module_1 = require("./auth/auth.module");
-const products_module_1 = require("./products/products.module");
-const categories_module_1 = require("./categories/categories.module");
-const orders_module_1 = require("./orders/orders.module");
-const users_module_1 = require("./users/users.module");
-const cart_module_1 = require("./cart/cart.module");
-const payments_module_1 = require("./payments/payments.module");
 const upload_module_1 = require("./upload/upload.module");
+const users_module_1 = require("./users/users.module");
+const seller_module_1 = require("./seller/seller.module");
+const categories_module_1 = require("./categories/categories.module");
+const products_module_1 = require("./products/products.module");
+const cart_module_1 = require("./cart/cart.module");
+const orders_module_1 = require("./orders/orders.module");
+const payments_module_1 = require("./payments/payments.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            config_1.ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
-            auth_module_1.AuthModule,
+            config_1.ConfigModule.forRoot({
+                isGlobal: true,
+                envFilePath: '.env'
+            }),
             prisma_module_1.PrismaModule,
-            products_module_1.ProductsModule,
-            categories_module_1.CategoriesModule,
-            orders_module_1.OrdersModule,
-            users_module_1.UsersModule,
-            cart_module_1.CartModule,
-            payments_module_1.PaymentsModule,
+            auth_module_1.AuthModule,
             upload_module_1.UploadModule,
+            users_module_1.UsersModule,
+            seller_module_1.SellerModule,
+            categories_module_1.CategoriesModule,
+            products_module_1.ProductsModule,
+            cart_module_1.CartModule,
+            orders_module_1.OrdersModule,
+            payments_module_1.PaymentsModule,
         ],
     })
 ], AppModule);

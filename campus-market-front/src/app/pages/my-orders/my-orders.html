@@ -1,0 +1,36 @@
+<div class="orders-page">
+  <header class="orders-header">
+    <h2>📦 Meus Pedidos no Campus</h2>
+    <button class="btn-primary" routerLink="/home">Ir para o Cardápio</button>
+  </header>
+
+  <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+
+  <div class="orders-list" *ngIf="orders().length > 0; else noOrders">
+    <div class="order-card" *ngFor="let order of orders()">
+      <div class="order-info-header">
+        <span>Pedido <strong>#{{ order.id }}</strong></span>
+        <span class="order-date">{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+        <span class="status-badge" [ngClass]="getStatusClass(order.status)">{{ order.status }}</span>
+      </div>
+
+      <div class="order-items">
+        <div class="product-row" *ngFor="let item of order.items">
+          <span>{{ item.quantity }}x - {{ item.product.name }}</span>
+          <span>{{ (item.unitPrice * item.quantity) | currency:'BRL' }}</span>
+        </div>
+      </div>
+
+      <div class="order-footer">
+        <span>Método: <strong>{{ order.payment?.method }}</strong></span>
+        <span>Total: <strong class="total-text">{{ order.total | currency:'BRL' }}</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noOrders>
+    <div class="empty-state">
+      <p>Você ainda não realizou nenhuma compra no Campus Market.</p>
+    </div>
+  </ng-template>
+</div>

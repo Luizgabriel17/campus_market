@@ -7,6 +7,7 @@ export declare class AuthService {
     private prisma;
     private client;
     constructor(jwtService: JwtService, prisma: PrismaService);
+    private generateToken;
     register(registerDto: RegisterDto): Promise<{
         access_token: string;
         user: {
@@ -32,5 +33,13 @@ export declare class AuthService {
         role: import(".prisma/client").$Enums.Role;
         avatar: string;
     }>;
-    verifyGoogleToken(token: string): Promise<import("google-auth-library").TokenPayload>;
+    loginWithGoogle(token: string): Promise<{
+        access_token: string;
+        user: {
+            id: number;
+            name: string;
+            email: string;
+            role: import(".prisma/client").$Enums.Role;
+        };
+    }>;
 }

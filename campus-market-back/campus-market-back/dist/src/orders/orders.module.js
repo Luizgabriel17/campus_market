@@ -16,8 +16,8 @@ let OrdersModule = class OrdersModule {
 exports.OrdersModule = OrdersModule;
 exports.OrdersModule = OrdersModule = __decorate([
     (0, common_1.Module)({
-        controllers: [orders_controller_1.OrdersController],
-        providers: [orders_service_1.OrdersService, prisma_service_1.PrismaService],
+        controllers: [orders_controller_1.OrderController],
+        providers: [orders_service_1.OrderService, prisma_service_1.PrismaService],
     })
 ], OrdersModule);
 //# sourceMappingURL=orders.module.js.map

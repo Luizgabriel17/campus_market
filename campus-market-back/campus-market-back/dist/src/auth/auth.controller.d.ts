@@ -22,6 +22,7 @@ export declare class AuthController {
             role: import(".prisma/client").$Enums.Role;
         };
     }>;
+    getMe(req: any): any;
     getProfile(req: any): Promise<{
         id: number;
         name: string;
@@ -30,8 +31,12 @@ export declare class AuthController {
         avatar: string;
     }>;
     googleLogin(token: string): Promise<{
-        email: string;
-        name: string;
-        picture: string;
+        access_token: string;
+        user: {
+            id: number;
+            name: string;
+            email: string;
+            role: import(".prisma/client").$Enums.Role;
+        };
     }>;
 }

@@ -28,16 +28,14 @@ let AuthController = class AuthController {
     async login(loginDto) {
         return this.authService.login(loginDto);
     }
+    getMe(req) {
+        return req.user;
+    }
     async getProfile(req) {
         return this.authService.getProfile(req.user.userId);
     }
     async googleLogin(token) {
-        const payload = await this.authService.verifyGoogleToken(token);
-        return {
-            email: payload.email,
-            name: payload.name,
-            picture: payload.picture,
-        };
+        return this.authService.loginWithGoogle(token);
     }
 };
 exports.AuthController = AuthController;
@@ -56,8 +54,16 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([
-    (0, common_1.Get)('profile'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('me'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "getMe", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('profile'),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),

@@ -1,0 +1,47 @@
+<div class="cart-page">
+  <header class="cart-header">
+    <h2>🛒 Seu Carrinho de Lanches</h2>
+    <button class="btn-back" routerLink="/home">← Continuar Comprando</button>
+  </header>
+
+  <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+
+  <div class="cart-content" *ngIf="cartData() && cartData().items.length > 0; else emptyCart">
+    <div class="items-list">
+      <div class="item-card" *ngFor="let item of cartData().items">
+        <img [src]="item.product.imageUrl ? 'http://localhost:3001' + item.product.imageUrl : 'assets/placeholder-food.png'" alt="Lanche">
+        <div class="item-details">
+          <h3>{{ item.product.name }}</h3>
+          <span class="item-price">{{ item.product.price | currency:'BRL' }}</span>
+          <span class="item-qty">Qtd: {{ item.quantity }}</span>
+        </div>
+        <button class="btn-delete" (click)="onRemoveItem(item.productId)">Remover</button>
+      </div>
+    </div>
+
+    <div class="checkout-summary">
+      <h3>Resumo do Pedido</h3>
+      <div class="summary-row">
+        <span>Total a pagar:</span>
+        <strong class="total-price">{{ cartData().items | totalCart | currency:'BRL' }}</strong>
+      </div>
+
+      <div class="payment-selection">
+        <label>Forma de Pagamento (Pague na Retirada):</label>
+        <select [(ngModel)]="paymentMethod">
+          <option value="PIX">PIX</option>
+          <option value="CASH">Dinheiro Físico</option>
+        </select>
+      </div>
+
+      <button class="btn-checkout" (click)="checkout()">Fechar Pedido no IF</button>
+    </div>
+  </div>
+
+  <ng-template #emptyCart>
+    <div class="empty-state">
+      <p>Sua bandeja está vazia! Escolha algum salgado ou suco na vitrine.</p>
+      <button class="btn-primary" routerLink="/home">Ver Cardápio</button>
+    </div>
+  </ng-template>
+</div>

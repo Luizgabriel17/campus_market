@@ -9,119 +9,138 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.OrdersService = void 0;
+exports.OrderService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-let OrdersService = class OrdersService {
+let OrderService = class OrderService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async create(createOrderDto) {
-        let total = 0;
-        const itemsData = await Promise.all(createOrderDto.items.map(async (item) => {
-            const product = await this.prisma.product.findUnique({
-                where: {
-                    id: item.productId,
+    async createOrder(customerId, paymentMethod) {
+        const cart = await this.prisma.cart.findUnique({
+            where: { userId: customerId },
+            include: {
+                items: {
+                    include: { product: true },
+                },
+            },
+        });
+        if (!cart || cart.items.length === 0) {
+            throw new common_1.BadRequestException('Seu carrinho está vazio.');
+        }
+        const sellerId = cart.items[0].product.sellerId;
+        const sameSeller = cart.items.every(item => item.product.sellerId === sellerId);
+        if (!sameSeller) {
+            throw new common_1.BadRequestException('Você só pode fazer pedido de um vendedor por vez no carrinho.');
+        }
+        for (const item of cart.items) {
+            if (item.product.stock < item.quantity) {
+                throw new common_1.BadRequestException(`Estoque insuficiente para o lanche: ${item.product.name}`);
+            }
+        }
+        const total = cart.items.reduce((acc, item) => {
+            return acc + (Number(item.product.price) * item.quantity);
+        }, 0);
+        return this.prisma.$transaction(async (tx) => {
+            const order = await tx.order.create({
+                data: {
+                    customerId,
+                    sellerId,
+                    total,
+                    status: 'PENDENTE',
                 },
             });
-            if (!product) {
-                throw new common_1.NotFoundException(`Product ${item.productId} not found`);
+            for (const item of cart.items) {
+                await tx.orderItem.create({
+                    data: {
+                        orderId: order.id,
+                        productId: item.productId,
+                        quantity: item.quantity,
+                        unitPrice: item.product.price,
+                    },
+                });
+                await tx.product.update({
+                    where: { id: item.productId },
+                    data: {
+                        stock: {
+                            decrement: item.quantity,
+                        },
+                    },
+                });
             }
-            total +=
-                Number(product.price) * item.quantity;
-            return {
-                productId: item.productId,
-                quantity: item.quantity,
-                unitPrice: product.price,
-            };
-        }));
-        const order = await this.prisma.order.create({
-            data: {
-                customerId: createOrderDto.customerId,
-                sellerId: createOrderDto.sellerId,
-                total,
-                items: {
-                    create: itemsData,
+            await tx.payment.create({
+                data: {
+                    orderId: order.id,
+                    amount: total,
+                    method: paymentMethod,
+                    status: 'PENDENTE',
                 },
-            },
-            include: {
-                items: {
-                    include: {
-                        product: true,
-                    },
+            });
+            await tx.cartItem.deleteMany({
+                where: { cartId: cart.id },
+            });
+            return tx.order.findUnique({
+                where: { id: order.id },
+                include: {
+                    items: { include: { product: true } },
+                    payment: true,
                 },
-                customer: true,
-                seller: true,
-            },
+            });
         });
-        return order;
     }
-    async findAll() {
+    async getCustomerOrders(customerId) {
         return this.prisma.order.findMany({
+            where: { customerId },
             include: {
-                customer: true,
-                seller: true,
-                items: {
-                    include: {
-                        product: true,
-                    },
-                },
+                seller: { select: { name: true } },
+                items: { include: { product: true } },
                 payment: true,
             },
+            orderBy: { createdAt: 'desc' },
         });
     }
-    async findOne(id) {
-        const order = await this.prisma.order.findUnique({
-            where: { id },
-            include: {
-                customer: true,
-                seller: true,
-                items: {
-                    include: {
-                        product: true,
-                    },
-                },
-                payment: true,
-            },
-        });
+    async updateOrderStatus(orderId, status) {
+        const order = await this.prisma.order.findUnique({ where: { id: orderId } });
         if (!order) {
-            throw new common_1.NotFoundException('Order not found');
-        }
-        return order;
-    }
-    async update(id, updateOrderDto) {
-        const order = await this.prisma.order.findUnique({
-            where: { id },
-        });
-        if (!order) {
-            throw new common_1.NotFoundException('Order not found');
+            throw new common_1.NotFoundException('Pedido não encontrado.');
         }
         return this.prisma.order.update({
-            where: { id },
-            data: {
-                customerId: updateOrderDto.customerId,
-                sellerId: updateOrderDto.sellerId,
-            },
+            where: { id: orderId },
+            data: { status },
         });
     }
-    async remove(id) {
+    async updatePaymentStatus(orderId, sellerId, status) {
         const order = await this.prisma.order.findUnique({
-            where: { id },
+            where: { id: orderId },
+            include: { payment: true }
         });
         if (!order) {
-            throw new common_1.NotFoundException('Order not found');
+            throw new common_1.NotFoundException('Pedido não encontrado.');
         }
-        await this.prisma.order.delete({
-            where: { id },
+        if (order.sellerId !== sellerId) {
+            throw new common_1.ForbiddenException('Este pedido não pertence a você.');
+        }
+        return this.prisma.$transaction(async (tx) => {
+            await tx.payment.update({
+                where: { orderId },
+                data: { status },
+            });
+            if (status === 'APROVADO') {
+                await tx.order.update({
+                    where: { id: orderId },
+                    data: { status: 'PAGO' },
+                });
+            }
+            return tx.order.findUnique({
+                where: { id: orderId },
+                include: { payment: true }
+            });
         });
-        return {
-            message: 'Order removed successfully',
-        };
     }
 };
-exports.OrdersService = OrdersService;
-exports.OrdersService = OrdersService = __decorate([
+exports.OrderService = OrderService;
+exports.OrderService = OrderService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
-], OrdersService);
+], OrderService);
 //# sourceMappingURL=orders.service.js.map

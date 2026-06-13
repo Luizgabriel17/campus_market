@@ -1,0 +1,38 @@
+<div class="home-container">
+  <header class="navbar">
+    <div class="logo">🍕 Campus Market</div>
+    <div class="user-info" *ngIf="authService.currentUser() as user">
+      <span>Olá, <strong>{{ user.name }}</strong> ({{ user.role }})</span>
+      <button (click)="authService.logout()" class="btn-logout" routerLink="/login">Sair</button>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="content-header">
+      <h2>Cardápio do Dia</h2>
+      <button class="btn-cart" routerLink="/cart">🛒 Ver Carrinho</button>
+    </div>
+
+    <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+    <p *ngIf="products().length === 0 && !errorMessage" class="empty-msg">Nenhum lanche disponível no momento.</p>
+
+    <div class="grid-products">
+      <div class="product-card" *ngFor="let product of products()">
+        <div class="product-image">
+          <img [src]="product.imageUrl ? 'http://localhost:3001' + product.imageUrl : 'assets/placeholder-food.png'" [alt]="product.name">
+        </div>
+        <div class="product-info">
+          <h3>{{ product.name }}</h3>
+          <p class="description">{{ product.description || 'Sem descrição disponível.' }}</p>
+          <div class="stock" [class.low-stock]="product.stock <= 5">Estoque: {{ product.stock }} un</div>
+          <div class="card-footer">
+            <span class="price">{{ product.price | currency:'BRL':'symbol':'1.2-2' }}</span>
+            <button class="btn-add" (click)="addToCart(product)" [disabled]="product.stock === 0">
+              {{ product.stock === 0 ? 'Esgotado' : 'Adicionar' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

@@ -1,34 +1,40 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import { Controller, Get, Post, Put, Body, Request, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { OrderService } from './orders.service';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 
+@UseGuards(JwtAuthGuard)
 @Controller('orders')
-export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+export class OrderController {
+  constructor(private readonly orderService: OrderService) {}
 
   @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersService.create(createOrderDto);
+  createOrder(@Request() req: any, @Body() body: { method: 'PIX' | 'CASH' }) {
+    return this.orderService.createOrder(req.user.userId, body.method);
   }
 
-  @Get()
-  findAll() {
-    return this.ordersService.findAll();
+  @Get('my-purchases')
+  getCustomerOrders(@Request() req: any) {
+    return this.orderService.getCustomerOrders(req.user.userId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ordersService.findOne(+id);
+  @Put(':id/status')
+  updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { status: 'PENDENTE' | 'PAGO' | 'ENVIADO' | 'ENTREGUE' | 'CANCELADO' },
+  ) {
+    return this.orderService.updateOrderStatus(id, body.status);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update(+id, updateOrderDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ordersService.remove(+id);
+  @Put(':id/payment')
+  @UseGuards(RolesGuard)
+  @Roles('VENDEDOR', 'ADMIN')
+  updatePayment(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req: any,
+    @Body() body: { status: 'PENDENTE' | 'APROVADO' | 'RECUSADO' },
+  ) {
+    return this.orderService.updatePaymentStatus(id, req.user.userId, body.status);
   }
 }

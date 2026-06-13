@@ -21,41 +21,29 @@ let AuthService = class AuthService {
         this.prisma = prisma;
         this.client = new google_auth_library_1.OAuth2Client(process.env.GOOGLE_CLIENT_ID);
     }
+    generateToken(user) {
+        const payload = { sub: user.id, email: user.email, role: user.role };
+        return this.jwtService.sign(payload);
+    }
     async register(registerDto) {
         const { email, password, name } = registerDto;
-        const existingUser = await this.prisma.user.findUnique({
-            where: { email },
-        });
+        const existingUser = await this.prisma.user.findUnique({ where: { email } });
         if (existingUser) {
             throw new common_1.BadRequestException('Email already exists');
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await this.prisma.user.create({
-            data: {
-                name,
-                email,
-                password: hashedPassword,
-            },
+            data: { name, email, password: hashedPassword },
         });
-        const token = this.jwtService.sign({
-            sub: user.id,
-            email: user.email,
-        });
+        const token = this.generateToken(user);
         return {
             access_token: token,
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-            },
+            user: { id: user.id, name: user.name, email: user.email, role: user.role },
         };
     }
     async login(loginDto) {
         const { email, password } = loginDto;
-        const user = await this.prisma.user.findUnique({
-            where: { email },
-        });
+        const user = await this.prisma.user.findUnique({ where: { email } });
         if (!user) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
@@ -66,24 +54,14 @@ let AuthService = class AuthService {
         if (!isPasswordValid) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        const token = this.jwtService.sign({
-            sub: user.id,
-            email: user.email,
-        });
+        const token = this.generateToken(user);
         return {
             access_token: token,
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-            },
+            user: { id: user.id, name: user.name, email: user.email, role: user.role },
         };
     }
     async getProfile(userId) {
-        const user = await this.prisma.user.findUnique({
-            where: { id: userId },
-        });
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
         if (!user) {
             throw new common_1.UnauthorizedException('User not found');
         }
@@ -95,12 +73,45 @@ let AuthService = class AuthService {
             avatar: user.avatar,
         };
     }
-    async verifyGoogleToken(token) {
-        const ticket = await this.client.verifyIdToken({
-            idToken: token,
-            audience: process.env.GOOGLE_CLIENT_ID,
-        });
-        return ticket.getPayload();
+    async loginWithGoogle(token) {
+        try {
+            const ticket = await this.client.verifyIdToken({
+                idToken: token,
+                audience: process.env.GOOGLE_CLIENT_ID,
+            });
+            const payload = ticket.getPayload();
+            if (!payload || !payload.email) {
+                throw new common_1.BadRequestException('Invalid Google token payload');
+            }
+            let user = await this.prisma.user.findUnique({
+                where: { email: payload.email },
+            });
+            if (!user) {
+                user = await this.prisma.user.create({
+                    data: {
+                        email: payload.email,
+                        name: payload.name || 'Google User',
+                        googleId: payload.sub,
+                        avatar: payload.picture,
+                        role: 'CLIENTE',
+                    },
+                });
+            }
+            else if (!user.googleId) {
+                user = await this.prisma.user.update({
+                    where: { id: user.id },
+                    data: { googleId: payload.sub, avatar: payload.picture },
+                });
+            }
+            const accessToken = this.generateToken(user);
+            return {
+                access_token: accessToken,
+                user: { id: user.id, name: user.name, email: user.email, role: user.role },
+            };
+        }
+        catch (error) {
+            throw new common_1.UnauthorizedException('Google authentication failed');
+        }
     }
 };
 exports.AuthService = AuthService;

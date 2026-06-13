@@ -18,6 +18,7 @@ exports.CartModule = CartModule = __decorate([
     (0, common_1.Module)({
         controllers: [cart_controller_1.CartController],
         providers: [cart_service_1.CartService, prisma_service_1.PrismaService],
+        exports: [cart_service_1.CartService],
     })
 ], CartModule);
 //# sourceMappingURL=cart.module.js.map

@@ -1,0 +1,56 @@
+<div class="form-page-container">
+  <div class="form-card">
+    <header class="form-header">
+      <h2>🍎 Novo Lanche no Campus Market</h2>
+      <p>Preencha os dados do salgado, bolo ou suco que será vendido no pátio</p>
+    </header>
+
+    <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="p-name">Nome do Produto</label>
+        <input type="text" id="p-name" name="name" [(ngModel)]="name" required placeholder="Ex: Coxinha de Frango c/ Catupiry">
+      </div>
+
+      <div class="form-group">
+        <label for="p-desc">Descrição / Ingredientes</label>
+        <textarea id="p-desc" name="description" [(ngModel)]="description" placeholder="Ex: Massa de batata frita na hora, contém lactose."></textarea>
+      </div>
+
+      <div class="form-row-double">
+        <div class="form-group">
+          <label for="p-price">Preço de Venda (R$)</label>
+          <input type="number" step="0.01" id="p-price" name="price" [(ngModel)]="price" required placeholder="5.50">
+        </div>
+
+        <div class="form-group">
+          <label for="p-stock">Quantidade Disponível (Estoque)</label>
+          <input type="number" id="p-stock" name="stock" [(ngModel)]="stock" required placeholder="20">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="p-category">Categoria do Alimento</label>
+        <select id="p-category" name="categoryId" [(ngModel)]="categoryId">
+          <option [value]="1">Salgados Assados / Fritos</option>
+          <option [value]="2">Doces e Bolos de Pote</option>
+          <option [value]="3">Sucos, Refrigerantes e Bebidas</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="p-image">Foto Real do Lanche (Abre o apetite dos alunos!)</label>
+        <input type="file" id="p-image" accept="image/*" (change) = "onFileSelected($event)">
+        <small class="file-help">Selecione arquivos JPG, PNG ou WEBP.</small>
+      </div>
+
+      <div class="form-buttons">
+        <button type="button" class="btn-cancel" routerLink="/vendedor/dashboard">Cancelar</button>
+        <button type="submit" class="btn-submit" [disabled]="isLoading">
+          {{ isLoading ? 'Salvando Lanche...' : 'Disponibilizar no Cardápio' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

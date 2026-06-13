@@ -9,126 +9,64 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProductsService = void 0;
+exports.ProductService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-let ProductsService = class ProductsService {
+let ProductService = class ProductService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async create(data) {
-        const sellerExists = await this.prisma.user.findUnique({
-            where: { id: data.sellerId },
-        });
-        if (!sellerExists) {
-            throw new common_1.NotFoundException('Seller not found');
-        }
-        const categoryExists = await this.prisma.category.findUnique({
-            where: { id: data.categoryId },
-        });
-        if (!categoryExists) {
-            throw new common_1.NotFoundException('Category not found');
-        }
-        if (data.price <= 0) {
-            throw new common_1.BadRequestException('Price must be greater than 0');
-        }
-        if (data.stock < 0) {
-            throw new common_1.BadRequestException('Stock cannot be negative');
-        }
-        const product = await this.prisma.product.create({
+    async create(sellerId, data) {
+        return this.prisma.product.create({
             data: {
-                name: data.name,
-                description: data.description,
-                imageUrl: data.imageUrl,
-                price: data.price,
-                stock: data.stock,
-                sellerId: data.sellerId,
-                categoryId: data.categoryId,
-            },
-            include: {
-                seller: true,
-                category: true,
+                ...data,
+                sellerId,
             },
         });
-        return product;
     }
     async findAll() {
-        const products = await this.prisma.product.findMany({
+        return this.prisma.product.findMany({
+            where: { status: 'ATIVO' },
             include: {
-                seller: true,
+                seller: { select: { id: true, name: true, avatar: true } },
                 category: true,
             },
         });
-        return products;
     }
     async findOne(id) {
         const product = await this.prisma.product.findUnique({
             where: { id },
-            include: {
-                seller: true,
-                category: true,
-            },
+            include: { seller: { select: { name: true } }, category: true },
         });
         if (!product) {
-            throw new common_1.NotFoundException('Product not found');
+            throw new common_1.NotFoundException('Lanche não encontrado.');
         }
         return product;
     }
-    async update(id, data) {
-        const productExists = await this.prisma.product.findUnique({
-            where: { id },
-        });
-        if (!productExists) {
-            throw new common_1.NotFoundException('Product not found');
+    async update(id, sellerId, data) {
+        const product = await this.findOne(id);
+        if (product.sellerId !== sellerId) {
+            throw new common_1.ForbiddenException('Você não tem permissão para alterar este produto.');
         }
-        if (data.sellerId) {
-            const sellerExists = await this.prisma.user.findUnique({
-                where: { id: data.sellerId },
-            });
-            if (!sellerExists) {
-                throw new common_1.NotFoundException('Seller not found');
-            }
-        }
-        if (data.categoryId) {
-            const categoryExists = await this.prisma.category.findUnique({
-                where: { id: data.categoryId },
-            });
-            if (!categoryExists) {
-                throw new common_1.NotFoundException('Category not found');
-            }
-        }
-        if (data.price !== undefined && data.price <= 0) {
-            throw new common_1.BadRequestException('Price must be greater than 0');
-        }
-        if (data.stock !== undefined && data.stock < 0) {
-            throw new common_1.BadRequestException('Stock cannot be negative');
-        }
-        const updatedProduct = await this.prisma.product.update({
+        return this.prisma.product.update({
             where: { id },
             data,
-            include: {
-                seller: true,
-                category: true,
-            },
         });
-        return updatedProduct;
     }
-    async remove(id) {
-        const productExists = await this.prisma.product.findUnique({
-            where: { id },
-        });
-        if (!productExists) {
-            throw new common_1.NotFoundException('Product not found');
+    async remove(id, sellerId) {
+        const product = await this.findOne(id);
+        if (product.sellerId !== sellerId) {
+            throw new common_1.ForbiddenException('Você não tem permissão para deletar este produto.');
         }
-        await this.prisma.product.delete({
+        return this.prisma.product.update({
             where: { id },
+            data: { status: 'INATIVO' },
         });
-        return { message: 'Product deleted successfully' };
     }
 };
-exports.ProductsService = ProductsService;
-exports.ProductsService = ProductsService = __decorate([
+exports.ProductService = ProductService;
+exports.ProductService = ProductService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
-], ProductsService);
+], ProductService);
 //# sourceMappingURL=products.service.js.map

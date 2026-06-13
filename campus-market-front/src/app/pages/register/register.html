@@ -1,0 +1,29 @@
+<div class="register-container">
+  <h2>Criar Conta - Campus Market</h2>
+  <p>Cadastre-se para pedir seus salgados e lanches no IF</p>
+
+  <form (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="name">Nome Completo</label>
+      <input type="text" id="name" name="name" [(ngModel)]="name" required placeholder="Digite seu nome">
+    </div>
+
+    <div class="form-group">
+      <label for="email">E-mail</label>
+      <input type="email" id="email" name="email" [(ngModel)]="email" required placeholder="seu.email@exemplo.com">
+    </div>
+
+    <div class="form-group">
+      <label for="password">Senha (Mínimo 6 caracteres)</label>
+      <input type="password" id="password" name="password" [(ngModel)]="password" required placeholder="Crie uma senha segura">
+    </div>
+
+    <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+
+    <button type="submit" class="btn-primary">Cadastrar e Entrar</button>
+  </form>
+
+  <p class="footer-text">
+    Já tem uma conta? <a routerLink="/login">Faça login aqui</a>
+  </p>
+</div>

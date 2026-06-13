@@ -1,34 +1,44 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Request, UseGuards, Param, ParseIntPipe } from '@nestjs/common';
 import { CartService } from './cart.service';
-import { CreateCartDto } from './dto/create-cart.dto';
-import { UpdateCartDto } from './dto/update-cart.dto';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
-  @Post()
-  create(@Body() createCartDto: CreateCartDto) {
-    return this.cartService.create(createCartDto);
-  }
-
   @Get()
-  findAll() {
-    return this.cartService.findAll();
+  getCart(@Request() req: any) {
+    return this.cartService.getOrCreateCart(req.user.userId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cartService.findOne(+id);
+  @Post('items')
+  addItem(
+    @Request() req: any,
+    @Body() body: { productId: number; quantity: number },
+  ) {
+    return this.cartService.addItem(req.user.userId, body.productId, body.quantity);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCartDto: UpdateCartDto) {
-    return this.cartService.update(+id, updateCartDto);
+  @Put('items/:productId')
+  updateQuantity(
+    @Param('productId', ParseIntPipe) productId: number,
+    @Request() req: any,
+    @Body() body: { quantity: number },
+  ) {
+    return this.cartService.updateItemQuantity(req.user.userId, productId, body.quantity);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cartService.remove(+id);
+  @Delete('items/:productId')
+  removeItem(
+    @Param('productId', ParseIntPipe) productId: number,
+    @Request() req: any,
+  ) {
+    return this.cartService.removeItem(req.user.userId, productId);
+  }
+
+  @Delete()
+  clearCart(@Request() req: any) {
+    return this.cartService.clearCart(req.user.userId);
   }
 }

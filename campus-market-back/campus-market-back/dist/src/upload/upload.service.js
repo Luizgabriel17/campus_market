@@ -9,21 +9,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UploadService = void 0;
 const common_1 = require("@nestjs/common");
 let UploadService = class UploadService {
-    create(createUploadDto) {
-        return 'This action adds a new upload';
-    }
-    findAll() {
-        return `This action returns all upload`;
-    }
-    findOne(id) {
-        return `This action returns a #${id} upload`;
-    }
-    update(id, updateUploadDto) {
-        return `This action updates a #${id} upload`;
-    }
-    remove(id) {
-        return `This action removes a #${id} upload`;
-    }
 };
 exports.UploadService = UploadService;
 exports.UploadService = UploadService = __decorate([

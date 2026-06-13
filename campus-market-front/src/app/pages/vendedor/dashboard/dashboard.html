@@ -1,0 +1,43 @@
+<div class="dashboard-page">
+  <header class="dash-header">
+    <div>
+      <h2>🏪 Painel da sua Cantina / Banca</h2>
+      <p>Gerencie o recebimento do dinheiro e a entrega dos lanches abaixo</p>
+    </div>
+    <div class="dash-actions">
+      <button class="btn-new-product" routerLink="/vendedor/products-form">➕ Cadastrar Novo Lanche</button>
+      <button class="btn-secondary" routerLink="/home">Visualizar como Aluno</button>
+    </div>
+  </header>
+
+  <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+
+  <div class="orders-grid">
+    <div class="sales-card" *ngFor="let payment of ordersReceived()">
+      <div class="sales-header">
+        <span>Pedido <strong>#{{ payment.order.id }}</strong></span>
+        <span class="badge-payment-status" [class.approved]="payment.status === 'APROVADO'">
+          Financeiro: {{ payment.status }}
+        </span>
+      </div>
+
+      <div class="sales-body">
+        <p>Método escolhido pelo Aluno: <strong>{{ payment.method }}</strong></p>
+        <p>Valor total a receber: <strong class="price-highlight">{{ payment.amount | currency:'BRL' }}</strong></p>
+        <p>Status da Entrega: <strong class="delivery-status">{{ payment.order.status }}</strong></p>
+      </div>
+
+      <div class="sales-actions">
+        <!-- Só mostra o botão de aprovar se o status atual for pendente -->
+        <button *ngIf="payment.status === 'PENDENTE'" class="btn-approve" (click)="approve(payment.id, payment.order.id)">
+          💰 Confirmar Pagamento Recebido
+        </button>
+
+        <!-- Só mostra botão de entrega se já foi pago mas ainda não foi retirado -->
+        <button *ngIf="payment.status === 'APROVADO' && payment.order.status !== 'ENTREGUE'" class="btn-deliver" (click)="markAsDelivered(payment.order.id)">
+          🍕 Entregar Lanche ao Aluno
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

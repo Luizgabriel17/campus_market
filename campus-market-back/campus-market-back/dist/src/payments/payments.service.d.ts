@@ -1,18 +1,9 @@
 import { PrismaService } from '../prisma/prisma.service';
-import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 export declare class PaymentsService {
     private prisma;
     constructor(prisma: PrismaService);
-    create(createPaymentDto: CreatePaymentDto): Promise<{
-        id: number;
-        status: import(".prisma/client").$Enums.PaymentStatus;
-        createdAt: Date;
-        orderId: number;
-        amount: import("@prisma/client/runtime/library").Decimal;
-        method: import(".prisma/client").$Enums.PaymentMethod;
-    }>;
-    findAll(): Promise<({
+    findAll(userId: number, role: string): Promise<({
         order: {
             id: number;
             status: import(".prisma/client").$Enums.OrderStatus;
@@ -29,7 +20,7 @@ export declare class PaymentsService {
         amount: import("@prisma/client/runtime/library").Decimal;
         method: import(".prisma/client").$Enums.PaymentMethod;
     })[]>;
-    findOne(id: number): Promise<{
+    findOne(id: number, userId: number, role: string): Promise<{
         order: {
             id: number;
             status: import(".prisma/client").$Enums.OrderStatus;
@@ -46,7 +37,7 @@ export declare class PaymentsService {
         amount: import("@prisma/client/runtime/library").Decimal;
         method: import(".prisma/client").$Enums.PaymentMethod;
     }>;
-    update(id: number, updatePaymentDto: UpdatePaymentDto): Promise<{
+    update(id: number, userId: number, role: string, updatePaymentDto: UpdatePaymentDto): Promise<{
         id: number;
         status: import(".prisma/client").$Enums.PaymentStatus;
         createdAt: Date;

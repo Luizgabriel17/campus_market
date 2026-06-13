@@ -1,0 +1,28 @@
+<div class="login-container">
+  <h2>Campus Market - IF</h2>
+  <p>Compre seu lanche para o intervalo sem filas</p>
+
+  <form (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="email">E-mail Institucional ou Cadastrado</label>
+      <input type="email" id="email" name="email" [(ngModel)]="email" required placeholder="seu.nome@escolar.ifrn.edu.br">
+    </div>
+
+    <div class="form-group">
+      <label for="password">Senha</label>
+      <input type="password" id="password" name="password" [(ngModel)]="password" required placeholder="Digite sua senha">
+    </div>
+
+    <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+
+    <button type="submit" class="btn-primary">Entrar</button>
+  </form>
+
+  <div class="divider">ou</div>
+
+  <div id="google-btn-container" style="width: 100%; margin-bottom: 20px;"></div>
+
+  <p class="footer-text">
+    Não tem uma conta? <a routerLink="/register">Cadastre-se aqui</a>
+  </p>
+</div>

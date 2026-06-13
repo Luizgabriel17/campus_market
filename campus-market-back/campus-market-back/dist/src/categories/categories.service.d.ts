@@ -1,10 +1,10 @@
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
-export declare class CategoriesService {
+export declare class CategoryService {
     private prisma;
     constructor(prisma: PrismaService);
-    create(createCategoryDto: CreateCategoryDto): Promise<{
+    create(data: {
+        name: string;
+    }): Promise<{
         name: string;
         id: number;
         createdAt: Date;
@@ -19,12 +19,9 @@ export declare class CategoriesService {
         id: number;
         createdAt: Date;
     }>;
-    update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<{
+    remove(id: number): Promise<{
         name: string;
         id: number;
         createdAt: Date;
-    }>;
-    remove(id: number): Promise<{
-        message: string;
     }>;
 }

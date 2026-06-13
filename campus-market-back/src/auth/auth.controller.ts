@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards, Request, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -17,31 +17,21 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
-  
+
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  getMe(@Req() req: any) {
-    return req.user;}
+  getMe(@Request() req: any) {
+    return req.user;
+  }
 
-  @Get('profile')
   @UseGuards(JwtAuthGuard)
+  @Get('profile')
   async getProfile(@Request() req: any) {
     return this.authService.getProfile(req.user.userId);
   }
 
   @Post('google')
-  async googleLogin(
-    @Body('token') token: string,
-  ) {
-    const payload =
-      await this.authService.verifyGoogleToken(
-        token,
-      );
-
-    return {
-      email: payload.email,
-      name: payload.name,
-      picture: payload.picture,
-    };
+  async googleLogin(@Body('token') token: string) {
+    return this.authService.loginWithGoogle(token);
   }
 }

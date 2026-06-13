@@ -14,67 +14,38 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UploadController = void 0;
 const common_1 = require("@nestjs/common");
-const upload_service_1 = require("./upload.service");
-const create_upload_dto_1 = require("./dto/create-upload.dto");
-const update_upload_dto_1 = require("./dto/update-upload.dto");
+const platform_express_1 = require("@nestjs/platform-express");
+const multer_1 = require("multer");
+const path_1 = require("path");
 let UploadController = class UploadController {
-    constructor(uploadService) {
-        this.uploadService = uploadService;
-    }
-    create(createUploadDto) {
-        return this.uploadService.create(createUploadDto);
-    }
-    findAll() {
-        return this.uploadService.findAll();
-    }
-    findOne(id) {
-        return this.uploadService.findOne(+id);
-    }
-    update(id, updateUploadDto) {
-        return this.uploadService.update(+id, updateUploadDto);
-    }
-    remove(id) {
-        return this.uploadService.remove(+id);
+    uploadFile(file) {
+        return {
+            filename: file.filename,
+            url: `/uploads/products/${file.filename}`,
+        };
     }
 };
 exports.UploadController = UploadController;
 __decorate([
-    (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Post)('product-image'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', {
+        storage: (0, multer_1.diskStorage)({
+            destination: './uploads/products',
+            filename: (req, file, callback) => {
+                const uniqueName = Date.now() +
+                    '-' +
+                    Math.round(Math.random() * 1e9);
+                callback(null, uniqueName +
+                    (0, path_1.extname)(file.originalname));
+            },
+        }),
+    })),
+    __param(0, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_upload_dto_1.CreateUploadDto]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
-], UploadController.prototype, "create", null);
-__decorate([
-    (0, common_1.Get)(),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], UploadController.prototype, "findAll", null);
-__decorate([
-    (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], UploadController.prototype, "findOne", null);
-__decorate([
-    (0, common_1.Patch)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_upload_dto_1.UpdateUploadDto]),
-    __metadata("design:returntype", void 0)
-], UploadController.prototype, "update", null);
-__decorate([
-    (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], UploadController.prototype, "remove", null);
+], UploadController.prototype, "uploadFile", null);
 exports.UploadController = UploadController = __decorate([
-    (0, common_1.Controller)('upload'),
-    __metadata("design:paramtypes", [upload_service_1.UploadService])
+    (0, common_1.Controller)('upload')
 ], UploadController);
 //# sourceMappingURL=upload.controller.js.map
