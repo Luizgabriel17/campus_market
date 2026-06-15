@@ -1,28 +1,88 @@
-<div class="login-container">
-  <h2>Campus Market - IF</h2>
-  <p>Compre seu lanche para o intervalo sem filas</p>
-
-  <form (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="email">E-mail Institucional ou Cadastrado</label>
-      <input type="email" id="email" name="email" [(ngModel)]="email" required placeholder="seu.nome@escolar.ifrn.edu.br">
+<div class="login-page-container">
+  <div class="brand-panel">
+    <div class="brand-overlay"></div>
+    <div class="brand-panel-content">
+      <div class="app-badge">IFRN Campus Market</div>
+      <h1 class="hero-text">Seus lanches favoritos, a um clique de distância.</h1>
+      <p class="hero-subtext">Acompanhe os cardápios do dia, faça seus pedidos com antecedência e evite as filas da cantina.</p>
+      
+      <div class="brand-graphic-container">
+  <div class="floating-graphic-element">
+    <div class="graphic-image-box">
+      <img src="assets/image.png" alt="Ilustração Campus Market" class="hero-graphic-img">
     </div>
-
-    <div class="form-group">
-      <label for="password">Senha</label>
-      <input type="password" id="password" name="password" [(ngModel)]="password" required placeholder="Digite sua senha">
+    <div class="graphic-badge badge-top">Rápido</div>
+    <div class="graphic-badge badge-bottom">Sem Filas</div>
+  </div>
+</div>
     </div>
+  </div>
 
-    <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+  <div class="form-panel">
+    <div class="form-panel-scroll">
+      <div class="form-box">
+        <header class="form-header">
+          <h2 class="welcome-title">Bem-vindo de volta</h2>
+          <p class="welcome-subtitle">Insira suas credenciais para acessar sua conta</p>
+        </header>
 
-    <button type="submit" class="btn-primary">Entrar</button>
-  </form>
+        <form (ngSubmit)="onSubmit()" class="custom-form">
+          <div class="input-block">
+            <label for="email" class="custom-label">E-mail</label>
+            <div class="input-wrapper">
+              <i class="input-icon icon-mail"></i>
+              <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                [(ngModel)]="email" 
+                required 
+                placeholder="seu.email@exemplo.com"
+                class="custom-input-with-icon"
+              >
+            </div>
+          </div>
 
-  <div class="divider">ou</div>
+          <div class="input-block">
+            <div class="label-row">
+              <label for="password" class="custom-label">Senha</label>
+              <a routerLink="/forgot-password" class="context-link">Esqueceu a senha?</a>
+            </div>
+            <div class="input-wrapper">
+              <i class="input-icon icon-lock"></i>
+              <input 
+                type="password" 
+                id="password" 
+                name="password" 
+                [(ngModel)]="password" 
+                required 
+                placeholder="Digite sua senha"
+                class="custom-input-with-icon"
+              >
+            </div>
+          </div>
 
-  <div id="google-btn-container" style="width: 100%; margin-bottom: 20px;"></div>
+          <div *ngIf="errorMessage" class="error-toast">
+            <span class="error-toast-text">{{ errorMessage }}</span>
+          </div>
 
-  <p class="footer-text">
-    Não tem uma conta? <a routerLink="/register">Cadastre-se aqui</a>
-  </p>
+          <button type="submit" class="btn-hero">Acessar Conta</button>
+        </form>
+
+        <div class="custom-divider">
+          <span class="divider-line-text">ou continue com</span>
+        </div>
+
+        <div class="social-zone">
+          <div id="google-btn" class="google-wrapper-layout"></div>
+        </div>
+
+        <footer class="form-footer-zone">
+          <p class="footer-action-text">
+            Novo no Campus Market? <a routerLink="/register" class="highlight-link">Crie sua conta aqui</a>
+          </p>
+        </footer>
+      </div>
+    </div>
+  </div>
 </div>

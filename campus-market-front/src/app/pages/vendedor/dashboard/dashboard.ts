@@ -24,7 +24,7 @@ export class DashboardComponent implements OnInit {
 
   loadIncomingOrders() {
     // Busca todas as ordens do sistema. O NestJS vai filtrar automaticamente apenas as vendas DESTE vendedor
-    this.http.get<any[]>('http://localhost:3001/api/payments').subscribe({
+    this.http.get<any[]>('https://opulent-robot-pjr7rx457r4p39wg4-4200.app.github.dev/api/payments').subscribe({
       next: (payments) => {
         this.ordersReceived.set(payments);
       },

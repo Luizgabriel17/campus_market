@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class CartService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3001/api/cart';
+  private readonly apiUrl = 'https://opulent-robot-pjr7rx457r4p39wg4-4200.app.github.dev/api/cart';
 
   getCart() {
     return this.http.get<any>(this.apiUrl);

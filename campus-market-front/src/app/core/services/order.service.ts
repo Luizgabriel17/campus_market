@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class OrderService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3001/api/orders';
+  private readonly apiUrl = 'https://opulent-robot-pjr7rx457r4p39wg4-4200.app.github.dev/api/orders';
 
   createOrder(paymentMethod: 'PIX' | 'CASH') {
     return this.http.post(this.apiUrl, { method: paymentMethod });

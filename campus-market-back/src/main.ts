@@ -27,6 +27,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:4200',
       'http://127.0.0.1:4200',
+      'https://opulent-robot-pjr7rx457r4p39wg4-4200.app.github.dev'
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],

@@ -1,33 +1,54 @@
-<div class="home-container">
-  <header class="navbar">
-    <div class="logo">🍕 Campus Market</div>
-    <div class="user-info" *ngIf="authService.currentUser() as user">
-      <span>Olá, <strong>{{ user.name }}</strong> ({{ user.role }})</span>
+<div class="home-wrapper">
+  <nav class="navbar">
+    <div class="navbar-brand">Campus Market</div>
+    <div class="navbar-user" *ngIf="authService.currentUser() as user">
+      <div class="user-meta">
+        <span class="user-name">{{ user.name }}</span>
+        <span class="user-role">{{ user.role }}</span>
+      </div>
       <button (click)="authService.logout()" class="btn-logout" routerLink="/login">Sair</button>
     </div>
-  </header>
+  </nav>
 
-  <main class="content">
-    <div class="content-header">
-      <h2>Cardápio do Dia</h2>
-      <button class="btn-cart" routerLink="/cart">🛒 Ver Carrinho</button>
+  <main class="main-content">
+    <header class="content-header">
+      <div class="title-group">
+        <h1 class="page-title">Cardápio do Dia</h1>
+        <p class="page-subtitle">Lanches e salgados disponíveis para retirada</p>
+      </div>
+      <button class="btn-cart" routerLink="/cart">
+        <span>Ver Carrinho</span>
+      </button>
+    </header>
+
+    <div *ngIf="errorMessage" class="error-banner">
+      <span class="error-text">{{ errorMessage }}</span>
     </div>
 
-    <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
-    <p *ngIf="products().length === 0 && !errorMessage" class="empty-msg">Nenhum lanche disponível no momento.</p>
+    <div *ngIf="products().length === 0 && !errorMessage" class="empty-state">
+      <p class="empty-text">Nenhum lanche disponível no momento.</p>
+    </div>
 
-    <div class="grid-products">
+    <div class="products-grid">
       <div class="product-card" *ngFor="let product of products()">
-        <div class="product-image">
-          <img [src]="product.imageUrl ? 'http://localhost:3001' + product.imageUrl : 'assets/placeholder-food.png'" [alt]="product.name">
+        <div class="product-image-container">
+          <img [src]="product.imageUrl ? 'http://localhost:3001' + product.imageUrl : 'assets/placeholder-food.png'" [alt]="product.name" class="product-image">
         </div>
-        <div class="product-info">
-          <h3>{{ product.name }}</h3>
-          <p class="description">{{ product.description || 'Sem descrição disponível.' }}</p>
-          <div class="stock" [class.low-stock]="product.stock <= 5">Estoque: {{ product.stock }} un</div>
-          <div class="card-footer">
-            <span class="price">{{ product.price | currency:'BRL':'symbol':'1.2-2' }}</span>
-            <button class="btn-add" (click)="addToCart(product)" [disabled]="product.stock === 0">
+        
+        <div class="product-body">
+          <h3 class="product-title">{{ product.name }}</h3>
+          <p class="product-description">{{ product.description || 'Sem descrição disponível.' }}</p>
+          
+          <div class="product-status">
+            <span class="stock-badge" [class.low-stock]="product.stock <= 5" [class.out-of-stock]="product.stock === 0">
+              <span class="stock-indicator"></span>
+              {{ product.stock === 0 ? 'Sem estoque' : 'Estoque: ' + product.stock + ' un' }}
+            </span>
+          </div>
+          
+          <div class="product-footer">
+            <span class="product-price">{{ product.price | currency:'BRL':'symbol':'1.2-2' }}</span>
+            <button class="btn-action" (click)="addToCart(product)" [disabled]="product.stock === 0">
               {{ product.stock === 0 ? 'Esgotado' : 'Adicionar' }}
             </button>
           </div>

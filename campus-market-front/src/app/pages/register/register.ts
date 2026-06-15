@@ -18,15 +18,23 @@ export class RegisterComponent {
   name = '';
   email = '';
   password = '';
+  role = ''; // <--- Nova propriedade que vai receber o valor do <select> no HTML
   errorMessage = '';
 
   onSubmit() {
     this.errorMessage = '';
 
+    // Validação extra no frontend para garantir que uma opção foi selecionada
+    if (!this.role) {
+      this.errorMessage = 'Por favor, selecione se deseja comprar ou vender.';
+      return;
+    }
+
     const payload = {
       name: this.name,
       email: this.email,
-      password: this.password
+      password: this.password,
+      role: this.role // <--- Adicionado o papel selecionado no payload enviado ao backend
     };
 
     this.authService.register(payload).subscribe({

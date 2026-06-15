@@ -16,7 +16,7 @@ interface Product {
 })
 export class ProductService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3001/api/products';
+  private readonly apiUrl = 'https://opulent-robot-pjr7rx457r4p39wg4-4200.app.github.dev/api/products';
 
   getProducts() {
     return this.http.get<Product[]>(this.apiUrl);

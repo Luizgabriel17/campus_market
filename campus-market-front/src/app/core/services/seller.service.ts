@@ -6,10 +6,10 @@ import { HttpClient } from '@angular/common/http';
 })
 export class SellerService {
   private http = inject(HttpClient);
-  private readonly ordersUrl = 'http://localhost:3001/api/orders';
-  private readonly productsUrl = 'http://localhost:3001/api/products';
+  private readonly ordersUrl = 'https://opulent-robot-pjr7rx457r4p39wg4-4200.app.github.dev/api/orders';
+  private readonly productsUrl = 'https://opulent-robot-pjr7rx457r4p39wg4-4200.app.github.dev/api/products';
 
-  // Rota que refatoramos no NestJS protegida pelo RolesGuard
+  // Rota que refatorei no NestJS protegida pelo RolesGuard
   confirmPayment(orderId: number, status: 'APROVADO' | 'RECUSADO') {
     return this.http.put(`${this.ordersUrl}/${orderId}/payment`, { status });
   }

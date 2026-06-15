@@ -21,7 +21,8 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
-    const { email, password, name } = registerDto;
+    // Adicionado o 'role' na desestruturação
+    const { email, password, name, role } = registerDto;
 
     const existingUser = await this.prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -31,7 +32,12 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await this.prisma.user.create({
-      data: { name, email, password: hashedPassword },
+      data: {
+        email,
+        password: hashedPassword,
+        name,
+        role,
+      },
     });
 
     const token = this.generateToken(user);
@@ -97,6 +103,8 @@ export class AuthService {
         where: { email: payload.email },
       });
 
+      let isNewUser = false; // Flag para o Frontend saber se é o primeiro acesso
+
       if (!user) {
         user = await this.prisma.user.create({
           data: {
@@ -104,9 +112,10 @@ export class AuthService {
             name: payload.name || 'Google User',
             googleId: payload.sub,
             avatar: payload.picture,
-            role: 'CLIENTE',
+            role: 'CLIENTE', // Define como CLIENTE por padrão temporariamente
           },
         });
+        isNewUser = true; // <--- Marcado como usuário novo
       } else if (!user.googleId) {
         user = await this.prisma.user.update({
           where: { id: user.id },
@@ -118,6 +127,7 @@ export class AuthService {
 
       return {
         access_token: accessToken,
+        isNewUser, // Retornando a flag para o frontend tratar
         user: { id: user.id, name: user.name, email: user.email, role: user.role },
       };
     } catch (error) {

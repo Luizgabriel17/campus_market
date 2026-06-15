@@ -1,29 +1,83 @@
-<div class="register-container">
-  <h2>Criar Conta - Campus Market</h2>
-  <p>Cadastre-se para pedir seus salgados e lanches no IF</p>
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <header class="auth-header">
+      <h1 class="brand-title">Campus Market</h1>
+      <p class="brand-subtitle">Crie sua conta para acompanhar cardápios e realizar pedidos</p>
+    </header>
 
-  <form (ngSubmit)="onSubmit()">
-    <div class="form-group">
-      <label for="name">Nome Completo</label>
-      <input type="text" id="name" name="name" [(ngModel)]="name" required placeholder="Digite seu nome">
-    </div>
+    <form (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label for="name" class="form-label">Nome Completo</label>
+        <div class="input-wrapper">
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            [(ngModel)]="name" 
+            required 
+            placeholder="Ex: João Silva"
+            class="form-input"
+          >
+        </div>
+      </div>
 
-    <div class="form-group">
-      <label for="email">E-mail</label>
-      <input type="email" id="email" name="email" [(ngModel)]="email" required placeholder="seu.email@exemplo.com">
-    </div>
+      <div class="form-group">
+        <label for="email" class="form-label">E-mail Institucional</label>
+        <div class="input-wrapper">
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            [(ngModel)]="email" 
+            required 
+            placeholder="seu.nome@escolar.ifrn.edu.br"
+            class="form-input"
+          >
+        </div>
+      </div>
 
-    <div class="form-group">
-      <label for="password">Senha (Mínimo 6 caracteres)</label>
-      <input type="password" id="password" name="password" [(ngModel)]="password" required placeholder="Crie uma senha segura">
-    </div>
+      <div class="form-group">
+        <label for="password" class="form-label">Senha de Acesso</label>
+        <div class="input-wrapper">
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            [(ngModel)]="password" 
+            required 
+            placeholder="No mínimo 6 caracteres"
+            class="form-input"
+          >
+        </div>
+      </div>
 
-    <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+      <div class="form-group">
+        <label for="role" class="form-label">Perfil de Acesso</label>
+        <div class="input-wrapper">
+          <select 
+            id="role" 
+            name="role" 
+            [(ngModel)]="role" 
+            required
+            class="form-select"
+          >
+            <option value="" disabled selected>Selecione o que deseja fazer</option>
+            <option value="CLIENTE">Quero Comprar (Visualizar cardápios e lanches)</option>
+            <option value="VENDEDOR">Quero Vender (Gerenciar produtos e pedidos)</option>
+          </select>
+        </div>
+      </div>
 
-    <button type="submit" class="btn-primary">Cadastrar e Entrar</button>
-  </form>
+      <div *ngIf="errorMessage" class="error-banner">
+        <span class="error-text">{{ errorMessage }}</span>
+      </div>
 
-  <p class="footer-text">
-    Já tem uma conta? <a routerLink="/login">Faça login aqui</a>
-  </p>
+      <button type="submit" class="btn-submit">Cadastrar e Entrar</button>
+    </form>
+
+    <footer class="auth-footer">
+      <span class="footer-notice">Já tem uma conta?</span>
+      <a routerLink="/login" class="footer-link">Faça login aqui</a>
+    </footer>
+  </div>
 </div>

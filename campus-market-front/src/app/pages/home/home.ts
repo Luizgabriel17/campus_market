@@ -30,7 +30,7 @@ export class HomeComponent implements OnInit {
   }
 
   addToCart(product: any) {
-    // Por enquanto mostra um aviso, faremos a integração com a rota do carrinho a seguir
+    // Por enquanto mostra um aviso, farei a integração com a rota do carrinho a seguir
     alert(`${product.name} adicionado ao carrinho com sucesso!`);
   }
 }
