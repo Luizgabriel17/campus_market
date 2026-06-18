@@ -1,57 +1,25 @@
-import { ValidationPipe, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'path';
-import { existsSync, mkdirSync } from 'fs';
 import { AppModule } from './app.module';
-import { PrismaExceptionFilter } from './common/filters/prisma-exception.filters';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const logger = new Logger('Bootstrap');
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create(AppModule);
 
+  // 1. PRIMEIRO: Define o prefixo global da API para que o NestJS mapeie as rotas
   app.setGlobalPrefix('api');
 
-  const uploadsPath = join(__dirname, '..', 'uploads');
-  if (!existsSync(uploadsPath)) {
-    mkdirSync(uploadsPath, { recursive: true });
-  }
-
-  app.useStaticAssets(uploadsPath, {
-    prefix: '/uploads',
-    maxAge: '1d',
-    index: false,
-  });
-
+  // 2. SEGUNDO: Ativa o CORS com as rotas já devidamente prefixadas
   app.enableCors({
-    origin: [
-      'http://localhost:4200',
-      'http://127.0.0.1:4200',
-      'https://opulent-robot-pjr7rx457r4p39wg4-4200.app.github.dev'
-    ],
+    origin: 'http://localhost:4200', // Permite o seu Frontend Angular
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: 'Content-Type, Accept, Authorization', // Permite o cabeçalho do Token!
   });
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-      forbidNonWhitelisted: true,
-      transformOptions: {
-        enableImplicitConversion: true,
-      },
-    }),
-  );
+  // 3. TERCEIRO: Ativa as validações globais de DTO
+  app.useGlobalPipes(new ValidationPipe());
 
-  app.useGlobalFilters(new PrismaExceptionFilter());
-
-  const port = Number(process.env.PORT || 3001);
-
-  await app.listen(port, '0.0.0.0');
-
-  logger.log(`Campus Market API rodando em http://localhost:${port}/api`);
+  // 4. QUARTO: Inicia o servidor na porta 3001
+  await app.listen(3001);
 }
-
 bootstrap();

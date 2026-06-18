@@ -27,18 +27,32 @@ export class ProductController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('VENDEDOR', 'ADMIN')
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './uploads', 
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
   create(
     @Request() req: any,
-    @Body() data: { categoryId: number; name: string; description?: string; imageUrl?: string; price: number; stock: number },
+    @UploadedFile() file: Express.Multer.File, 
+    @Body() body: any, 
   ) {
-    return this.productService.create(req.user.userId, data);
-  }
+    const productData = {
+      name: body.name,
+      description: body.description,
+      price: parseFloat(body.price),
+      stock: parseInt(body.stock, 10),
+      categoryId: parseInt(body.categoryId, 10),
+      imageUrl: file ? `/uploads/${file.filename}` : undefined, 
+    };
 
-  @Post('upload')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('VENDEDOR', 'ADMIN')
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    return { imageUrl: `/uploads/${file.filename}` };
+    return this.productService.create(req.user.userId, productData);
   }
 
   @Get()
@@ -54,12 +68,30 @@ export class ProductController {
   @Put(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('VENDEDOR', 'ADMIN')
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
   update(
     @Param('id', ParseIntPipe) id: number,
     @Request() req: any,
-    @Body() data: { name?: string; description?: string; imageUrl?: string; price?: number; stock?: number; status?: 'ATIVO' | 'INATIVO' },
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any,
   ) {
-    return this.productService.update(id, req.user.userId, data);
+    const updateData: any = { ...body };
+    if (body.price) updateData.price = parseFloat(body.price);
+    if (body.stock) updateData.stock = parseInt(body.stock, 10);
+    if (body.categoryId) updateData.categoryId = parseInt(body.categoryId, 10);
+    if (file) updateData.imageUrl = `/uploads/${file.filename}`;
+
+    return this.productService.update(id, req.user.userId, updateData);
   }
 
   @Delete(':id')

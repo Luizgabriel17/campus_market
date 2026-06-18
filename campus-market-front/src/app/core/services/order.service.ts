@@ -6,13 +6,46 @@ import { HttpClient } from '@angular/common/http';
 })
 export class OrderService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'https://opulent-robot-pjr7rx457r4p39wg4-4200.app.github.dev/api/orders';
+
+  private readonly apiUrl =
+    'http://localhost:3001/api/orders';
 
   createOrder(paymentMethod: 'PIX' | 'CASH') {
-    return this.http.post(this.apiUrl, { method: paymentMethod });
+    return this.http.post(
+      this.apiUrl,
+      { method: paymentMethod }
+    );
   }
 
   getMyOrders() {
-    return this.http.get<any[]>(`${this.apiUrl}/my-purchases`);
+    return this.http.get<any[]>(
+      `${this.apiUrl}/my-purchases`
+    );
+  }
+
+  getSellerOrders() {
+    return this.http.get<any[]>(
+      `${this.apiUrl}/seller`
+    );
+  }
+
+  updateOrderStatus(
+    orderId: number,
+    status: string
+  ) {
+    return this.http.put(
+      `${this.apiUrl}/${orderId}/status`,
+      { status }
+    );
+  }
+
+  updatePaymentStatus(
+    orderId: number,
+    status: string
+  ) {
+    return this.http.put(
+      `${this.apiUrl}/${orderId}/payment`,
+      { status }
+    );
   }
 }

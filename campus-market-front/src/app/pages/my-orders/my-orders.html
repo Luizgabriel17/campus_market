@@ -1,36 +1,138 @@
-<div class="orders-page">
-  <header class="orders-header">
-    <h2>📦 Meus Pedidos no Campus</h2>
-    <button class="btn-primary" routerLink="/home">Ir para o Cardápio</button>
-  </header>
+<div class="cm-dashboard-container">
 
-  <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
-
-  <div class="orders-list" *ngIf="orders().length > 0; else noOrders">
-    <div class="order-card" *ngFor="let order of orders()">
-      <div class="order-info-header">
-        <span>Pedido <strong>#{{ order.id }}</strong></span>
-        <span class="order-date">{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-        <span class="status-badge" [ngClass]="getStatusClass(order.status)">{{ order.status }}</span>
+  <!-- NAVBAR -->
+  <nav class="cm-navbar">
+    <div class="cm-navbar-brand">
+      <div class="brand-logo-wrapper">
+        <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/>
+        </svg>
       </div>
 
-      <div class="order-items">
-        <div class="product-row" *ngFor="let item of order.items">
-          <span>{{ item.quantity }}x - {{ item.product.name }}</span>
-          <span>{{ (item.unitPrice * item.quantity) | currency:'BRL' }}</span>
+      <span class="brand-text">
+        Campus<span class="brand-accent">Market</span>
+      </span>
+    </div>
+
+    <button class="back-btn" routerLink="/home">
+      Voltar ao Menu
+    </button>
+  </nav>
+
+  <main class="cm-main-layout">
+
+    <!-- HEADER -->
+    <header class="cm-view-header">
+      <div>
+        <h1 class="cm-page-title">Meus Pedidos</h1>
+        <p class="cm-page-subtitle">
+          Acompanhe em tempo real o andamento dos seus pedidos.
+        </p>
+      </div>
+    </header>
+
+    <!-- ERRO -->
+    <div *ngIf="errorMessage" class="cm-state-banner system-error">
+      <div class="banner-icon-container">⚠️</div>
+      <div class="banner-message-body">
+        <strong>Erro</strong>
+        <span>{{ errorMessage }}</span>
+      </div>
+    </div>
+
+    <!-- LISTA DE PEDIDOS -->
+    <section *ngIf="orders().length > 0" class="orders-grid">
+
+      <article
+        class="order-card"
+        *ngFor="let order of orders()">
+
+        <div class="order-header">
+
+          <div>
+            <h3>Pedido #{{ order.id }}</h3>
+            <span class="order-date">
+              {{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+          </div>
+
+          <span
+            class="status-badge"
+            [ngClass]="getStatusClass(order.status)">
+            {{ order.status }}
+          </span>
+
         </div>
+
+        <div class="order-items">
+
+          <div
+            class="item-row"
+            *ngFor="let item of order.items">
+
+            <div class="item-info">
+              <strong>{{ item.product.name }}</strong>
+              <span class="seller-order">
+                Vendido por {{ order.seller?.name }}
+              </span>
+              <span>{{ item.quantity }} unidade(s)</span>
+            </div>
+
+            <div class="item-price">
+              {{ (item.unitPrice * item.quantity) | currency:'BRL' }}
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="order-footer">
+
+          <div>
+            <span class="footer-label">Pagamento</span>
+            <strong>{{ order.payment?.method || 'Pendente' }}</strong>
+          </div>
+
+          <div class="total-box">
+            <span class="footer-label">Total</span>
+            <strong class="total-price">
+              {{ order.total | currency:'BRL' }}
+            </strong>
+          </div>
+
+        </div>
+
+      </article>
+
+    </section>
+
+    <!-- ESTADO VAZIO -->
+    <div
+      *ngIf="orders().length === 0 && !errorMessage"
+      class="cm-empty-state-card">
+
+      <div class="empty-state-visual">
+        <span class="empty-emoji">📦</span>
       </div>
 
-      <div class="order-footer">
-        <span>Método: <strong>{{ order.payment?.method }}</strong></span>
-        <span>Total: <strong class="total-text">{{ order.total | currency:'BRL' }}</strong></span>
-      </div>
-    </div>
-  </div>
+      <h2 class="empty-state-title">
+        Nenhum pedido encontrado
+      </h2>
 
-  <ng-template #noOrders>
-    <div class="empty-state">
-      <p>Você ainda não realizou nenhuma compra no Campus Market.</p>
+      <p class="empty-state-description">
+        Você ainda não realizou compras no CampusMarket.
+      </p>
+
+      <button
+        class="primary-action-btn"
+        routerLink="/home">
+
+        Ver Cardápio
+      </button>
+
     </div>
-  </ng-template>
+
+  </main>
+
 </div>

@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs/internal/Observable';
 
 interface Product {
   id: number;
@@ -16,9 +17,13 @@ interface Product {
 })
 export class ProductService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'https://opulent-robot-pjr7rx457r4p39wg4-4200.app.github.dev/api/products';
+  private readonly apiUrl = 'http://localhost:3001/api/products';
 
   getProducts() {
     return this.http.get<Product[]>(this.apiUrl);
+  }
+  createProduct(productData: FormData): Observable<any> {
+    // Usamos FormData porque o formulário envia um arquivo de imagem junto com os textos
+    return this.http.post(this.apiUrl, productData);
   }
 }

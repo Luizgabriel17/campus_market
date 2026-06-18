@@ -19,6 +19,7 @@ export class OrderService {
       throw new BadRequestException('Seu carrinho está vazio.');
     }
 
+    
     const sellerId = cart.items[0].product.sellerId;
     const sameSeller = cart.items.every(item => item.product.sellerId === sellerId);
     if (!sameSeller) {
@@ -145,4 +146,28 @@ export class OrderService {
       });
     });
   }
+  async getSellerOrders(sellerId: number) {
+  return this.prisma.order.findMany({
+    where: {
+      sellerId,
+    },
+    include: {
+      customer: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      items: {
+        include: {
+          product: true,
+        },
+      },
+      payment: true,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+}
 }

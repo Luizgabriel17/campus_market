@@ -6,14 +6,20 @@ export class CategoryService {
   constructor(private prisma: PrismaService) {}
 
   async create(data: { name: string }) {
-    const categoryExists = await this.prisma.category.findUnique({
-      where: { name: data.name },
-    });
-    if (categoryExists) {
-      throw new BadRequestException('Esta categoria já existe.');
-    }
-    return this.prisma.category.create({ data });
+  const categoryExists = await this.prisma.category.findUnique({
+    where: { name: data.name },
+  });
+
+  if (categoryExists) {
+    throw new BadRequestException(
+      'Esta categoria já existe.'
+    );
   }
+
+  return this.prisma.category.create({
+    data,
+  });
+}
 
   async findAll() {
     return this.prisma.category.findMany({

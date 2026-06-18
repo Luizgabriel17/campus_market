@@ -1,8 +1,13 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { SellerService } from '../../../core/services/seller.service';
+
+import { ProductService } from '../../../core/services/product.service';
+import {
+  Category,
+  CategoryService
+} from '../../../core/services/category.service';
 
 @Component({
   selector: 'app-products-form',
@@ -11,74 +16,94 @@ import { SellerService } from '../../../core/services/seller.service';
   templateUrl: './products-form.html',
   styleUrls: ['./products-form.css']
 })
-export class ProductsFormComponent {
-  private sellerService = inject(SellerService);
+export class ProductsFormComponent implements OnInit {
+
+  private productService = inject(ProductService);
+  private categoryService = inject(CategoryService);
   private router = inject(Router);
 
-  // Campos do formulário
   name = '';
   description = '';
   price: number | null = null;
   stock: number | null = null;
-  categoryId = 1; // Categoria padrão (ex: Salgados)
+
+  categoryId: number | null = null;
+
+  categories: Category[] = [];
 
   selectedFile: File | null = null;
-  errorMessage = '';
-  isLoading = false;
 
-  // Função disparada quando o usuário seleciona uma foto de lanche
-  onFileSelected(event: any) {
-    const file: File = event.target.files[0];
-    if (file) {
-      this.selectedFile = file;
+  isLoading = false;
+  errorMessage = '';
+
+  ngOnInit() {
+    this.loadCategories();
+  }
+
+  loadCategories() {
+    this.categoryService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+
+        if (categories.length > 0) {
+          this.categoryId = categories[0].id;
+        }
+      },
+      error: () => {
+        this.errorMessage =
+          'Não foi possível carregar as categorias.';
+      }
+    });
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+
+    if (input.files?.length) {
+      this.selectedFile = input.files[0];
     }
   }
 
   onSubmit() {
-    if (!this.price || !this.stock) {
-      this.errorMessage = 'Por favor, preencha o preço e o estoque.';
+
+    if (
+      !this.name.trim() ||
+      this.price === null ||
+      this.price <= 0 ||
+      this.stock === null ||
+      this.stock < 0 ||
+      !this.categoryId
+    ) {
+      this.errorMessage =
+        'Preencha todos os campos obrigatórios.';
       return;
     }
 
-    this.errorMessage = '';
     this.isLoading = true;
+    this.errorMessage = '';
 
-    // Fluxo estruturado: 
-    // 1. Se houver imagem selecionada, faz o upload primeiro para pegar a URL gerada
+    const formData = new FormData();
+
+    formData.append('name', this.name.trim());
+    formData.append('description', this.description.trim());
+    formData.append('price', this.price.toString());
+    formData.append('stock', this.stock.toString());
+    formData.append('categoryId', this.categoryId.toString());
+
     if (this.selectedFile) {
-      this.sellerService.uploadProductImage(this.selectedFile).subscribe({
-        next: (uploadRes) => {
-          this.saveProduct(uploadRes.imageUrl);
-        },
-        error: () => {
-          this.errorMessage = 'Erro ao fazer upload da imagem do lanche.';
-          this.isLoading = false;
-        }
-      });
-    } else {
-      // Se não enviou foto, cria o produto com imagem vazia/padrão
-      this.saveProduct('');
+      formData.append('image', this.selectedFile);
     }
-  }
 
-  private saveProduct(imageUrl: string) {
-    const productPayload = {
-      name: this.name,
-      description: this.description,
-      price: Number(this.price),
-      stock: Number(this.stock),
-      categoryId: Number(this.categoryId),
-      imageUrl: imageUrl || null
-    };
-
-    this.sellerService.createProduct(productPayload).subscribe({
+    this.productService.createProduct(formData).subscribe({
       next: () => {
-        alert('Lanche cadastrado com sucesso e já está disponível no cardápio!');
         this.router.navigate(['/vendedor/dashboard']);
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Erro ao cadastrar o produto no banco de dados.';
         this.isLoading = false;
+
+        this.errorMessage =
+          err?.error?.message ||
+          'Erro ao cadastrar produto.';
       }
     });
   }

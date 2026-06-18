@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { OrderService } from '../../core/services/order.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-my-orders',
@@ -12,6 +13,8 @@ import { OrderService } from '../../core/services/order.service';
 })
 export class MyOrdersComponent implements OnInit {
   private orderService = inject(OrderService);
+
+  authService = inject(AuthService);
 
   orders = signal<any[]>([]);
   errorMessage = '';
@@ -24,11 +27,17 @@ export class MyOrdersComponent implements OnInit {
   }
 
   getStatusClass(status: string): string {
-    switch(status) {
-      case 'PENDENTE': return 'status-pending';
-      case 'PAGO': return 'status-paid';
-      case 'ENTREGUE': return 'status-done';
-      default: return 'status-canceled';
+    switch (status) {
+      case 'PENDENTE':
+        return 'status-pending';
+      case 'PAGO':
+        return 'status-paid';
+      case 'ENVIADO':
+        return 'status-preparing';
+      case 'ENTREGUE':
+        return 'status-done';
+      default:
+        return 'status-canceled';
     }
   }
 }

@@ -18,29 +18,27 @@ export class RegisterComponent {
   name = '';
   email = '';
   password = '';
-  role = ''; // <--- Nova propriedade que vai receber o valor do <select> no HTML
+  role = ''; 
   errorMessage = '';
 
   onSubmit() {
     this.errorMessage = '';
 
-    // Validação extra no frontend para garantir que uma opção foi selecionada
-    if (!this.role) {
-      this.errorMessage = 'Por favor, selecione se deseja comprar ou vender.';
+    if (!this.name.trim() || !this.email.trim() || !this.password || !this.role) {
+      this.errorMessage = 'Por favor, preencha todos os campos obrigatórios.';
       return;
     }
 
     const payload = {
-      name: this.name,
-      email: this.email,
+      name: this.name.trim(),
+      email: this.email.trim(),
       password: this.password,
-      role: this.role // <--- Adicionado o papel selecionado no payload enviado ao backend
+      role: this.role 
     };
 
     this.authService.register(payload).subscribe({
-      next: (res) => {
-        // Usuário cadastrado e logado automaticamente, vai para a vitrine
-        this.router.navigate(['/home']);
+      next: () => {
+        window.location.href = '/home';
       },
       error: (err) => {
         this.errorMessage = err.error?.message || 'Erro ao realizar o cadastro. Tente novamente.';

@@ -1,56 +1,131 @@
-<div class="form-page-container">
-  <div class="form-card">
-    <header class="form-header">
-      <h2>🍎 Novo Lanche no Campus Market</h2>
-      <p>Preencha os dados do salgado, bolo ou suco que será vendido no pátio</p>
+<div class="cm-dashboard-container centered-layout">
+  
+  <!-- CARD DO FORMULÁRIO CENTRALIZADO -->
+  <main class="cm-form-card" role="main">
+    
+    <header class="cm-form-header">
+      <h1 class="cm-page-title">Novo Lanche</h1>
+      <p class="cm-page-subtitle">Preencha os dados do item que será disponibilizado para reserva no pátio.</p>
     </header>
 
-    <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+    <!-- BANNER DE ALERTA SÉRIO PARA ERROS -->
+    <div *ngIf="errorMessage" class="cm-state-banner system-error" role="alert">
+      <div class="banner-icon-container">⚠️</div>
+      <div class="banner-message-body">
+        <strong class="banner-title">Verifique os campos</strong>
+        <span class="banner-description">{{ errorMessage }}</span>
+      </div>
+    </div>
 
-    <form (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="p-name">Nome do Produto</label>
-        <input type="text" id="p-name" name="name" [(ngModel)]="name" required placeholder="Ex: Coxinha de Frango c/ Catupiry">
+    <!-- FORMULÁRIO SEMÂNTICO -->
+    <form (ngSubmit)="onSubmit()" class="cm-structural-form">
+      
+      <!-- Campo: Nome do Produto -->
+      <div class="form-input-group">
+        <label for="p-name" class="cm-input-label">Nome do Produto <span class="required-indicator">*</span></label>
+        <input type="text" 
+               id="p-name" 
+               name="name" 
+               [(ngModel)]="name" 
+               required 
+               class="cm-clean-input"
+               placeholder="Ex: Coxinha de Frango com Catupiry">
       </div>
 
-      <div class="form-group">
-        <label for="p-desc">Descrição / Ingredientes</label>
-        <textarea id="p-desc" name="description" [(ngModel)]="description" placeholder="Ex: Massa de batata frita na hora, contém lactose."></textarea>
+      <!-- Campo: Descrição -->
+      <div class="form-input-group">
+        <label for="p-desc" class="cm-input-label">Descrição / Ingredientes</label>
+        <textarea id="p-desc" 
+                  name="description" 
+                  [(ngModel)]="description" 
+                  class="cm-clean-textarea"
+                  placeholder="Ex: Massa de batata frita na hora, contém lactose e glúten."></textarea>
       </div>
 
-      <div class="form-row-double">
-        <div class="form-group">
-          <label for="p-price">Preço de Venda (R$)</label>
-          <input type="number" step="0.01" id="p-price" name="price" [(ngModel)]="price" required placeholder="5.50">
+      <!-- Linha Dupla: Preço e Estoque -->
+      <div class="cm-form-row-double">
+        <div class="form-input-group">
+          <label for="p-price" class="cm-input-label">Preço de Venda <span class="required-indicator">*</span></label>
+          <div class="input-prefix-wrapper">
+            <span class="input-currency-prefix">R$</span>
+            <input type="number" 
+                   step="0.01" 
+                   id="p-price" 
+                   name="price" 
+                   [(ngModel)]="price" 
+                   required 
+                   class="cm-clean-input has-prefix"
+                   placeholder="5,50">
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="p-stock">Quantidade Disponível (Estoque)</label>
-          <input type="number" id="p-stock" name="stock" [(ngModel)]="stock" required placeholder="20">
+        <div class="form-input-group">
+          <label for="p-stock" class="cm-input-label">Estoque Inicial <span class="required-indicator">*</span></label>
+          <input type="number" 
+                 id="p-stock" 
+                 name="stock" 
+                 [(ngModel)]="stock" 
+                 required 
+                 class="cm-clean-input"
+                 placeholder="20">
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="p-category">Categoria do Alimento</label>
-        <select id="p-category" name="categoryId" [(ngModel)]="categoryId">
-          <option [value]="1">Salgados Assados / Fritos</option>
-          <option [value]="2">Doces e Bolos de Pote</option>
-          <option [value]="3">Sucos, Refrigerantes e Bebidas</option>
-        </select>
+      <!-- Campo: Categoria Customizada -->
+      <div class="form-input-group">
+        <label for="p-category" class="cm-input-label">Categoria do Alimento</label>
+        <div class="custom-select-wrapper">
+          <select
+  id="p-category"
+  name="categoryId"
+  [(ngModel)]="categoryId"
+  class="cm-clean-select">
+
+  <option
+    *ngFor="let category of categories"
+    [value]="category.id">
+
+    {{ category.name }}
+
+  </option>
+
+</select>
+          <span class="select-chevron-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </span>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="p-image">Foto Real do Lanche (Abre o apetite dos alunos!)</label>
-        <input type="file" id="p-image" accept="image/*" (change) = "onFileSelected($event)">
-        <small class="file-help">Selecione arquivos JPG, PNG ou WEBP.</small>
+      <!-- Campo Avançado: Upload de Imagem Customizado -->
+      <div class="form-input-group">
+        <label class="cm-input-label">Foto Real do Lanche</label>
+        <div class="custom-file-upload-zone">
+          <input type="file" 
+                 id="p-image" 
+                 accept="image/*" 
+                 (change)="onFileSelected($event)"
+                 class="hidden-file-input">
+          <label for="p-image" class="file-upload-trigger">
+            <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span class="upload-trigger-text">Escolher imagem do alimento</span>
+          </label>
+          <small class="file-help">Extensões suportadas: JPG, PNG ou WEBP.</small>
+        </div>
       </div>
 
-      <div class="form-buttons">
-        <button type="button" class="btn-cancel" routerLink="/vendedor/dashboard">Cancelar</button>
-        <button type="submit" class="btn-submit" [disabled]="isLoading">
-          {{ isLoading ? 'Salvando Lanche...' : 'Disponibilizar no Cardápio' }}
+      <!-- Rodapé de Ações com Carregamento -->
+      <div class="cm-form-actions-footer">
+        <button type="button" class="cm-btn-cancel-link" routerLink="/vendedor/dashboard">Cancelar</button>
+        
+        <button type="submit" class="cm-btn-submit-action" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Disponibilizar no Cardápio</span>
+          <div *ngIf="isLoading" class="btn-spinner-container">
+            <div class="micro-spinner"></div>
+            <span>Salvando Lanche...</span>
+          </div>
         </button>
       </div>
+
     </form>
-  </div>
+  </main>
 </div>

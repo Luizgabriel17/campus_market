@@ -29,9 +29,4 @@ export class AuthController {
   async getProfile(@Request() req: any) {
     return this.authService.getProfile(req.user.userId);
   }
-
-  @Post('google')
-  async googleLogin(@Body('token') token: string) {
-    return this.authService.loginWithGoogle(token);
-  }
 }

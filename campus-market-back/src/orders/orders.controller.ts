@@ -14,6 +14,13 @@ export class OrderController {
     return this.orderService.createOrder(req.user.userId, body.method);
   }
 
+@UseGuards(RolesGuard)
+@Roles('VENDEDOR', 'ADMIN')
+@Get('seller')
+getSellerOrders(@Request() req: any) {
+  return this.orderService.getSellerOrders(req.user.userId);
+}
+
   @Get('my-purchases')
   getCustomerOrders(@Request() req: any) {
     return this.orderService.getCustomerOrders(req.user.userId);

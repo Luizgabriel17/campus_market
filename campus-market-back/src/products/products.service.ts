@@ -1,18 +1,40 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ProductService {
   constructor(private prisma: PrismaService) {}
 
-  async create(sellerId: number, data: { categoryId: number; name: string; description?: string; imageUrl?: string; price: number; stock: number }) {
-    return this.prisma.product.create({
-      data: {
-        ...data,
-        sellerId,
-      },
-    });
+  async create(
+  sellerId: number,
+  data: {
+    categoryId: number;
+    name: string;
+    description?: string;
+    imageUrl?: string;
+    price: number;
+    stock: number;
+  },
+) {
+  const category = await this.prisma.category.findUnique({
+    where: {
+      id: data.categoryId,
+    },
+  });
+
+  if (!category) {
+    throw new BadRequestException(
+      'Categoria não encontrada.',
+    );
   }
+
+  return this.prisma.product.create({
+    data: {
+      ...data,
+      sellerId,
+    },
+  });
+}
 
   async findAll() {
     return this.prisma.product.findMany({

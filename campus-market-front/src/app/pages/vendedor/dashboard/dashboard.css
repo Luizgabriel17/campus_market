@@ -1,120 +1,434 @@
-.dashboard-page {
-  width: 100vw;
-  min-height: 100vh;
-  padding: 30px;
-  background-color: #f1f2f6;
-  box-sizing: border-box;
+/* ==========================================================================
+   DESIGN TOKENS - COERÊNCIA VISUAL ABSOLUTA
+   ========================================================================== */
+:host {
+  --cm-neutral-50: #f8fafc;
+  --cm-neutral-100: #f1f5f9;
+  --cm-neutral-200: #e2e8f0;
+  --cm-neutral-600: #475569;
+  --cm-neutral-700: #334155;
+  --cm-neutral-800: #1e293b;
+  --cm-neutral-900: #0f172a;
+
+  --cm-brand-primary: #6366f1;
+  --cm-brand-primary-hover: #4f46e5;
+  --cm-brand-primary-glow: rgba(99, 102, 241, 0.15);
+  
+  --cm-color-success: #10b981;
+  --cm-color-success-bg: #ecfdf5;
+  --cm-color-warning: #f59e0b;
+  --cm-color-warning-bg: #fffbeb;
+  --cm-color-danger: #ef4444;
+  --cm-color-danger-bg: #fef2f2;
+  --cm-color-info: #0284c7;
+
+  --cm-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --cm-radius-sm: 8px;
+  --cm-radius-md: 14px;
+  --cm-radius-lg: 20px;
+  --cm-shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+  --cm-shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+  --cm-shadow-card-hover: 0 12px 20px -5px rgba(0, 0, 0, 0.05);
+
+  --cm-ease-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.dash-header {
+/* Base Dashboard Wrapper */
+.cm-dashboard-container {
+  background-color: var(--cm-neutral-50);
+  min-height: 100vh;
+  font-family: var(--cm-font-sans);
+  color: var(--cm-neutral-900);
+  -webkit-font-smoothing: antialiased;
+}
+
+.cm-main-layout {
+  max-width: 1400px; /* Grade levemente expandida para maior volume de dados */
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+/* ==========================================================================
+   HEADER ACTIONS BAR
+   ========================================================================== */
+.cm-vendor-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  background-color: white;
+  padding: 2rem;
+  border-radius: var(--cm-radius-lg);
+  border: 1px solid var(--cm-neutral-200);
+  box-shadow: var(--cm-shadow-sm);
+  margin-bottom: 3rem;
+  gap: 1.5rem;
 }
 
-.dash-actions {
+.cm-page-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  margin-bottom: 0.35rem;
+}
+
+.cm-page-subtitle {
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.cm-vendor-actions-group {
   display: flex;
-  gap: 15px;
+  align-items: center;
+  gap: 1rem;
 }
 
-.btn-new-product {
-  background-color: #2ecc71;
+/* Botões do Topo */
+.cm-btn-primary-action {
+  background-color: var(--cm-neutral-900);
   color: white;
   border: none;
-  padding: 12px 20px;
-  font-weight: bold;
-  border-radius: 4px;
+  padding: 0.85rem 1.5rem;
+  border-radius: var(--cm-radius-md);
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   cursor: pointer;
+  white-space: nowrap;
+  transition: var(--cm-ease-transition);
 }
 
-.btn-secondary {
-  background-color: #7f8c8d;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 4px;
-  cursor: pointer;
+.cm-btn-primary-action:hover {
+  background-color: var(--cm-brand-primary);
+  box-shadow: 0 10px 15px -3px var(--cm-brand-primary-glow);
 }
 
-.orders-grid {
+.cm-btn-secondary-outline {
+  background-color: white;
+  color: var(--cm-neutral-700);
+  border: 1px solid var(--cm-neutral-200);
+  padding: 0.85rem 1.5rem;
+  border-radius: var(--cm-radius-md);
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--cm-ease-transition);
+}
+
+.cm-btn-secondary-outline:hover {
+  background-color: var(--cm-neutral-100);
+  color: var(--cm-neutral-900);
+}
+
+/* ==========================================================================
+   CARDS DE PEDIDO - GRID DE ATENDIMENTO
+   ========================================================================== */
+.cm-orders-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 25px;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 2rem;
 }
 
-.sales-card {
-  background: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+.cm-sales-card {
+  background-color: white;
+  border-radius: var(--cm-radius-lg);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
+  box-shadow: var(--cm-shadow-card);
+  transition: var(--cm-ease-transition);
 }
 
-.sales-header {
+.cm-sales-card:hover {
+  box-shadow: var(--cm-shadow-card-hover);
+  border-color: var(--cm-neutral-200);
+}
+
+/* Header de cada Card */
+.card-sales-header {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid #f1f2f6;
-  padding-bottom: 10px;
-  margin-bottom: 15px;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--cm-neutral-100);
+  margin-bottom: 1.25rem;
 }
 
-.badge-payment-status {
-  background-color: #e67e22;
-  color: white;
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: bold;
-}
-
-.badge-payment-status.approved {
-  background-color: #27ae60;
-}
-
-.sales-body p {
-  margin: 8px 0;
-  text-align: left;
-  font-size: 14px;
-  color: #34495e;
-}
-
-.price-highlight {
-  font-size: 16px;
-  color: #2ecc71;
-}
-
-.sales-actions {
-  margin-top: auto;
-  padding-top: 15px;
+.order-id-block {
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
-.btn-approve {
-  width: 100%;
-  padding: 10px;
-  background-color: #3498db;
-  color: white;
-  font-weight: bold;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.order-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
 }
 
-.btn-deliver {
-  width: 100%;
-  padding: 10px;
-  background-color: #2ecc71;
-  color: white;
-  font-weight: bold;
-  border: none;
+.order-number {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--cm-neutral-900);
+}
+
+/* Status do Setor Financeiro */
+.badge-status-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  background-color: var(--cm-color-warning-bg);
+  color: var(--cm-color-warning);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+.badge-status-pill.is-approved {
+  background-color: var(--cm-color-success-bg);
+  color: var(--cm-color-success);
+  border-color: rgba(16, 185, 129, 0.15);
+}
+
+/* Detalhes de Linha Internas */
+.card-sales-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.metadata-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.meta-label {
+  color: #64748b;
+}
+
+.meta-value-text {
+  color: var(--cm-neutral-800);
+}
+
+.delivery-status-indicator {
+  font-weight: 600;
+  color: var(--cm-neutral-900);
+  background-color: var(--cm-neutral-100);
+  padding: 0.15rem 0.5rem;
   border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+/* Sub-seção de Preço Dinâmico */
+.metadata-price-section {
+  background-color: var(--cm-neutral-50);
+  padding: 1rem;
+  border-radius: var(--cm-radius-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.price-anchor-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.price-value-display {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--cm-neutral-900);
+}
+
+/* ==========================================================================
+   BOTÕES DE FLUXO DE TRABALHO OPERACIONAL
+   ========================================================================== */
+.card-sales-actions {
+  margin-top: auto;
+}
+
+/* Ação 1: Confirmar Recebimento de Caixa */
+.cm-btn-op-approve {
+  width: 100%;
+  background-color: var(--cm-color-info);
+  color: white;
+  border: none;
+  padding: 0.85rem;
+  border-radius: var(--cm-radius-sm);
+  font-weight: 700;
+  font-size: 0.9rem;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: var(--cm-ease-transition);
+}
+
+.cm-btn-op-approve:hover {
+  background-color: #0369a1;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+}
+
+/* Ação 2: Despachar Balcão */
+.cm-btn-op-deliver {
+  width: 100%;
+  background-color: var(--cm-color-success);
+  color: white;
+  border: none;
+  padding: 0.85rem;
+  border-radius: var(--cm-radius-sm);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: var(--cm-ease-transition);
+}
+
+.cm-btn-op-deliver:hover {
+  background-color: #059669;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+/* Estado Final Imutável */
+.delivery-completed-state {
+  width: 100%;
+  text-align: center;
+  padding: 0.8rem;
+  background-color: var(--cm-neutral-100);
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: var(--cm-radius-sm);
+  border: 1px dashed var(--cm-neutral-200);
+}
+
+/* Modificadores de Borda Conforme Ciclo de Vida do Pedido */
+.order-pending { border-left: 4px solid var(--cm-color-warning); }
+.order-approved { border-left: 4px solid var(--cm-color-info); }
+.order-delivered { border-left: 4px solid var(--cm-neutral-200); opacity: 0.7; }
+
+/* ==========================================================================
+   APP STATES BANNERS (GLOBAL)
+   ========================================================================== */
+.cm-state-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: var(--cm-radius-sm);
+  margin-bottom: 2.5rem;
+  border: 1px solid;
+}
+
+.cm-state-banner.system-error {
+  background-color: var(--cm-color-danger-bg);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: var(--cm-color-danger);
+}
+
+.banner-title {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.15rem;
+}
+
+.banner-description {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.cm-empty-state-card {
+  text-align: center;
+  padding: 5rem 2rem;
+  background-color: white;
+  border-radius: var(--cm-radius-lg);
+  border: 2px dashed var(--cm-neutral-200);
+  max-width: 480px;
+  margin: 4rem auto;
+}
+
+.empty-state-visual {
+  width: 70px;
+  height: 70px;
+  background-color: var(--cm-neutral-100);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+}
+
+.empty-emoji { font-size: 2rem; }
+.empty-state-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
+.empty-state-description { color: #64748b; font-size: 0.95rem; line-height: 1.5; }
+
+/* ==========================================================================
+   MEDIA QUERIES (RESPONSIVIDADE)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .cm-vendor-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .cm-vendor-actions-group {
+    flex-direction: column-reverse;
+    width: 100%;
+  }
+
+  .cm-btn-primary-action, .cm-btn-secondary-outline {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .cm-orders-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.cm-btn-logout {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+
+  padding: .85rem 1.2rem;
+
+  border: none;
+  border-radius: 12px;
+
+  background: #ef4444;
+  color: white;
+
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: all .2s ease;
+}
+
+.cm-btn-logout:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.cm-btn-logout svg {
+  flex-shrink: 0;
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
+import { CartService } from '../../core/services/cart.service';
 
 @Component({
   selector: 'app-home',
@@ -12,6 +13,7 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrls: ['./home.css']
 })
 export class HomeComponent implements OnInit {
+  private cartService = inject(CartService);
   private productService = inject(ProductService);
   authService = inject(AuthService);
 
@@ -30,7 +32,19 @@ export class HomeComponent implements OnInit {
   }
 
   addToCart(product: any) {
-    // Por enquanto mostra um aviso, farei a integração com a rota do carrinho a seguir
-    alert(`${product.name} adicionado ao carrinho com sucesso!`);
-  }
+
+  this.cartService.addToCart(product.id, 1).subscribe({
+    next: () => {
+      alert(`${product.name} adicionado ao carrinho!`);
+    },
+    error: (err) => {
+      console.error('Erro ao adicionar ao carrinho', err);
+
+      this.errorMessage =
+        err?.error?.message ||
+        'Não foi possível adicionar ao carrinho.';
+    }
+  });
+
+}
 }

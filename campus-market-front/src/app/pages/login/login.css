@@ -37,15 +37,15 @@
 
 .app-badge {
   display: inline-block;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.12);
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   color: #ffffff;
-  border-radius: 100px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   margin-bottom: 24px;
 }
@@ -90,7 +90,6 @@
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
 }
 
-/* Box estrutural para a Imagem 3D */
 .graphic-image-box {
   width: 180px; 
   height: 180px;
@@ -100,7 +99,6 @@
   overflow: visible;
 }
 
-/* Tratamento da Imagem */
 .hero-graphic-img {
   width: 100%;
   height: 100%;
@@ -226,8 +224,14 @@
   text-decoration: underline;
 }
 
-/* Inputs com suporte a Ícones de bibliotecas */
+/* Estrutura de Inputs */
 .input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.custom-password-wrapper {
   position: relative;
   display: flex;
   align-items: center;
@@ -253,6 +257,12 @@
   box-sizing: border-box;
 }
 
+/* Garante o distanciamento do texto para o botão VER/OCULTAR */
+.custom-password-wrapper input {
+  padding-right: 75px !important;
+  width: 100%;
+}
+
 .custom-input-with-icon:focus {
   outline: none;
   border-color: #10b981;
@@ -261,6 +271,35 @@
 
 .custom-input-with-icon::placeholder {
   color: #94a3b8;
+}
+
+/* Botão VER / OCULTAR Profissional */
+.btn-toggle-text {
+  position: absolute;
+  right: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  color: #4a5568;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.btn-toggle-text:hover {
+  opacity: 1;
+  color: #2d3748;
+}
+
+.btn-toggle-text:focus {
+  outline: none;
 }
 
 /* Botão de Ação Principal */
@@ -285,40 +324,10 @@
   box-shadow: 0 6px 20px rgba(15, 23, 42, 0.2);
 }
 
-/* Divisor Opcional para Login Social */
-.custom-divider {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  margin: 28px 0;
-}
-
-.custom-divider::before, .custom-divider::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.divider-line-text {
-  padding: 0 16px;
-  font-size: 0.8rem;
-  color: #94a3b8;
-  font-weight: 500;
-}
-
-.social-zone {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 28px;
-}
-
-.google-wrapper-layout {
-  min-height: 40px;
-}
-
 /* Rodapé */
 .form-footer-zone {
   text-align: center;
+  margin-top: 24px;
 }
 
 .footer-action-text {
@@ -337,7 +346,7 @@
   text-decoration: underline;
 }
 
-/* Toasts de Erro Dinâmicos */
+/* Alertas de Erro */
 .error-toast {
   background-color: #fef2f2;
   border: 1px solid #fee2e2;
@@ -359,7 +368,7 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsividade para telas de celulares e tablets */
+/* Responsividade */
 @media (max-width: 960px) {
   .brand-panel {
     display: none;
