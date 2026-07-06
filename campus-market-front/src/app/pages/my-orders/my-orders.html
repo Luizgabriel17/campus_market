@@ -46,7 +46,8 @@
 
       <article
         class="order-card"
-        *ngFor="let order of orders()">
+        *ngFor="let order of orders(); let i = index"
+        [style.--index]="i">
 
         <div class="order-header">
 
@@ -63,6 +64,31 @@
             {{ order.status }}
           </span>
 
+        </div>
+
+        <!-- TIMELINE DE PROGRESSO DO PEDIDO -->
+        <div class="order-timeline" *ngIf="order.status !== 'CANCELADO'">
+          <!-- Passo 1: Realizado -->
+          <div class="timeline-step" [class.is-active]="true" [class.is-completed]="order.status === 'PAGO' || order.status === 'ENVIADO' || order.status === 'ENTREGUE'">
+            <div class="step-icon">📝</div>
+            <span class="step-label">Pedido Realizado</span>
+          </div>
+          
+          <div class="timeline-line" [class.is-completed]="order.status === 'PAGO' || order.status === 'ENVIADO' || order.status === 'ENTREGUE'"></div>
+          
+          <!-- Passo 2: Pago / Pronto para Retirada -->
+          <div class="timeline-step" [class.is-active]="order.status === 'PAGO' || order.status === 'ENVIADO'" [class.is-completed]="order.status === 'ENTREGUE'">
+            <div class="step-icon">🛍️</div>
+            <span class="step-label">Pronto para Retirada</span>
+          </div>
+          
+          <div class="timeline-line" [class.is-completed]="order.status === 'ENTREGUE'"></div>
+          
+          <!-- Passo 3: Entregue -->
+          <div class="timeline-step" [class.is-active]="order.status === 'ENTREGUE'" [class.is-completed]="order.status === 'ENTREGUE'">
+            <div class="step-icon">🎁</div>
+            <span class="step-label">Entregue</span>
+          </div>
         </div>
 
         <div class="order-items">
@@ -101,6 +127,18 @@
             </strong>
           </div>
 
+        </div>
+
+        <div class="order-actions" style="margin-top: 1rem; border-top: 1px solid #f1f5f9; padding-top: 1rem; display: flex; justify-content: flex-end;">
+          <button 
+            [disabled]="order.status === 'ENTREGUE' || order.status === 'CANCELADO'"
+            (click)="contactSeller(order)"
+            class="btn-contact-whatsapp">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16" style="margin-right: 6px; display: inline-block; vertical-align: middle;">
+              <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.949h.004c4.368 0 7.927-3.558 7.93-7.93a7.9 7.9 0 0 0-2.327-5.603zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.69-4.98c-.202-.1-1.195-.59-1.378-.657-.183-.067-.317-.1-.449.1-.132.2-.51.642-.624.773-.114.13-.228.146-.43.047-.202-.1-1.53-.563-2.5-1.428-.754-.672-1.263-1.503-1.411-1.758-.148-.255-.016-.393.111-.492.115-.09.254-.3.38-.45.127-.15.17-.255.255-.425.085-.17.042-.319-.021-.449-.064-.13-.449-1.082-.615-1.48-.162-.389-.327-.336-.449-.336-.115-.004-.247-.005-.379-.005-.132 0-.348.05-.53.25-.183.2-.7 0-.7-1.7s.51-1.3 1.15-1.3c.074 0 .148.005.22.01.076-.007.153-.01.23-.01.64 0 1.15.52 1.15 1.15v2.3c0 .63-.51 1.15-1.15 1.15-.077 0-.154-.003-.23-.01-.072.005-.146.01-.22.01z"/>
+            </svg>
+            <span>Contatar Vendedor</span>
+          </button>
         </div>
 
       </article>

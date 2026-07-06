@@ -1,8 +1,7 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-
-  // Landing Page (Página Inicial)
+  // Landing Page
   {
     path: '',
     loadComponent: () =>
@@ -16,6 +15,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/login/login')
         .then(m => m.LoginComponent)
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./pages/forgot-password/forgot-password')
+        .then(m => m.ForgotPasswordComponent)
   },
   {
     path: 'register',
@@ -43,6 +48,12 @@ export const routes: Routes = [
       import('./pages/my-orders/my-orders')
         .then(m => m.MyOrdersComponent)
   },
+  {
+    path: 'profile',
+    loadComponent: () =>
+      import('./pages/profile/profile')
+        .then(m => m.ProfileComponent)
+  },
 
   // Vendedor
   {
@@ -57,8 +68,20 @@ export const routes: Routes = [
       import('./pages/vendedor/products-form/products-form')
         .then(m => m.ProductsFormComponent)
   },
+  {
+    path: 'vendedor/products',
+    loadComponent: () =>
+      import('./pages/vendedor/products/products')
+        .then(m => m.SellerProductsComponent)
+  },
+  {
+    path: 'vendedor/profile',
+    loadComponent: () =>
+      import('./pages/vendedor/profile/profile')
+        .then(m => m.SellerProfileComponent)
+  },
 
-  // Rota inexistente
+  // Página não encontrada
   {
     path: '**',
     redirectTo: ''

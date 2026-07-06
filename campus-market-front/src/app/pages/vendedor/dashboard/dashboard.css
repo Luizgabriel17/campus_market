@@ -10,9 +10,9 @@
   --cm-neutral-800: #1e293b;
   --cm-neutral-900: #0f172a;
 
-  --cm-brand-primary: #6366f1;
-  --cm-brand-primary-hover: #4f46e5;
-  --cm-brand-primary-glow: rgba(99, 102, 241, 0.15);
+  --cm-brand-primary: #10b981;
+  --cm-brand-primary-hover: #059669;
+  --cm-brand-primary-glow: rgba(16, 185, 129, 0.15);
   
   --cm-color-success: #10b981;
   --cm-color-success-bg: #ecfdf5;
@@ -144,6 +144,9 @@
   flex-direction: column;
   box-shadow: var(--cm-shadow-card);
   transition: var(--cm-ease-transition);
+  opacity: 0;
+  animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(var(--index, 0) * 0.05s);
 }
 
 .cm-sales-card:hover {
@@ -319,10 +322,78 @@
   border: 1px dashed var(--cm-neutral-200);
 }
 
+.cm-btn-op-cancel {
+  width: 100%;
+  background-color: transparent;
+  color: var(--cm-color-danger);
+  border: 1px solid var(--cm-color-danger);
+  padding: 0.85rem;
+  border-radius: var(--cm-radius-sm);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: var(--cm-ease-transition);
+}
+
+.cm-btn-op-cancel:hover {
+  background-color: var(--cm-color-danger-bg);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+}
+
+.cm-btn-op-whatsapp {
+  width: 100%;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 0.85rem;
+  border-radius: var(--cm-radius-sm);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: var(--cm-ease-transition);
+  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.15);
+}
+
+.cm-btn-op-whatsapp:hover:not(:disabled) {
+  background-color: #059669;
+  box-shadow: 0 6px 12px rgba(16, 185, 129, 0.25);
+  transform: translateY(-1px);
+}
+
+.cm-btn-op-whatsapp:disabled {
+  background-color: #cbd5e1 !important;
+  color: #94a3b8 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
+  opacity: 0.8;
+}
+
+.delivery-cancelled-state {
+  width: 100%;
+  text-align: center;
+  padding: 0.8rem;
+  background-color: var(--cm-color-danger-bg);
+  color: var(--cm-color-danger);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: var(--cm-radius-sm);
+  border: 1px dashed rgba(239, 68, 68, 0.3);
+}
+
 /* Modificadores de Borda Conforme Ciclo de Vida do Pedido */
 .order-pending { border-left: 4px solid var(--cm-color-warning); }
 .order-approved { border-left: 4px solid var(--cm-color-info); }
 .order-delivered { border-left: 4px solid var(--cm-neutral-200); opacity: 0.7; }
+.order-cancelled { border-left: 4px solid var(--cm-color-danger); opacity: 0.6; }
 
 /* ==========================================================================
    APP STATES BANNERS (GLOBAL)
@@ -431,4 +502,261 @@
 
 .cm-btn-logout svg {
   flex-shrink: 0;
+}
+
+/* NAVBAR (cohesive with home page) */
+.cm-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 2rem;
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.cm-navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  user-select: none;
+}
+
+.brand-logo-wrapper {
+  background: linear-gradient(135deg, var(--cm-brand-primary), var(--cm-brand-primary-hover));
+  color: white;
+  padding: 0.5rem;
+  border-radius: var(--cm-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.brand-text {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--cm-neutral-900);
+}
+
+.brand-accent {
+  color: var(--cm-brand-primary);
+}
+
+/* USER PROFILE WIDGET */
+.cm-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background-color: white;
+  padding: 0.45rem 0.6rem 0.45rem 1rem;
+  border-radius: 100px;
+  border: 1px solid var(--cm-neutral-200);
+  box-shadow: var(--cm-shadow-sm);
+}
+
+.profile-click-area {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 100px;
+  transition: var(--cm-ease-transition);
+}
+
+.profile-click-area:hover {
+  opacity: 0.8;
+  transform: scale(1.02);
+}
+
+.user-avatar-image {
+  width: 34px;
+  height: 34px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px var(--cm-brand-primary);
+}
+
+.user-avatar-badge {
+  width: 34px;
+  height: 34px;
+  background-color: var(--cm-neutral-100);
+  color: var(--cm-neutral-800);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px var(--cm-brand-primary);
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-profile-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.user-profile-role {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.cm-btn-icon-logout {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  padding: 0.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--cm-ease-transition);
+}
+
+.cm-btn-icon-logout:hover {
+  background-color: var(--cm-color-danger-bg);
+  color: var(--cm-color-danger);
+}
+
+/* STATS SECTION */
+.cm-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.cm-stats-card {
+  background: white;
+  border-radius: var(--cm-radius-lg);
+  border: 1px solid var(--cm-neutral-200);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: var(--cm-shadow-sm);
+  transition: var(--cm-ease-transition);
+}
+
+.cm-stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--cm-shadow-card-hover);
+}
+
+.stats-icon {
+  font-size: 2rem;
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  background-color: var(--cm-neutral-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cm-stats-card.revenue .stats-icon {
+  background-color: rgba(16, 185, 129, 0.1);
+}
+.cm-stats-card.pending .stats-icon {
+  background-color: rgba(245, 158, 11, 0.1);
+}
+.cm-stats-card.pending.has-pending {
+  border-color: rgba(245, 158, 11, 0.4);
+  animation: borderPulse 2s infinite ease-in-out;
+}
+.cm-stats-card.approved .stats-icon {
+  background-color: rgba(16, 185, 129, 0.1);
+}
+.cm-stats-card.delivered .stats-icon {
+  background-color: rgba(15, 23, 42, 0.1);
+}
+
+.stats-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stats-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stats-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--cm-neutral-900);
+  letter-spacing: -0.02em;
+}
+
+@keyframes borderPulse {
+  0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.2); }
+  70% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Staggered stats card entrance */
+.cm-stats-card {
+  opacity: 0;
+  animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.cm-stats-card:nth-child(1) { animation-delay: 0.02s; }
+.cm-stats-card:nth-child(2) { animation-delay: 0.07s; }
+.cm-stats-card:nth-child(3) { animation-delay: 0.12s; }
+.cm-stats-card:nth-child(4) { animation-delay: 0.17s; }
+
+/* Micro-interactions and scales on interactive buttons */
+.cm-btn-op-approve, .cm-btn-op-deliver, .cm-btn-op-cancel, .cm-btn-op-whatsapp {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cm-btn-op-approve:hover:not(:disabled),
+.cm-btn-op-deliver:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2);
+}
+
+.cm-btn-op-cancel:hover {
+  transform: translateY(-1px);
+}
+
+.cm-btn-op-approve:active:not(:disabled),
+.cm-btn-op-deliver:active:not(:disabled),
+.cm-btn-op-cancel:active,
+.cm-btn-op-whatsapp:active:not(:disabled) {
+  transform: scale(0.98);
 }

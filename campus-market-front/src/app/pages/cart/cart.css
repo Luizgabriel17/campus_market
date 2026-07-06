@@ -10,9 +10,9 @@
   --cm-neutral-800: #1e293b;
   --cm-neutral-900: #0f172a;
 
-  --cm-brand-primary: #6366f1;
-  --cm-brand-primary-hover: #4f46e5;
-  --cm-brand-primary-glow: rgba(99, 102, 241, 0.15);
+  --cm-brand-primary: #10b981;
+  --cm-brand-primary-hover: #059669;
+  --cm-brand-primary-glow: rgba(16, 185, 129, 0.15);
   
   --cm-color-success: #10b981;
   --cm-color-danger: #ef4444;
@@ -108,6 +108,9 @@
   gap: 1.25rem;
   box-shadow: var(--cm-shadow-sm);
   transition: var(--cm-ease-transition);
+  opacity: 0;
+  animation: slideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(var(--index, 0) * 0.05s);
 }
 
 .cm-item-row-card:hover {
@@ -477,4 +480,63 @@
     flex-direction: column;
     gap: 0.25rem;
   }
+}
+
+.cm-datetime-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.85rem 1rem;
+  background-color: var(--cm-neutral-50);
+  border: 1px solid var(--cm-neutral-200);
+  border-radius: var(--cm-radius-sm);
+  font-family: var(--cm-font-sans);
+  font-size: 16px; /* Impede zoom automático no iOS */
+  color: var(--cm-neutral-800);
+  box-sizing: border-box;
+  transition: var(--cm-ease-transition);
+}
+
+.cm-datetime-input:focus {
+  outline: none;
+  border-color: var(--cm-brand-primary);
+  background-color: white;
+  box-shadow: 0 0 0 3px var(--cm-brand-primary-glow);
+}
+
+/* KEYFRAMES E ANIMAÇÕES DO CARRINHO */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.cm-cart-summary-sidebar {
+  animation: slideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Micro-animação para o botão de finalizar lanche no hover */
+.cm-btn-checkout-submit .btn-arrow-icon {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cm-btn-checkout-submit:hover:not(:disabled) .btn-arrow-icon {
+  transform: translateX(4px);
+}
+.cm-btn-checkout-submit:active:not(:disabled) {
+  transform: scale(0.98);
 }

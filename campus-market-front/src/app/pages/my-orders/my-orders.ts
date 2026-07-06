@@ -40,4 +40,20 @@ export class MyOrdersComponent implements OnInit {
         return 'status-canceled';
     }
   }
+
+  contactSeller(order: any) {
+    if (!order.seller?.phone) {
+      alert('Telefone do vendedor não cadastrado.');
+      return;
+    }
+    let cleanPhone = order.seller.phone.replace(/\D/g, '');
+    if (!cleanPhone.startsWith('55') && cleanPhone.length <= 11) {
+      cleanPhone = '55' + cleanPhone;
+    }
+    const itemsText = order.items.map((item: any) => `${item.quantity}x ${item.product?.name}`).join(', ');
+    const text = encodeURIComponent(
+      `Olá ${order.seller.name}! Estou entrando em contato sobre o meu pedido #${order.id} (${itemsText}) no valor de R$ ${order.total}.`
+    );
+    window.open(`https://wa.me/${cleanPhone}?text=${text}`, '_blank');
+  }
 }

@@ -18,14 +18,41 @@ export class RegisterComponent {
   name = '';
   email = '';
   password = '';
-  role = ''; 
+  confirmPassword = '';
+  role = '';
   errorMessage = '';
+
+  showPassword = false;
+  showConfirmPassword = false;
+
+  showVerification = false;
+  verificationCode = '';
+  userId: number | null = null;
+  registeredRole = '';
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
 
   onSubmit() {
     this.errorMessage = '';
 
-    if (!this.name.trim() || !this.email.trim() || !this.password || !this.role) {
+    if (!this.name.trim() || !this.email.trim() || !this.password || !this.confirmPassword || !this.role) {
       this.errorMessage = 'Por favor, preencha todos os campos obrigatórios.';
+      return;
+    }
+
+    if (this.password.length < 6) {
+      this.errorMessage = 'A senha deve ter no mínimo 6 caracteres.';
+      return;
+    }
+
+    if (this.password !== this.confirmPassword) {
+      this.errorMessage = 'As senhas não correspondem.';
       return;
     }
 
@@ -33,15 +60,53 @@ export class RegisterComponent {
       name: this.name.trim(),
       email: this.email.trim(),
       password: this.password,
-      role: this.role 
+      role: this.role,
     };
 
     this.authService.register(payload).subscribe({
-      next: () => {
-        window.location.href = '/home';
+      next: (res: any) => {
+        this.userId = res.userId;
+        this.registeredRole = this.role;
+        this.showVerification = true;
       },
       error: (err) => {
         this.errorMessage = err.error?.message || 'Erro ao realizar o cadastro. Tente novamente.';
+      }
+    });
+  }
+
+  onVerify() {
+    this.errorMessage = '';
+
+    if (!this.verificationCode || this.verificationCode.length !== 6) {
+      this.errorMessage = 'Digite o código de 6 dígitos enviado para o seu e-mail.';
+      return;
+    }
+
+    this.authService.verifyEmail(this.userId!, this.verificationCode).subscribe({
+      next: () => {
+        if (this.registeredRole === 'VENDEDOR') {
+          this.router.navigate(['/vendedor/dashboard']);
+        } else {
+          this.router.navigate(['/home']);
+        }
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.message || 'Código inválido ou expirado.';
+      }
+    });
+  }
+
+  onResendCode() {
+    if (!this.userId) return;
+
+    this.authService.resendCode(this.userId).subscribe({
+      next: () => {
+        this.errorMessage = '';
+        alert('Novo código enviado para o seu e-mail!');
+      },
+      error: () => {
+        this.errorMessage = 'Não foi possível reenviar o código.';
       }
     });
   }

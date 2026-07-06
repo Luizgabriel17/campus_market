@@ -4,12 +4,9 @@ import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
+import { AddressService, Address } from '../../core/services/Address.service';
 
-// Pipe criado inline e declarado como standalone para somar a bandeja de lanches
-@Pipe({
-  name: 'totalCart',
-  standalone: true
-})
+@Pipe({ name: 'totalCart', standalone: true })
 export class TotalCartPipe implements PipeTransform {
   transform(items: any[] | null): number {
     if (!items) return 0;
@@ -27,20 +24,41 @@ export class TotalCartPipe implements PipeTransform {
 export class CartComponent implements OnInit {
   private cartService = inject(CartService);
   private orderService = inject(OrderService);
+  private addressService = inject(AddressService);
   private router = inject(Router);
 
   cartData = signal<any>(null);
+  addresses = signal<Address[]>([]);
+
   paymentMethod: 'PIX' | 'CASH' = 'PIX';
+  selectedAddressId = '';
+  notes = '';
+  deliveryDateTime = '';
   errorMessage = '';
 
   ngOnInit() {
     this.loadCart();
+    this.loadAddresses();
   }
 
   loadCart() {
     this.cartService.getCart().subscribe({
       next: (data) => this.cartData.set(data),
       error: () => this.errorMessage = 'Erro ao carregar os itens do seu carrinho.'
+    });
+  }
+
+  loadAddresses() {
+    this.addressService.getAddresses().subscribe({
+      next: (data) => {
+        this.addresses.set(data);
+        // Seleciona o endereço padrão automaticamente
+        const defaultAddress = data.find(a => a.isDefault) || data[0];
+        if (defaultAddress) {
+          this.selectedAddressId = defaultAddress.id;
+        }
+      },
+      error: () => {}
     });
   }
 
@@ -53,9 +71,30 @@ export class CartComponent implements OnInit {
 
   checkout() {
     this.errorMessage = '';
-    this.orderService.createOrder(this.paymentMethod).subscribe({
+
+    if (!this.selectedAddressId) {
+      this.errorMessage = 'Selecione um endereço de entrega antes de finalizar o pedido.';
+      return;
+    }
+
+    let formattedDeliveryTime = '';
+    if (this.deliveryDateTime) {
+      const dt = new Date(this.deliveryDateTime);
+      const day = String(dt.getDate()).padStart(2, '0');
+      const month = String(dt.getMonth() + 1).padStart(2, '0');
+      const year = dt.getFullYear();
+      const hours = String(dt.getHours()).padStart(2, '0');
+      const minutes = String(dt.getMinutes()).padStart(2, '0');
+      formattedDeliveryTime = `${day}/${month}/${year} às ${hours}:${minutes}`;
+    }
+
+    this.orderService.createOrder(
+      this.paymentMethod,
+      this.selectedAddressId,
+      this.notes,
+      formattedDeliveryTime || undefined,
+    ).subscribe({
       next: () => {
-        alert('Pedido realizado com sucesso! Vá retirar no intervalo.');
         this.router.navigate(['/my-orders']);
       },
       error: (err) => {

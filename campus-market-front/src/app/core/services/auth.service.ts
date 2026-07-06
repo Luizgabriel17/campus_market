@@ -17,7 +17,7 @@ export interface AuthResponse {
 })
 export class AuthService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3001/api/auth'; 
+  private readonly apiUrl = 'http://localhost:3001/api/auth';
 
   login(credentials: { email: string; password: string }): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
@@ -25,15 +25,22 @@ export class AuthService {
     );
   }
 
-  register(payload: any): Observable<AuthResponse> {
-  return this.http.post<AuthResponse>(`${this.apiUrl}/register`, payload).pipe(
-    tap((res) => {
-      if (res && res.access_token) {
-        this.saveSession(res);
-      }
-    })
-  );
-}
+  // Cadastro — NÃO salva sessão ainda, aguarda verificação do OTP
+  register(payload: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/register`, payload);
+  }
+
+  // Verifica o OTP — salva sessão apenas após confirmação
+  verifyEmail(userId: number, code: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/verify-email`, { userId, code }).pipe(
+      tap((res) => this.saveSession(res))
+    );
+  }
+
+  // Reenvio do código OTP
+  resendCode(userId: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/resend-code`, { userId });
+  }
 
   logout() {
     localStorage.removeItem('campus_market_token');
@@ -51,14 +58,23 @@ export class AuthService {
   }
 
   private saveSession(res: AuthResponse) {
-  localStorage.setItem(
-    'campus_market_token',
-    res.access_token
-  );
+    localStorage.setItem('campus_market_token', res.access_token);
+    localStorage.setItem('campus_market_user', JSON.stringify(res.user));
+  }
+  updateAvatar(file: File) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    return this.http.post<any>(
+      'http://localhost:3001/api/users/me/avatar',
+      formData,
+    );
+  }
 
-  localStorage.setItem(
-    'campus_market_user',
-    JSON.stringify(res.user)
-  );
-}
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  resetPassword(payload: { userId: number; code: string; newPassword: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/reset-password`, payload);
+  }
 }

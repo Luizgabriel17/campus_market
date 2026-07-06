@@ -1,10 +1,9 @@
 @import "../login/login.css";
 
-/* Ajustes específicos do cadastro */
-
 .login-page-container {
   flex-direction: row-reverse;
 }
+
 .custom-input,
 select.custom-input {
   width: 100%;
@@ -51,6 +50,91 @@ select.custom-input:focus {
   display: none;
 }
 
+.input-block {
+  position: relative;
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 44px;
+  padding: 14px 44px 14px 16px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.password-input-wrapper input:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+}
+
+.toggle-password-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  width: 32px;
+  height: 32px;
+  transition: color 0.2s ease;
+}
+
+.toggle-password-btn:hover {
+  color: #10b981;
+}
+
+.toggle-password-btn:active {
+  color: #059669;
+}
+
+.toggle-icon {
+  display: inline-block;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.password-error-message {
+  font-size: 0.875rem;
+  color: #ef4444;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.password-error-message:before {
+  content: '!';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background-color: #ef4444;
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 0.75rem;
+}
+
 @media (max-width: 960px) {
 
   .mobile-brand {
@@ -66,5 +150,11 @@ select.custom-input:focus {
     border-radius: 999px;
     font-size: 0.85rem;
     font-weight: 700;
+  }
+
+  .toggle-password-btn {
+    right: 8px;
+    width: 28px;
+    height: 28px;
   }
 }

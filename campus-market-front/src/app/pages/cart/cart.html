@@ -1,9 +1,6 @@
 <div class="cm-dashboard-container">
-  
-  <!-- CONTEÚDO PRINCIPAL (LAYOUT FLUIDO DO CARRINHO) -->
   <main class="cm-main-layout">
     
-    <!-- HEADER ESTRATÉGICO COM BOTÃO VOLTAR -->
     <header class="cm-view-header">
       <div class="cm-header-headline">
         <button class="cm-btn-back-link" routerLink="/home" aria-label="Voltar para o cardápio">
@@ -15,7 +12,6 @@
       </div>
     </header>
 
-    <!-- ESTADO DE ERRO -->
     <div *ngIf="errorMessage" class="cm-state-banner system-error" role="alert">
       <div class="banner-icon-container">⚠️</div>
       <div class="banner-message-body">
@@ -24,42 +20,35 @@
       </div>
     </div>
 
-    <!-- CONTEÚDO FLUIDO GRID (ITENS + RESUMO) -->
     <div class="cm-cart-layout-grid" *ngIf="cartData() && cartData().items.length > 0; else emptyCart">
       
-      <!-- COLUNA DA ESQUERDA: LISTA DE PRODUTOS -->
+      <!-- LISTA DE PRODUTOS -->
       <section class="cm-cart-items-column" aria-label="Produtos no carrinho">
-        <div class="cm-item-row-card" *ngFor="let item of cartData().items">
-          
+        <div class="cm-item-row-card" *ngFor="let item of cartData().items; let i = index" [style.--index]="i">
           <div class="item-media-preview">
-            <img [src]="item.product.imageUrl ? 'http://localhost:3001' + item.product.imageUrl : 'assets/placeholder-food.png'" 
-                 [alt]="item.product.name" 
-                 class="item-thumbnail">
+            <img [src]="item.product.imageUrl || 'assets/placeholder-food.png'"
+                 [alt]="item.product.name" class="item-thumbnail">
           </div>
-          
           <div class="item-body-details">
             <div class="item-headline-block">
               <h3 class="item-product-name">{{ item.product.name }}</h3>
               <span class="item-calculated-price">{{ item.product.price | currency:'BRL':'symbol':'1.2-2' }}</span>
             </div>
-            
             <div class="item-controls-footer">
               <div class="item-quantity-tag">
                 <span class="qty-label">Qtd:</span>
                 <span class="qty-value">{{ item.quantity }}</span>
               </div>
-              
               <button class="cm-btn-item-remove" (click)="onRemoveItem(item.productId)" aria-label="Remover item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                 <span>Remover</span>
               </button>
             </div>
           </div>
-
         </div>
       </section>
 
-      <!-- COLUNA DA DIREITA: RESUMO DE FECHAMENTO (STICKY) -->
+      <!-- RESUMO DO PEDIDO -->
       <aside class="cm-cart-summary-sidebar">
         <div class="cm-summary-sticky-card">
           <h2 class="summary-card-title">Resumo do Pedido</h2>
@@ -73,16 +62,38 @@
               <span class="calc-label">Taxa de retirada</span>
               <span class="calc-value state-free">Grátis</span>
             </div>
-            
             <div class="calc-row-total">
               <span class="total-label">Total a pagar</span>
               <strong class="total-value-display">{{ cartData().items | totalCart | currency:'BRL':'symbol':'1.2-2' }}</strong>
             </div>
           </div>
 
-          <!-- SELEÇÃO DE PAGAMENTO REVISADA -->
-          <div class="cm-payment-method-selector">
-            <label for="paymentMethod" class="input-select-label">Forma de Pagamento (Na Retirada)</label>
+          <!-- ENDEREÇO DE ENTREGA -->
+          <div class="cm-payment-method-selector" style="margin-top: 1.25rem;">
+            <label class="input-select-label">Endereço de Entrega</label>
+
+            <div *ngIf="addresses().length === 0" style="font-size: 0.875rem; color: #ef4444; margin-top: 8px;">
+              Nenhum endereço cadastrado.
+              <a routerLink="/profile" style="color: #10b981; font-weight: 600;">Cadastrar agora</a>
+            </div>
+
+            <div class="custom-select-wrapper" *ngIf="addresses().length > 0">
+              <select [(ngModel)]="selectedAddressId" class="cm-clean-select">
+                <option value="">Selecione um endereço</option>
+                <option *ngFor="let address of addresses()" [value]="address.id">
+                  {{ address.street }}, {{ address.number }} - {{ address.neighborhood }}
+                  {{ address.isDefault ? '(Padrão)' : '' }}
+                </option>
+              </select>
+              <span class="select-chevron-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </span>
+            </div>
+          </div>
+
+          <!-- FORMA DE PAGAMENTO -->
+          <div class="cm-payment-method-selector" style="margin-top: 1rem;">
+            <label for="paymentMethod" class="input-select-label">Forma de Pagamento</label>
             <div class="custom-select-wrapper">
               <select id="paymentMethod" [(ngModel)]="paymentMethod" class="cm-clean-select">
                 <option value="PIX">Pix (Cópia e Cola / QR Code)</option>
@@ -94,8 +105,23 @@
             </div>
           </div>
 
-          <!-- CRUCIAL CALL TO ACTION -->
-          <button class="cm-btn-checkout-submit" (click)="checkout()" aria-label="Finalizar pedido e retirar no IF">
+          <!-- OBSERVAÇÕES -->
+          <div class="cm-payment-method-selector" style="margin-top: 1rem;">
+            <label class="input-select-label">Observações (opcional)</label>
+            <textarea [(ngModel)]="notes"
+                      placeholder="Ex: Sem cebola, capricha no molho..."
+                      style="width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #e2e8f0; font-size: 0.875rem; resize: none; height: 72px; box-sizing: border-box;"></textarea>
+          </div>
+
+          <!-- DATA E HORÁRIO DE RETIRADA -->
+          <div class="cm-payment-method-selector" style="margin-top: 1rem;">
+            <label class="input-select-label">Data e Horário de Retirada (opcional)</label>
+            <input type="datetime-local" [(ngModel)]="deliveryDateTime" class="cm-datetime-input">
+          </div>
+
+          <!-- BOTÃO FINALIZAR -->
+          <button class="cm-btn-checkout-submit" (click)="checkout()" style="margin-top: 1.5rem;"
+                  aria-label="Finalizar pedido">
             <span>Fechar Pedido no IF</span>
             <svg class="btn-arrow-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </button>
@@ -104,17 +130,12 @@
 
     </div>
 
-    <!-- TEMPLATE VAZIO ALINHADO AO DESIGN SYSTEM -->
     <ng-template #emptyCart>
       <div class="cm-empty-state-card">
-        <div class="empty-state-visual">
-          <span class="empty-emoji">📥</span>
-        </div>
+        <div class="empty-state-visual"><span class="empty-emoji">📥</span></div>
         <h2 class="empty-state-title">Sua bandeja está vazia</h2>
         <p class="empty-state-description">Escolha algum salgado, lanche ou suco fresco na nossa vitrine para adicionar aqui.</p>
-        <button class="cm-btn-primary-inline" routerLink="/home">
-          <span>Ver Cardápio Disponível</span>
-        </button>
+        <button class="cm-btn-primary-inline" routerLink="/home"><span>Ver Cardápio Disponível</span></button>
       </div>
     </ng-template>
 

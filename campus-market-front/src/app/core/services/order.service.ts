@@ -6,46 +6,39 @@ import { HttpClient } from '@angular/common/http';
 })
 export class OrderService {
   private http = inject(HttpClient);
+  private readonly apiUrl = 'http://localhost:3001/api/orders';
 
-  private readonly apiUrl =
-    'http://localhost:3001/api/orders';
-
-  createOrder(paymentMethod: 'PIX' | 'CASH') {
-    return this.http.post(
-      this.apiUrl,
-      { method: paymentMethod }
-    );
+  createOrder(
+    paymentMethod: 'PIX' | 'CASH',
+    deliveryAddressId: string,
+    notes?: string,
+    deliveryTime?: string,
+  ) {
+    return this.http.post(this.apiUrl, {
+      method: paymentMethod,
+      deliveryAddressId,
+      notes: notes || undefined,
+      deliveryTime: deliveryTime || undefined,
+    });
   }
 
   getMyOrders() {
-    return this.http.get<any[]>(
-      `${this.apiUrl}/my-purchases`
-    );
+    return this.http.get<any[]>(`${this.apiUrl}/my-purchases`);
   }
 
   getSellerOrders() {
-    return this.http.get<any[]>(
-      `${this.apiUrl}/seller`
-    );
+    return this.http.get<any[]>(`${this.apiUrl}/seller`);
   }
 
-  updateOrderStatus(
-    orderId: number,
-    status: string
-  ) {
-    return this.http.put(
-      `${this.apiUrl}/${orderId}/status`,
-      { status }
-    );
+  confirmOrder(orderId: number) {
+    return this.http.put<any>(`${this.apiUrl}/${orderId}/confirm`, {});
   }
 
-  updatePaymentStatus(
-    orderId: number,
-    status: string
-  ) {
-    return this.http.put(
-      `${this.apiUrl}/${orderId}/payment`,
-      { status }
-    );
+  updateOrderStatus(orderId: number, status: string) {
+    return this.http.put(`${this.apiUrl}/${orderId}/status`, { status });
+  }
+
+  updatePaymentStatus(orderId: number, status: string) {
+    return this.http.put(`${this.apiUrl}/${orderId}/payment`, { status });
   }
 }

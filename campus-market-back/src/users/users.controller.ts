@@ -3,7 +3,6 @@ import {
   Get,
   Patch,
   Delete,
-  Param,
   Body,
   UseGuards,
   Request,
@@ -11,15 +10,21 @@ import {
 
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdatePasswordDto } from './dto/update.password.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { UploadedFile, UseInterceptors, Post } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { memoryStorage } from 'multer';
 
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get('me')
   getMe(@Request() req: any) {
     return this.usersService.findOne(
@@ -27,33 +32,60 @@ export class UsersController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    return this.usersService.update(
-      +id,
-      updateUserDto,
+  @Get('me/profile')
+  getProfile(@Request() req: any) {
+    return this.usersService.getProfile(
+      req.user.userId,
     );
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @Patch('me')
+  update(
+    @Request() req: any,
+    @Body() dto: UpdateUserDto,
+  ) {
+    return this.usersService.update(
+      req.user.userId,
+      dto,
+    );
   }
+
+  @Patch('me/password')
+  changePassword(
+    @Request() req: any,
+    @Body() dto: UpdatePasswordDto,
+  ) {
+    return this.usersService.changePassword(
+      req.user.userId,
+      dto,
+    );
+  }
+
+  @Delete('me')
+  remove(@Request() req: any) {
+    return this.usersService.remove(
+      req.user.userId,
+    );
+  }
+  @Post('me/avatar')
+@UseInterceptors(
+  FileInterceptor('avatar', {
+    storage: memoryStorage(),
+  }),
+)
+async uploadAvatar(
+  @Request() req: any,
+  @UploadedFile() file: Express.Multer.File,
+) {
+  const imageUrl =
+    await this.cloudinaryService.uploadImage(
+      file,
+      'avatars',
+    );
+
+  return this.usersService.updateAvatar(
+    req.user.userId,
+    imageUrl,
+  );
+}
 }

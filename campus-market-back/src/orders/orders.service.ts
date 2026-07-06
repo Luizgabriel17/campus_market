@@ -1,11 +1,26 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { WhatsappService } from '../whatsapp/whatsapp.service';
 
 @Injectable()
 export class OrderService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private whatsapp: WhatsappService,
+  ) {}
 
-  async createOrder(customerId: number, paymentMethod: 'PIX' | 'CASH') {
+  async createOrder(
+    customerId: number,
+    paymentMethod: 'PIX' | 'CASH',
+    deliveryAddressId: string,
+    notes?: string,
+    deliveryTime?: string,
+  ) {
     const cart = await this.prisma.cart.findUnique({
       where: { userId: customerId },
       include: {
@@ -19,22 +34,41 @@ export class OrderService {
       throw new BadRequestException('Seu carrinho está vazio.');
     }
 
-    
+    const address = await this.prisma.address.findUnique({
+      where: { id: deliveryAddressId },
+    });
+
+    if (!address) {
+      throw new BadRequestException('Endereço não encontrado.');
+    }
+
+    if (address.userId !== customerId) {
+      throw new ForbiddenException('Este endereço não pertence a você.');
+    }
+
     const sellerId = cart.items[0].product.sellerId;
-    const sameSeller = cart.items.every(item => item.product.sellerId === sellerId);
+    const sameSeller = cart.items.every(
+      (item) => item.product.sellerId === sellerId,
+    );
+
     if (!sameSeller) {
-      throw new BadRequestException('Você só pode fazer pedido de um vendedor por vez no carrinho.');
+      throw new BadRequestException(
+        'Você só pode fazer pedido de um vendedor por vez no carrinho.',
+      );
     }
 
     for (const item of cart.items) {
       if (item.product.stock < item.quantity) {
-        throw new BadRequestException(`Estoque insuficiente para o lanche: ${item.product.name}`);
+        throw new BadRequestException(
+          `Estoque insuficiente para o lanche: ${item.product.name}`,
+        );
       }
     }
 
-    const total = cart.items.reduce((acc, item) => {
-      return acc + (Number(item.product.price) * item.quantity);
-    }, 0);
+    const total = cart.items.reduce(
+      (acc, item) => acc + Number(item.product.price) * item.quantity,
+      0,
+    );
 
     return this.prisma.$transaction(async (tx) => {
       const order = await tx.order.create({
@@ -43,6 +77,9 @@ export class OrderService {
           sellerId,
           total,
           status: 'PENDENTE',
+          deliveryAddressId,
+          notes: notes ?? null,
+          deliveryTime: deliveryTime ?? null,
         },
       });
 
@@ -58,11 +95,7 @@ export class OrderService {
 
         await tx.product.update({
           where: { id: item.productId },
-          data: {
-            stock: {
-              decrement: item.quantity,
-            },
-          },
+          data: { stock: { decrement: item.quantity } },
         });
       }
 
@@ -84,6 +117,7 @@ export class OrderService {
         include: {
           items: { include: { product: true } },
           payment: true,
+          deliveryAddress: true,
         },
       });
     });
@@ -93,16 +127,23 @@ export class OrderService {
     return this.prisma.order.findMany({
       where: { customerId },
       include: {
-        seller: { select: { name: true } },
+        seller: { select: { name: true, phone: true } },
         items: { include: { product: true } },
         payment: true,
+        deliveryAddress: true,
       },
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  async updateOrderStatus(orderId: number, status: 'PENDENTE' | 'PAGO' | 'ENVIADO' | 'ENTREGUE' | 'CANCELADO') {
-    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+  async updateOrderStatus(
+    orderId: number,
+    status: 'PENDENTE' | 'PAGO' | 'ENVIADO' | 'ENTREGUE' | 'CANCELADO',
+  ) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    });
+
     if (!order) {
       throw new NotFoundException('Pedido não encontrado.');
     }
@@ -113,10 +154,14 @@ export class OrderService {
     });
   }
 
-  async updatePaymentStatus(orderId: number, sellerId: number, status: 'PENDENTE' | 'APROVADO' | 'RECUSADO') {
+  async updatePaymentStatus(
+    orderId: number,
+    sellerId: number,
+    status: 'PENDENTE' | 'APROVADO' | 'RECUSADO',
+  ) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
-      include: { payment: true }
+      include: { payment: true },
     });
 
     if (!order) {
@@ -142,32 +187,68 @@ export class OrderService {
 
       return tx.order.findUnique({
         where: { id: orderId },
-        include: { payment: true }
+        include: {
+          payment: true,
+          deliveryAddress: true,
+          items: { include: { product: true } },
+        },
       });
     });
   }
+
+  async confirmOrder(orderId: number, sellerId: number) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        customer: { select: { id: true, name: true, phone: true } },
+        seller: { select: { name: true } },
+        items: { include: { product: true } },
+        deliveryAddress: true,
+        payment: true,
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Pedido não encontrado.');
+    }
+
+    if (order.sellerId !== sellerId) {
+      throw new ForbiddenException('Este pedido não pertence a você.');
+    }
+
+    await this.prisma.order.update({
+      where: { id: orderId },
+      data: { status: 'ENTREGUE' },
+    });
+
+    const whatsappUrl = this.whatsapp.buildOrderConfirmationUrl({
+      id: order.id,
+      total: order.total.toString(), // Decimal → string
+      notes: order.notes,
+      deliveryTime: order.deliveryTime,
+      customer: order.customer,
+      seller: order.seller,
+      items: order.items,
+      deliveryAddress: order.deliveryAddress,
+      payment: order.payment,
+    });
+
+    return {
+      message: 'Pedido confirmado como entregue.',
+      whatsappUrl,
+    };
+  }
+
   async getSellerOrders(sellerId: number) {
-  return this.prisma.order.findMany({
-    where: {
-      sellerId,
-    },
-    include: {
-      customer: {
-        select: {
-          id: true,
-          name: true,
-        },
+    return this.prisma.order.findMany({
+      where: { sellerId },
+      include: {
+        customer: { select: { id: true, name: true, phone: true } },
+        items: { include: { product: true } },
+        payment: true,
+        deliveryAddress: true,
       },
-      items: {
-        include: {
-          product: true,
-        },
-      },
-      payment: true,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
-}
+      orderBy: { createdAt: 'desc' },
+    });
+  }
 }

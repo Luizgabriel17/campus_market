@@ -27,6 +27,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ordersReceived = signal<any[]>([]);
   errorMessage = '';
 
+  getInitials(name: string): string {
+    if (!name) return '';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) {
+      return parts[0].slice(0, 2).toUpperCase();
+    }
+    const first = parts[0].charAt(0);
+    const last = parts[parts.length - 1].charAt(0);
+    return (first + last).toUpperCase();
+  }
+
+  formatPhone(phone: string): string {
+    if (!phone) return '';
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length === 11) {
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
+    } else if (cleaned.length === 10) {
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
+    }
+    return phone;
+  }
+
   private refreshInterval?: ReturnType<typeof setInterval>;
 
   ngOnInit(): void {
@@ -82,6 +104,42 @@ export class DashboardComponent implements OnInit, OnDestroy {
           alert('Erro ao marcar pedido como entregue.');
         }
       });
+  }
+
+  cancelOrder(orderId: number): void {
+    const confirmCancel = confirm('Deseja realmente cancelar este pedido?');
+    if (!confirmCancel) return;
+
+    this.orderService
+      .updateOrderStatus(orderId, 'CANCELADO')
+      .subscribe({
+        next: () => {
+          this.orderService.updatePaymentStatus(orderId, 'RECUSADO').subscribe({
+            next: () => this.loadIncomingOrders(),
+            error: () => this.loadIncomingOrders()
+          });
+        },
+        error: (error) => {
+          console.error(error);
+          alert('Erro ao cancelar pedido.');
+        }
+      });
+  }
+
+  contactCustomer(order: any) {
+    if (!order.customer?.phone) {
+      alert('Telefone do cliente não cadastrado.');
+      return;
+    }
+    let cleanPhone = order.customer.phone.replace(/\D/g, '');
+    if (!cleanPhone.startsWith('55') && cleanPhone.length <= 11) {
+      cleanPhone = '55' + cleanPhone;
+    }
+    const itemsText = order.items.map((item: any) => `${item.quantity}x ${item.product?.name}`).join(', ');
+    const text = encodeURIComponent(
+      `Olá ${order.customer.name}! Sou o vendedor do CampusMarket e estou entrando em contato sobre o seu pedido #${order.id} (${itemsText}).`
+    );
+    window.open(`https://wa.me/${cleanPhone}?text=${text}`, '_blank');
   }
 
   getPendingCount(): number {

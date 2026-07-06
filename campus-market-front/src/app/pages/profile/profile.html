@@ -1,0 +1,263 @@
+<div class="cm-dashboard-container">
+
+  <!-- NAVBAR -->
+  <nav class="cm-navbar">
+    <div class="cm-navbar-brand">
+      <div class="brand-logo-wrapper">
+        <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/>
+        </svg>
+      </div>
+      <span class="brand-text">
+        Campus<span class="brand-accent">Market</span>
+      </span>
+    </div>
+
+    <button class="back-btn" routerLink="/home">
+      Voltar ao Menu
+    </button>
+  </nav>
+
+  <main class="cm-main-layout">
+    
+    <!-- HEADER -->
+    <header class="cm-view-header">
+      <div>
+        <h1 class="cm-page-title">Meu Perfil</h1>
+        <p class="cm-page-subtitle">
+          Gerencie suas informações pessoais, endereços e segurança da conta.
+        </p>
+      </div>
+    </header>
+
+    <div class="profile-grid">
+      
+      <!-- CARD 1: DADOS PESSOAIS E AVATAR -->
+      <section class="profile-card" style="--index: 0">
+        <h2 class="section-title">Dados Pessoais</h2>
+        
+        <div class="avatar-upload-section">
+          <!-- Avatar display -->
+          <div class="avatar-display">
+            <img
+              *ngIf="user.avatar"
+              [src]="user.avatar"
+              class="profile-avatar"
+              alt="Foto do perfil"
+            />
+            <div
+              *ngIf="!user.avatar"
+              class="profile-avatar-placeholder"
+            >
+              {{ getInitials(user.name) }}
+            </div>
+          </div>
+          
+          <div class="avatar-controls">
+            <label class="custom-file-upload">
+              <input
+                type="file"
+                accept="image/*"
+                (change)="onFileSelected($event)"
+              />
+              Escolher Imagem
+            </label>
+            <span class="selected-file-name" *ngIf="selectedFile">{{ selectedFile.name }}</span>
+            <button class="btn-avatar-upload" (click)="uploadAvatar()" [disabled]="!selectedFile">
+              Atualizar Foto
+            </button>
+          </div>
+        </div>
+
+        <form class="profile-form" (submit)="$event.preventDefault(); save()">
+          <div class="form-group">
+            <label for="name">Nome Completo</label>
+            <input
+              id="name"
+              [(ngModel)]="user.name"
+              name="name"
+              placeholder="Digite seu nome"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Telefone / WhatsApp</label>
+            <input
+              id="phone"
+              [(ngModel)]="user.phone"
+              (input)="onPhoneInput($event)"
+              name="phone"
+              placeholder="Digite seu telefone"
+            />
+          </div>
+
+          <button type="submit" class="btn-save">
+            Salvar Alterações
+          </button>
+        </form>
+      </section>
+
+      <!-- CARD 2: ENDEREÇOS -->
+      <section class="profile-card" style="--index: 1">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 0.75rem;">
+          <h2 class="section-title" style="margin: 0; border: none; padding: 0;">Endereços</h2>
+          <button class="btn-add-address-toggle" *ngIf="!showAddressForm" (click)="showAddressForm = true">
+            + Adicionar
+          </button>
+        </div>
+        
+        <!-- Formulário de Novo Endereço -->
+        <div class="address-form-container" *ngIf="showAddressForm" style="margin-bottom: 1.5rem; background: #f8fafc; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <h3 style="font-size: 1rem; margin-top: 0; margin-bottom: 1rem; color: #0f172a;">Novo Endereço</h3>
+          
+          <form class="profile-form" (submit)="$event.preventDefault(); addAddress()">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group">
+                <label for="recipient">Destinatário</label>
+                <input id="recipient" [(ngModel)]="newAddress.recipient" name="recipient" required />
+              </div>
+              <div class="form-group">
+                <label for="addr-phone">Telefone</label>
+                <input id="addr-phone" [(ngModel)]="newAddress.phone" name="phone" required />
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-top: 0.75rem;">
+              <div class="form-group">
+                <label for="street">Rua / Logradouro</label>
+                <input id="street" [(ngModel)]="newAddress.street" name="street" required />
+              </div>
+              <div class="form-group">
+                <label for="number">Número</label>
+                <input id="number" [(ngModel)]="newAddress.number" name="number" required />
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.75rem;">
+              <div class="form-group">
+                <label for="neighborhood">Bairro</label>
+                <input id="neighborhood" [(ngModel)]="newAddress.neighborhood" name="neighborhood" required />
+              </div>
+              <div class="form-group">
+                <label for="zipCode">CEP</label>
+                <input id="zipCode" [(ngModel)]="newAddress.zipCode" name="zipCode" required />
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-top: 0.75rem;">
+              <div class="form-group">
+                <label for="city">Cidade</label>
+                <input id="city" [(ngModel)]="newAddress.city" name="city" required />
+              </div>
+              <div class="form-group">
+                <label for="state">Estado</label>
+                <input id="state" [(ngModel)]="newAddress.state" name="state" required />
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.75rem;">
+              <div class="form-group">
+                <label for="complement">Complemento</label>
+                <input id="complement" [(ngModel)]="newAddress.complement" name="complement" />
+              </div>
+              <div class="form-group">
+                <label for="reference">Referência</label>
+                <input id="reference" [(ngModel)]="newAddress.reference" name="reference" />
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
+              <input id="isDefault" type="checkbox" [(ngModel)]="newAddress.isDefault" name="isDefault" style="width: auto; cursor: pointer;" />
+              <label for="isDefault" style="font-size: 0.875rem; font-weight: 600; color: #475569; cursor: pointer; user-select: none;">Definir como endereço padrão</label>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="submit" class="btn-save" style="margin: 0; flex: 1;">Salvar Endereço</button>
+              <button type="button" class="btn-cancel" (click)="resetAddressForm()" style="background: #e2e8f0; color: #475569; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; flex: 1; transition: all 0.2s ease;">Cancelar</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Lista de Endereços Existentes -->
+        <div class="addresses-list" *ngIf="addresses && addresses.length > 0">
+          <div class="address-item" *ngFor="let address of addresses" [class.is-default]="address.isDefault" style="position: relative;">
+            <div class="address-icon">📍</div>
+            <div class="address-details" style="flex: 1; padding-right: 2rem;">
+              <div class="address-main">
+                <strong>{{ address.street }}, {{ address.number }}</strong>
+                <span class="default-badge" *ngIf="address.isDefault">Padrão</span>
+              </div>
+              <p class="address-sub">
+                {{ address.neighborhood }}, {{ address.city }} - {{ address.state }}
+              </p>
+              <p class="address-complement" *ngIf="address.complement">
+                Compl: {{ address.complement }}
+              </p>
+              <p style="font-size: 0.8rem; color: #64748b; margin: 4px 0 0 0;" *ngIf="address.recipient">
+                Dest: {{ address.recipient }} <span *ngIf="address.phone">| Tel: {{ address.phone }}</span>
+              </p>
+            </div>
+            <!-- Botão Excluir Endereço -->
+            <button class="btn-delete-address" (click)="deleteAddress(address.id)" aria-label="Remover endereço" title="Remover endereço" style="position: absolute; top: 1rem; right: 1rem; border: none; background: transparent; color: #ef4444; cursor: pointer; padding: 4px; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="no-addresses" *ngIf="!addresses || addresses.length === 0" style="margin-top: 1rem;">
+          <p>Nenhum endereço cadastrado ainda.</p>
+        </div>
+      </section>
+
+      <!-- CARD 3: SEGURANÇA (SENHA) -->
+      <section class="profile-card" style="--index: 2">
+        <h2 class="section-title">Alterar Senha</h2>
+        
+        <form class="profile-form" (submit)="$event.preventDefault(); changePassword()">
+          <div class="form-group">
+            <label for="current-password">Senha Atual</label>
+            <input
+              id="current-password"
+              type="password"
+              [(ngModel)]="password.currentPassword"
+              name="currentPassword"
+              placeholder="Sua senha atual"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="new-password">Nova Senha</label>
+            <input
+              id="new-password"
+              type="password"
+              [(ngModel)]="password.newPassword"
+              name="newPassword"
+              placeholder="Escolha uma nova senha"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn-change-password">
+            Alterar Senha
+          </button>
+        </form>
+      </section>
+
+      <!-- CARD 4: EXCLUIR CONTA -->
+      <section class="profile-card danger-zone" style="--index: 3">
+        <h2 class="section-title text-danger">Zona de Perigo</h2>
+        <p class="danger-desc">
+          Ao excluir sua conta, todos os seus dados serão apagados permanentemente. Esta ação não pode ser desfeita.
+        </p>
+        <button class="btn-delete-account" (click)="deleteAccount()">
+          Excluir Minha Conta
+        </button>
+      </section>
+
+    </div>
+
+  </main>
+</div>

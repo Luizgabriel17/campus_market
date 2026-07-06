@@ -83,4 +83,19 @@ export class ProductService {
       data: { status: 'INATIVO' },
     });
   }
+  async findBySeller(
+  sellerId: number
+) {
+  return this.prisma.product.findMany({
+    where: {
+      sellerId
+    },
+    include: {
+      category: true
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
+}
 }

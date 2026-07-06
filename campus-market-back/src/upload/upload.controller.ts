@@ -3,44 +3,50 @@ import {
   Post,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
-
 import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
-import { diskStorage } from 'multer';
-
-import { extname } from 'path';
-
+@UseGuards(JwtAuthGuard)
 @Controller('upload')
 export class UploadController {
+  constructor(private readonly cloudinaryService: CloudinaryService) {}
+
   @Post('product-image')
   @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads/products',
-
-        filename: (req, file, callback) => {
-          const uniqueName =
-            Date.now() +
-            '-' +
-            Math.round(Math.random() * 1e9);
-
-          callback(
-            null,
-            uniqueName +
-              extname(file.originalname),
-          );
-        },
-      }),
-    }),
+    FileInterceptor('file', { storage: memoryStorage() }),
   )
-  uploadFile(
-    @UploadedFile() file: Express.Multer.File,
-  ) {
-    return {
-      filename: file.filename,
+  async uploadProductImage(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Nenhum arquivo enviado.');
+    }
 
-      url: `/uploads/products/${file.filename}`,
-    };
+    const url = await this.cloudinaryService.uploadImage(
+      file,
+      'campusmarket/products',
+    );
+
+    return { url };
+  }
+
+  @Post('avatar')
+  @UseInterceptors(
+    FileInterceptor('file', { storage: memoryStorage() }),
+  )
+  async uploadAvatar(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Nenhum arquivo enviado.');
+    }
+
+    const url = await this.cloudinaryService.uploadImage(
+      file,
+      'campusmarket/avatars',
+    );
+
+    return { url };
   }
 }
