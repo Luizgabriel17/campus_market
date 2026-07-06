@@ -347,22 +347,31 @@ export class AuthService {
 
     // Adiciona à fila para envio assíncrono
     // Não aguarda - retorna imediatamente
-    await this.emailQueue.add(
-      'send-verification',
-      {
-        email,
-        code,
-        userId,
-      },
-      {
-        attempts: 3, // Tenta 3 vezes se falhar
-        backoff: {
-          type: 'exponential',
-          delay: 2000, // Começa com 2 segundos
+    try {
+      await this.emailQueue.add(
+        'send-verification',
+        {
+          email,
+          code,
+          userId,
         },
-        removeOnComplete: true, // Remove da fila após sucesso
-      },
-    );
+        {
+          attempts: 3, // Tenta 3 vezes se falhar
+          backoff: {
+            type: 'exponential',
+            delay: 2000, // Começa com 2 segundos
+          },
+          removeOnComplete: true, // Remove da fila após sucesso
+        },
+      );
+    } catch (error) {
+      console.warn(
+        `[Fallback] Falha ao adicionar à fila de e-mail (Redis indisponível?). Enviando de forma síncrona...`,
+        error.message,
+      );
+      // Envio síncrono (aguarda resposta) como fallback
+      await this.mailService.sendVerificationCode(email, code);
+    }
   }
 
   async forgotPassword(email: string) {
