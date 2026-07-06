@@ -1,13 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SellerService {
   private http = inject(HttpClient);
-  private readonly ordersUrl = 'http://localhost:3001/api/orders';
-  private readonly productsUrl = 'http://localhost:3001/api/products';
+  private readonly ordersUrl = `${environment.apiUrl}/orders`;
+  private readonly productsUrl = `${environment.apiUrl}/products`;
 
   // Rota que refatorei no NestJS protegida pelo RolesGuard
   confirmPayment(orderId: number, status: 'APROVADO' | 'RECUSADO') {

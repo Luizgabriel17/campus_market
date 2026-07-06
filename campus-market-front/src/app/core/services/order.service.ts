@@ -1,12 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3001/api/orders';
+  private readonly apiUrl = `${environment.apiUrl}/orders`;
 
   createOrder(
     paymentMethod: 'PIX' | 'CASH',

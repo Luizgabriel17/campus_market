@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface Product {
   id: number;
@@ -19,7 +20,7 @@ export interface Product {
 })
 export class ProductService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3001/api/products';
+  private readonly apiUrl = `${environment.apiUrl}/products`;
 
   getProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(this.apiUrl);
@@ -49,6 +50,6 @@ export class ProductService {
   uploadImage(file: File): Observable<{ url: string }> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ url: string }>('http://localhost:3001/api/upload/product-image', formData);
+    return this.http.post<{ url: string }>(`${environment.apiUrl}/upload/product-image`, formData);
   }
 }

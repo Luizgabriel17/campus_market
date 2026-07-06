@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface AuthResponse {
   access_token: string;
@@ -17,7 +18,7 @@ export interface AuthResponse {
 })
 export class AuthService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3001/api/auth';
+  private readonly apiUrl = `${environment.apiUrl}/auth`;
 
   login(credentials: { email: string; password: string }): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
@@ -65,7 +66,7 @@ export class AuthService {
     const formData = new FormData();
     formData.append('avatar', file);
     return this.http.post<any>(
-      'http://localhost:3001/api/users/me/avatar',
+      `${environment.apiUrl}/users/me/avatar`,
       formData,
     );
   }
