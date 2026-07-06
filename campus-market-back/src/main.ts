@@ -9,10 +9,19 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // 2. SEGUNDO: Ativa o CORS com as rotas já devidamente prefixadas
+  const frontendUrl = process.env.FRONTEND_URL;
+  const allowedOrigins = ['http://localhost:4200'];
+  if (frontendUrl) {
+    allowedOrigins.push(frontendUrl);
+    if (frontendUrl.endsWith('/')) {
+      allowedOrigins.push(frontendUrl.slice(0, -1));
+    } else {
+      allowedOrigins.push(`${frontendUrl}/`);
+    }
+  }
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL 
-      ? [process.env.FRONTEND_URL, 'http://localhost:4200'] 
-      : ['http://localhost:4200'],
+    origin: allowedOrigins,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
     allowedHeaders: 'Content-Type, Accept, Authorization', // Permite o cabeçalho do Token!
