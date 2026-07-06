@@ -26,6 +26,7 @@ import { AddressModule } from './address/address.module';
         host: process.env.REDIS_HOST || 'localhost',
         port: parseInt(process.env.REDIS_PORT || '6379'),
         password: process.env.REDIS_PASSWORD || undefined,
+        maxRetriesPerRequest: 1, // Falha rápido se o Redis estiver offline para não travar a requisição
       },
     }),
     
