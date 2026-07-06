@@ -1,17 +1,38 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import * as sgMail from '@sendgrid/mail';
+import * as nodemailer from 'nodemailer';
+import { createConnection } from 'net';
 
 @Injectable()
 export class MailService {
+  private transporter: nodemailer.Transporter;
+
   constructor() {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
+    this.transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS,
+      },
+      // Estratégia 1: Forçar IPv4 via família de sockets
+      family: 4,
+      // Estratégia 2: Custom connection handler para garantir IPv4
+      connectionUrl: undefined,
+      tls: {
+        rejectUnauthorized: true,
+      },
+      // Estratégia 3: Aumentar timeout para evitar problemas de conexão
+      connectionTimeout: 10000,
+      socketTimeout: 10000,
+    } as any);
   }
 
   async sendVerificationCode(to: string, code: string): Promise<void> {
     try {
-      await sgMail.send({
+      await this.transporter.sendMail({
+        from: `"CampusMarket" <${process.env.MAIL_USER}>`,
         to,
-        from: process.env.SENDGRID_FROM_EMAIL || 'noreply@campusmarket.com',
         subject: 'Confirme seu cadastro no CampusMarket',
         html: `
           <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
@@ -36,16 +57,16 @@ export class MailService {
         `,
       });
     } catch (error) {
-      console.error('Erro ao enviar e-mail via SendGrid:', error);
+      console.error('Erro ao enviar e-mail de verificação:', error);
       throw new InternalServerErrorException('Erro ao enviar e-mail de verificação.');
     }
   }
 
   async sendPasswordRecoveryCode(to: string, code: string): Promise<void> {
     try {
-      await sgMail.send({
+      await this.transporter.sendMail({
+        from: `"CampusMarket" <${process.env.MAIL_USER}>`,
         to,
-        from: process.env.SENDGRID_FROM_EMAIL || 'noreply@campusmarket.com',
         subject: 'Recuperação de Senha - CampusMarket',
         html: `
           <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #e2e8f0; padding: 24px; border-radius: 12px; background: #ffffff;">
@@ -71,7 +92,7 @@ export class MailService {
         `,
       });
     } catch (error) {
-      console.error('Erro ao enviar e-mail de recuperação via SendGrid:', error);
+      console.error('Erro ao enviar e-mail de recuperação de senha:', error);
       throw new InternalServerErrorException('Erro ao enviar e-mail de recuperação de senha.');
     }
   }
