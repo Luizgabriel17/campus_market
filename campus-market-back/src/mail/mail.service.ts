@@ -1,32 +1,17 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
-import * as dns from 'dns';
+import sgMail from '@sendgrid/mail';
 
 @Injectable()
 export class MailService {
-  private transporter: nodemailer.Transporter;
-
   constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      lookup: (hostname, options, callback) => {
-        // Força resolução apenas IPv4 para evitar erro ENETUNREACH em ambientes sem IPv6
-        dns.lookup(hostname, { family: 4 }, callback);
-      },
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
-      },
-    } as any);
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
   }
 
   async sendVerificationCode(to: string, code: string): Promise<void> {
     try {
-      await this.transporter.sendMail({
-        from: `"CampusMarket" <${process.env.MAIL_USER}>`,
+      await sgMail.send({
         to,
+        from: process.env.SENDGRID_FROM_EMAIL || 'noreply@campusmarket.com',
         subject: 'Confirme seu cadastro no CampusMarket',
         html: `
           <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
@@ -51,16 +36,16 @@ export class MailService {
         `,
       });
     } catch (error) {
-      console.error('Erro ao enviar e-mail:', error);
+      console.error('Erro ao enviar e-mail via SendGrid:', error);
       throw new InternalServerErrorException('Erro ao enviar e-mail de verificação.');
     }
   }
 
   async sendPasswordRecoveryCode(to: string, code: string): Promise<void> {
     try {
-      await this.transporter.sendMail({
-        from: `"CampusMarket" <${process.env.MAIL_USER}>`,
+      await sgMail.send({
         to,
+        from: process.env.SENDGRID_FROM_EMAIL || 'noreply@campusmarket.com',
         subject: 'Recuperação de Senha - CampusMarket',
         html: `
           <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; border: 1px solid #e2e8f0; padding: 24px; border-radius: 12px; background: #ffffff;">
@@ -86,7 +71,7 @@ export class MailService {
         `,
       });
     } catch (error) {
-      console.error('Erro ao enviar e-mail de recuperação:', error);
+      console.error('Erro ao enviar e-mail de recuperação via SendGrid:', error);
       throw new InternalServerErrorException('Erro ao enviar e-mail de recuperação de senha.');
     }
   }
