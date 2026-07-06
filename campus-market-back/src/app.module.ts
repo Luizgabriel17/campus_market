@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
@@ -21,13 +21,45 @@ import { AddressModule } from './address/address.module';
       envFilePath: '.env' 
     }),
     
-    BullModule.forRoot({
-      redis: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379'),
-        password: process.env.REDIS_PASSWORD || undefined,
-        maxRetriesPerRequest: 1, // Falha rápido se o Redis estiver offline para não travar a requisição
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        const redisUrl = configService.get<string>('REDIS_URL');
+        if (redisUrl) {
+          try {
+            const url = new URL(redisUrl);
+            const redisOptions: any = {
+              host: url.hostname,
+              port: parseInt(url.port || '6379'),
+              username: url.username || undefined,
+              password: url.password || undefined,
+              enableOfflineQueue: false, // Evita travar a requisição se o Redis cair (falha rápido)
+              maxRetriesPerRequest: null, // Necessário para compatibilidade com Bull
+            };
+            if (url.protocol === 'rediss:') {
+              redisOptions.tls = {};
+            }
+            return {
+              redis: redisOptions,
+            };
+          } catch (error) {
+            return {
+              redis: redisUrl,
+            };
+          }
+        }
+
+        return {
+          redis: {
+            host: configService.get<string>('REDIS_HOST') || 'localhost',
+            port: parseInt(configService.get<string>('REDIS_PORT') || '6379'),
+            password: configService.get<string>('REDIS_PASSWORD') || undefined,
+            enableOfflineQueue: false, // Evita travar a requisição se o Redis cair (falha rápido)
+            maxRetriesPerRequest: null, // Necessário para compatibilidade com Bull
+          },
+        };
       },
+      inject: [ConfigService],
     }),
     
     PrismaModule,

@@ -369,8 +369,23 @@ export class AuthService {
         `[Fallback] Falha ao adicionar à fila de e-mail (Redis indisponível?). Enviando de forma síncrona...`,
         error.message,
       );
-      // Envio síncrono (aguarda resposta) como fallback
-      await this.mailService.sendVerificationCode(email, code);
+
+      // Print do código nos logs para depuração direta no Render
+      console.log(
+        `\n==================================================\n[CÓDIGO DE VERIFICAÇÃO] E-mail: ${email} | Código: ${code}\n==================================================\n`
+      );
+
+      try {
+        // Envio síncrono (aguarda resposta) como fallback
+        await this.mailService.sendVerificationCode(email, code);
+      } catch (mailError) {
+        console.error(
+          `[Email Error] Não foi possível enviar o e-mail para ${email}. Erro original:`,
+          mailError.message
+        );
+        // IMPORTANTE: Não relançamos o erro para que a requisição de cadastro 
+        // complete com sucesso e o usuário possa ver o formulário no Frontend.
+      }
     }
   }
 
@@ -398,7 +413,19 @@ export class AuthService {
       },
     });
 
-    await this.mailService.sendPasswordRecoveryCode(email, code);
+    // Print do código de recuperação nos logs para depuração
+    console.log(
+      `\n==================================================\n[RECUPERAÇÃO DE SENHA] E-mail: ${email} | Código: ${code}\n==================================================\n`
+    );
+
+    try {
+      await this.mailService.sendPasswordRecoveryCode(email, code);
+    } catch (mailError) {
+      console.error(
+        `[Email Error] Não foi possível enviar o e-mail de recuperação para ${email}. Erro:`,
+        mailError.message
+      );
+    }
 
     return {
       message: 'Código de recuperação enviado para o seu e-mail.',

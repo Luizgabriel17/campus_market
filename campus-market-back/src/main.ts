@@ -1,6 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import * as dns from 'dns';
+
+dns.setDefaultResultOrder('ipv4first'); // Força o Node.js a priorizar IPv4 para evitar erro ENETUNREACH no Render
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

@@ -7,12 +7,15 @@ export class MailService {
 
   constructor() {
     this.transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      family: 4, // Força a conexão via IPv4 para evitar erro ENETUNREACH em ambientes sem IPv6
       auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
       },
-    });
+    } as any);
   }
 
   async sendVerificationCode(to: string, code: string): Promise<void> {
