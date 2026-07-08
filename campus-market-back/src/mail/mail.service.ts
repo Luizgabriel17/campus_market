@@ -1,17 +1,10 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import * as dns from 'dns';
-import { Resend } from 'resend';
 
 @Injectable()
 export class MailService {
-  private resend: Resend | null = null;
-
-  constructor() {
-    if (process.env.RESEND_API_KEY) {
-      this.resend = new Resend(process.env.RESEND_API_KEY);
-    }
-  }
+  constructor() {}
 
   private async createTransporter(): Promise<nodemailer.Transporter> {
     const ipv4List = await dns.promises.resolve4('smtp.gmail.com');
@@ -38,18 +31,6 @@ export class MailService {
 
   private getFromAddress() {
     return process.env.MAIL_FROM || process.env.MAIL_USER || 'no-reply@campusmarket.local';
-  }
-
-  private async sendWithResend(to: string, subject: string, html: string) {
-    if (!this.resend) return false;
-
-    await this.resend.emails.send({
-      from: `CampusMarket <${this.getFromAddress()}>`,
-      to,
-      subject,
-      html,
-    });
-    return true;
   }
 
   private async sendWithSmtp(to: string, subject: string, html: string) {
@@ -87,10 +68,7 @@ export class MailService {
         `;
 
     try {
-      const sentByResend = await this.sendWithResend(to, subject, html);
-      if (!sentByResend) {
-        await this.sendWithSmtp(to, subject, html);
-      }
+      await this.sendWithSmtp(to, subject, html);
     } catch (error) {
       console.error('Erro ao enviar e-mail de verificação:', error);
       throw new InternalServerErrorException('Erro ao enviar e-mail de verificação.');
@@ -123,10 +101,7 @@ export class MailService {
         `;
 
     try {
-      const sentByResend = await this.sendWithResend(to, subject, html);
-      if (!sentByResend) {
-        await this.sendWithSmtp(to, subject, html);
-      }
+      await this.sendWithSmtp(to, subject, html);
     } catch (error) {
       console.error('Erro ao enviar e-mail de recuperação de senha:', error);
       throw new InternalServerErrorException('Erro ao enviar e-mail de recuperação de senha.');

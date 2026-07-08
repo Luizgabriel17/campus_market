@@ -14,7 +14,7 @@ O backend expõe uma API REST (prefixo global `api`) para:
 - Endereços
 - Upload de imagens com **Cloudinary**
 - Notificações:
-  - E-mail via **Resend** (preferencial) e fallback SMTP
+  - E-mail via **Gmail (SMTP)** com Senha de App
   - Confirmação de entrega com **WhatsApp** (link `wa.me`)
 
 ## Stack
@@ -24,7 +24,7 @@ O backend expõe uma API REST (prefixo global `api`) para:
 - Prisma ORM + PostgreSQL
 - JWT + Passport
 - Bcrypt (hash de senhas)
-- Resend (envio de e-mail) e Nodemailer (fallback SMTP)
+- Nodemailer / Gmail SMTP (envio de e-mail)
 - Cloudinary (uploads)
 - Multer (uploads em memória)
 - Bull/BullMQ (fila/infra disponível; jobs de e-mail são tratados pelo MailService)
@@ -51,14 +51,10 @@ FRONTEND_URL="http://localhost:4200"
 CLOUDINARY_CLOUD_NAME="..."
 CLOUDINARY_API_KEY="..."
 CLOUDINARY_API_SECRET="..."
-
-# Notificações por e-mail
-RESEND_API_KEY="..."
-MAIL_FROM="onboarding@resend.dev"
-
-# Se usar fallback SMTP (opcional)
-MAIL_USER="seu-email"
-MAIL_PASS="sua-senha-ou-app-password"
+# Notificações por e-mail (Gmail via SMTP)
+MAIL_USER="seu-email@gmail.com"
+MAIL_PASS="sua-senha-de-app-do-google"
+MAIL_FROM="seu-email@gmail.com" # Opcional
 
 # Redis (opcional; usado pela infraestrutura Bull)
 REDIS_URL="..."
@@ -115,7 +111,7 @@ http://localhost:3001/api
 - `PaymentsModule` — ações e estados de pagamento
 - `AddressModule` — CRUD de endereços
 - `UploadModule` + `CloudinaryModule` — upload de imagens
-- `MailModule` — envio de e-mails (Resend + fallback SMTP)
+- `MailModule` — envio de e-mails (Gmail SMTP)
 - `WhatsappModule` — geração de link WhatsApp para confirmação de entrega
 
 ## Rotas Principais (Resumo)
@@ -213,7 +209,7 @@ As principais proteções e hardenings aplicados:
 
 Se o e-mail não chegar:
 
-- confira `RESEND_API_KEY` e `MAIL_FROM` no ambiente
+- confira `MAIL_USER` e `MAIL_PASS` no ambiente
 - teste reenvio (`POST /auth/resend-code`)
 - verifique caixa de Spam/Promoções no provedor do destinatário
 
