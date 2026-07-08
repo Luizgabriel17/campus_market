@@ -1,304 +1,226 @@
-# Campus Market Backend
+# IFRN CampusMarket — Backend (NestJS + Prisma)
 
-Backend da plataforma Campus Market desenvolvido com NestJS, Prisma ORM, PostgreSQL e JWT.
+Backend da plataforma **CampusMarket** desenvolvido com **NestJS**, **Prisma ORM** e **PostgreSQL**, com autenticação via **JWT**.
 
----
+## Visão Geral
 
-# Tecnologias
+O backend expõe uma API REST (prefixo global `api`) para:
 
-* NestJS
-* TypeScript
-* Prisma ORM
-* PostgreSQL
-* JWT Authentication
-* Bcrypt
+- Cadastro e autenticação de usuários (`CLIENTE`, `VENDEDOR`, `ADMIN`)
+- Verificação de e-mail (OTP) e recuperação de senha (OTP)
+- Catálogo de categorias e produtos
+- Carrinho e criação de pedidos
+- Fluxo de pagamento e atualização de status do pedido
+- Endereços
+- Upload de imagens com **Cloudinary**
+- Notificações:
+  - E-mail via **Resend** (preferencial) e fallback SMTP
+  - Confirmação de entrega com **WhatsApp** (link `wa.me`)
 
----
+## Stack
 
-# Funcionalidades Implementadas
+- Node.js / TypeScript
+- NestJS
+- Prisma ORM + PostgreSQL
+- JWT + Passport
+- Bcrypt (hash de senhas)
+- Resend (envio de e-mail) e Nodemailer (fallback SMTP)
+- Cloudinary (uploads)
+- Multer (uploads em memória)
+- Bull/BullMQ (fila/infra disponível; jobs de e-mail são tratados pelo MailService)
 
-## Autenticação
+## Requisitos
 
-* Cadastro de usuários
-* Login com JWT
-* Hash de senhas com Bcrypt
-* Controle de perfis:
+- Node.js 22+ (recomendado)
+- PostgreSQL
+- Variáveis de ambiente configuradas corretamente
 
-```text
-CLIENTE
-VENDEDOR
-ADMIN
+## Variáveis de Ambiente
+
+Crie um arquivo `.env` em `campus-market-back/`:
+
+```env
+DATABASE_URL="postgresql://USER:SENHA@HOST:5432/campus_market?schema=public"
+JWT_SECRET="uma-chave-forte"
+PORT=3001
+
+# Frontend URL para CORS
+FRONTEND_URL="http://localhost:4200"
+
+# Banco de imagens (Cloudinary)
+CLOUDINARY_CLOUD_NAME="..."
+CLOUDINARY_API_KEY="..."
+CLOUDINARY_API_SECRET="..."
+
+# Notificações por e-mail
+RESEND_API_KEY="..."
+MAIL_FROM="onboarding@resend.dev"
+
+# Se usar fallback SMTP (opcional)
+MAIL_USER="seu-email"
+MAIL_PASS="sua-senha-ou-app-password"
+
+# Redis (opcional; usado pela infraestrutura Bull)
+REDIS_URL="..."
 ```
 
-* Proteção de rotas com JWT
-* Controle de permissões com Roles Guard
+> Observação: `JWT_SECRET` é obrigatório. O backend falha ao iniciar caso não esteja configurado.
 
----
+## Como Rodar Localmente
 
-## Categorias
-
-* Criar categoria
-* Listar categorias
-* Associação de produtos a categorias
-
----
-
-## Produtos
-
-* Cadastro de produtos
-* Edição de produtos
-* Exclusão lógica (INATIVO)
-* Controle de estoque
-* Associação produto → vendedor
-* Upload de imagem (estrutura preparada)
-
----
-
-## Carrinho
-
-* Criar carrinho automaticamente
-* Adicionar produto
-* Atualizar quantidade
-* Remover produto
-* Limpar carrinho
-
-Validações:
-
-* Estoque disponível
-* Produto existente
-* Quantidade válida
-
----
-
-## Pedidos
-
-* Criar pedido a partir do carrinho
-* Histórico de compras do cliente
-* Histórico de vendas do vendedor
-* Atualização de status
-
-Status disponíveis:
-
-```text
-PENDENTE
-PAGO
-ENVIADO
-ENTREGUE
-CANCELADO
-```
-
----
-
-## Pagamentos
-
-Métodos:
-
-```text
-PIX
-CASH
-```
-
-Status:
-
-```text
-PENDENTE
-APROVADO
-RECUSADO
-```
-
-O vendedor pode:
-
-* Aprovar pagamento
-* Recusar pagamento
-
-Ao aprovar:
-
-```text
-Pagamento → APROVADO
-Pedido → PAGO
-```
-
----
-
-## Dashboard do Vendedor
-
-* Visualização dos pedidos recebidos
-* Identificação do cliente
-* Identificação dos produtos vendidos
-* Valor total do pedido
-* Aprovação de pagamento
-* Confirmação de entrega
-
----
-
-# Instalação
-
-Instalar dependências:
+### Instalação
 
 ```bash
 npm install
 ```
 
----
+### Banco de Dados
 
-# Variáveis de Ambiente
-
-Criar arquivo:
-
-```env
-.env
-```
-
-Exemplo:
-
-```env
-DATABASE_URL="postgresql://postgres:SENHA@localhost:5432/campusmarket"
-
-JWT_SECRET="campusmarket123"
-
-PORT=3001
-```
-
----
-
-# Banco de Dados
-
-Gerar Prisma Client:
+1. Configure o `DATABASE_URL`.
+2. Rode as migrações/ajuste do Prisma conforme seu fluxo:
 
 ```bash
 npx prisma generate
-```
-
-Criar tabelas:
-
-```bash
 npx prisma db push
 ```
 
-Abrir Prisma Studio:
-
-```bash
-npx prisma studio
-```
-
----
-
-# Executar Projeto
-
-Modo desenvolvimento:
+### Inicialização
 
 ```bash
 npm run start:dev
 ```
 
-Servidor:
+A API ficará em:
 
 ```text
-http://localhost:3001
+http://localhost:3001/api
 ```
 
----
+## Scripts
 
-# Estrutura dos Módulos
+- `npm run start:dev` — desenvolvimento (watch)
+- `npm run build` — build para produção
+- `npm run test` — testes
+- `npm run lint` — lint
 
-```text
-src/
+## Arquitetura (Módulos)
 
-auth/
-users/
-categories/
-products/
-cart/
-orders/
-payments/
-prisma/
-common/
-```
+- `AuthModule` — autenticação, OTP de e-mail e recuperação de senha
+- `UsersModule` — perfil e gerenciamento de dados do usuário
+- `SellerModule` — informações e dashboard do vendedor
+- `CategoriesModule` — CRUD de categorias
+- `ProductsModule` — CRUD de produtos (por vendedor)
+- `CartModule` — carrinho do cliente
+- `OrdersModule` — criação e atualização de pedidos
+- `PaymentsModule` — ações e estados de pagamento
+- `AddressModule` — CRUD de endereços
+- `UploadModule` + `CloudinaryModule` — upload de imagens
+- `MailModule` — envio de e-mails (Resend + fallback SMTP)
+- `WhatsappModule` — geração de link WhatsApp para confirmação de entrega
 
----
+## Rotas Principais (Resumo)
 
-# Rotas Principais
+Abaixo, uma referência por contexto (rotas publicadas sob `/api`):
 
-## Auth
+### Autenticação (`/auth`)
 
-POST /auth/register
+- `POST /auth/register` — cadastro + OTP
+- `POST /auth/login` — login (JWT)
+- `POST /auth/verify-email` — valida OTP e ativa conta
+- `POST /auth/resend-code` — reenvia OTP
+- `POST /auth/forgot-password` — OTP de recuperação
+- `POST /auth/reset-password` — valida OTP e redefine senha
+- `GET /auth/me` — perfil autenticado
+- `GET /auth/profile` — perfil (variação)
 
-POST /auth/login
+### Categorias (`/categories`)
 
----
+- `GET /categories` — listar
+- `POST /categories` — criar (protegido)
+- `DELETE /categories/:id` — remover (protegido)
 
-## Categorias
+### Produtos (`/products`)
 
-GET /categories
+- `GET /products` — listar
+- `GET /products/:id` — detalhes
+- `POST /products` — criar (VENDEDOR/ADMIN)
+- `PUT /products/:id` — atualizar (VENDEDOR/ADMIN)
+- `DELETE /products/:id` — remover (VENDEDOR/ADMIN)
+- `GET /products/seller/me` — produtos do vendedor
 
-POST /categories
+### Carrinho (`/cart`)
 
----
+- `GET /cart` — obter carrinho
+- `POST /cart/items` — adicionar item
+- `PUT /cart/items/:productId` — atualizar quantidade
+- `DELETE /cart/items/:productId` — remover item
+- `DELETE /cart` — limpar carrinho
 
-## Produtos
+### Pedidos (`/orders`)
 
-GET /products
+- `POST /orders` — criar pedido a partir do carrinho
+- `GET /orders/my-purchases` — pedidos do cliente
+- `GET /orders/seller` — pedidos do vendedor (protegido por role)
+- `PUT /orders/:id/status` — atualizar status do pedido
+- `PUT /orders/:id/payment` — atualizar status do pagamento (protegido por role)
+- `PUT /orders/:id/confirm` — confirmar entrega (gera link WhatsApp)
 
-POST /products
+### Pagamentos (`/payments`)
 
-PATCH /products/:id
+- `GET /payments` — listar (role)
+- `GET /payments/:id` — detalhes
+- `PATCH /payments/:id` — atualizar (role)
+- `DELETE /payments/:id` — remover (ADMIN)
 
-DELETE /products/:id
+### Endereços (`/addresses`)
 
----
+- `POST /addresses` — criar
+- `GET /addresses` — listar
+- `GET /addresses/:id` — detalhes
+- `PATCH /addresses/:id` — atualizar
+- `DELETE /addresses/:id` — remover
 
-## Carrinho
+### Usuários (`/users`)
 
-GET /cart
+- `GET /users/me` — dados do usuário
+- `GET /users/me/profile` — perfil
+- `PATCH /users/me` — atualizar dados
+- `PATCH /users/me/password` — alterar senha
+- `POST /users/me/avatar` — upload de avatar
+- `DELETE /users/me` — excluir conta
 
-POST /cart/items
+### Upload de imagem (`/upload`)
 
-PUT /cart/items/:productId
+- `POST /upload/product-image` — imagem de produto
+- `POST /upload/avatar` — imagem de avatar
 
-DELETE /cart/items/:productId
+## Segurança (Resumo)
 
-DELETE /cart
+As principais proteções e hardenings aplicados:
 
----
+- `JWT_SECRET` obrigatório (sem fallback inseguro)
+- `ValidationPipe` global com:
+  - `whitelist: true`
+  - `forbidNonWhitelisted: true`
+  - `transform: true`
+- Guards para autenticação (`JwtAuthGuard`) e autorização por role
+- Uploads com:
+  - tipos permitidos (jpeg/png/webp)
+  - limite de tamanho por request
+- Restrições CORS por `FRONTEND_URL`
 
-## Pedidos
+## Troubleshooting — E-mail OTP
 
-POST /orders
+Se o e-mail não chegar:
 
-GET /orders/my-purchases
+- confira `RESEND_API_KEY` e `MAIL_FROM` no ambiente
+- teste reenvio (`POST /auth/resend-code`)
+- verifique caixa de Spam/Promoções no provedor do destinatário
 
-GET /orders/seller
+## Observações de Deploy
 
-PUT /orders/:id/status
+Este backend usa:
 
-PUT /orders/:id/payment
-
----
-
-# Status Atual
-
-Implementado:
-
-✅ JWT
-
-✅ Controle de perfis
-
-✅ Categorias
-
-✅ Produtos
-
-✅ Carrinho
-
-✅ Pedidos
-
-✅ Pagamentos
-
-✅ Dashboard do vendedor
-
-✅ Controle de estoque
-
-✅ Histórico de compras
-
-✅ Histórico de vendas
-
----
+- prefixo global `api`
+- porta `PORT` configurável para serviços como Render
+- variáveis de ambiente para segredos (não hardcoded)

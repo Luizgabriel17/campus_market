@@ -1,3 +1,120 @@
+# CampusMarket — Frontend (Angular)
+
+Frontend da plataforma **CampusMarket** desenvolvido em **Angular**.  
+O sistema permite que:
+
+- **Clientes** naveguem pelo catálogo, adicionem itens ao carrinho, façam checkout e acompanhem pedidos.
+- **Vendedores** gerenciem produtos e acompanhem o ciclo do pedido (pagamento e entrega).
+
+## Stack
+
+- Angular 21 (standalone)
+- TypeScript
+- RxJS
+- Angular Router + Interceptors
+- Signals
+- JWT (via interceptor)
+- CSS custom (design responsivo)
+
+## Requisitos
+
+- Node.js 22+
+- npm 10+
+- Backend `campus-market-back` rodando
+
+## Configuração da API
+
+O frontend consome o backend em `environment.ts` (dev) e `environment.prod.ts` (produção).
+
+Exemplo (dev):
+
+```ts
+apiUrl: 'http://localhost:3001/api'
+```
+
+## Instalação
+
+```bash
+npm install
+```
+
+## Executar (dev)
+
+```bash
+ng serve
+```
+
+A aplicação fica em:
+
+```text
+http://localhost:4200
+```
+
+## Build (produção)
+
+```bash
+ng build --configuration production
+```
+
+O deploy está configurado no `netlify.toml`.
+
+## Estrutura de Pastas
+
+```text
+src/
+  app/
+    core/            # services, guards, interceptors
+    pages/           # páginas do sistema
+    styles.css
+  assets/
+```
+
+## Principais páginas
+
+- `register` — cadastro + verificação OTP
+- `login` — login JWT
+- `home` — vitrine de produtos
+- `cart` — carrinho + checkout
+- `my-orders` — pedidos do cliente
+- `vendedor/dashboard` — painel do vendedor (pagamento/entrega + mensagem do cliente)
+- `vendedor/products` e `vendedor/products-form` — CRUD de produtos
+- `profile` — dados do usuário
+- `forgot-password` — recuperação de senha
+
+## Fluxos de UX
+
+### Cadastro + Verificação de e-mail (OTP)
+
+Na tela de verificação do código, a UI orienta o cliente a checar **Spam/Promoções** caso o e-mail não chegue na caixa principal.
+
+### Mensagem para o vendedor
+
+No `cart`, o cliente envia uma mensagem opcional (`notes`).  
+No `vendedor/dashboard`, a mensagem aparece como um bloco destacado (“💬 Mensagem do cliente”).
+
+## Interceptor JWT
+
+O arquivo `src/app/core/interceptors/auth-interceptor.ts` injeta:
+
+`Authorization: Bearer <token>`
+
+em todas as requisições quando o token existe no `localStorage`.
+
+## PWA (opcional)
+
+É possível transformar este front em PWA (instalável + cache). Para isso precisamos adicionar e configurar:
+
+- `@angular/service-worker`
+- `manifest.webmanifest`
+- `ngsw-config.json`
+- habilitar service worker na build de produção
+
+---
+
+## Documentação antiga (legado)
+
+O conteúdo abaixo permanece como referência histórica.
+
 # Campus Market - Frontend
 
 Frontend da plataforma Campus Market desenvolvido em Angular.
