@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import { createConnection } from 'net';
+import * as dns from 'dns';
 
 @Injectable()
 export class MailService {
@@ -15,14 +15,16 @@ export class MailService {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
       },
-      // Estratégia 1: Forçar IPv4 via família de sockets
-      family: 4,
-      // Estratégia 2: Custom connection handler para garantir IPv4
-      connectionUrl: undefined,
+      // Força resolução por IPv4 para evitar ENETUNREACH em ambientes sem IPv6
+      name: 'smtp.gmail.com',
+      lookup: (hostname, _options, callback) => {
+        dns.lookup(hostname, { family: 4 }, callback);
+      },
       tls: {
+        servername: 'smtp.gmail.com',
         rejectUnauthorized: true,
       },
-      // Estratégia 3: Aumentar timeout para evitar problemas de conexão
+      // Aumenta timeout para evitar falhas intermitentes de rede
       connectionTimeout: 10000,
       socketTimeout: 10000,
     } as any);
