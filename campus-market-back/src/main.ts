@@ -31,7 +31,14 @@ async function bootstrap() {
   });
 
   // 3. TERCEIRO: Ativa as validações globais de DTO
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
 
   // 4. QUARTO: Inicia o servidor na porta dinâmica (Render exige isso)
   const port = process.env.PORT || 3001;

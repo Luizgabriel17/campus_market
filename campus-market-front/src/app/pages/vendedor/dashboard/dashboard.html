@@ -223,16 +223,16 @@
             </strong>
           </div>
 
-          <div class="metadata-row" *ngIf="pedido.notes">
-            <span class="meta-label">
-              Observações:
-            </span>
-            <strong class="meta-value-text" style="font-style: italic;">
-              {{ pedido.notes }}
-            </strong>
+          <div class="customer-message-box" *ngIf="pedido.notes">
+            <div class="customer-message-title">
+              💬 Mensagem do cliente
+            </div>
+            <p class="customer-message-content">
+              "{{ pedido.notes }}"
+            </p>
           </div>
 
-          <div class="metadata-row" style="margin-top: 12px; border-top: 1px dashed #e2e8f0; padding-top: 12px;">
+          <div class="metadata-row items-header-row">
             <span class="meta-label">
               Itens:
             </span>
@@ -240,7 +240,7 @@
 
           <div
             *ngFor="let item of pedido.items"
-            style="margin-bottom: 8px; padding-left: 12px;">
+            class="order-item-row">
 
             <strong>
               {{ item.quantity }}x

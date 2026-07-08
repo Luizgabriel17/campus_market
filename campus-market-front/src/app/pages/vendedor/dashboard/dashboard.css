@@ -222,6 +222,43 @@
   color: var(--cm-neutral-800);
 }
 
+.customer-message-box {
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 12px;
+  border: 1px solid #dbeafe;
+  background: linear-gradient(135deg, #f8fbff, #eff6ff);
+}
+
+.customer-message-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #1e40af;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.3rem;
+}
+
+.customer-message-content {
+  margin: 0;
+  color: #1e293b;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+.items-header-row {
+  margin-top: 0.55rem;
+  border-top: 1px dashed #e2e8f0;
+  padding-top: 0.75rem;
+}
+
+.order-item-row {
+  margin-bottom: 8px;
+  padding-left: 12px;
+  color: var(--cm-neutral-800);
+}
+
 .delivery-status-indicator {
   font-weight: 600;
   color: var(--cm-neutral-900);

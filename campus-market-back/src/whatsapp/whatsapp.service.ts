@@ -44,7 +44,7 @@ export class WhatsappService {
     if (!order.customer.phone) return null;
 
     const itemsList = order.items
-      .map((i) => `  • ${i.product.name} x${i.quantity}`)
+      .map((i) => `• ${i.quantity}x ${i.product.name}`)
       .join('\n');
 
     const address = order.deliveryAddress
@@ -54,25 +54,28 @@ export class WhatsappService {
     const paymentMethod =
       order.payment?.method === 'PIX' ? 'PIX' : 'Dinheiro';
 
-    const notes = order.notes ? `\n📝 Obs: ${order.notes}` : '';
+    const notes = order.notes ? `\n💬 *Mensagem para você:* ${order.notes}` : '';
     const deliveryTime = order.deliveryTime
-      ? `\n⏰ Horário: ${order.deliveryTime}`
+      ? `\n⏰ *Retirada combinada:* ${order.deliveryTime}`
       : '';
 
     const message = [
       `Olá, ${order.customer.name}! 👋`,
       ``,
-      `Seu pedido *#${order.id}* no *CampusMarket* foi confirmado ✅`,
+      `Aqui é *${order.seller.name}* do *CampusMarket*.`,
+      `Seu pedido *#${order.id}* foi confirmado e já está em preparação ✅`,
       ``,
+      `🧾 *Resumo do pedido*`,
       `🛒 *Itens:*`,
       itemsList,
       ``,
-      `💰 *Total:* ${this.formatCurrency(order.total)}`,
+      `💵 *Total:* ${this.formatCurrency(order.total)}`,
       `💳 *Pagamento:* ${paymentMethod}`,
-      `📍 *Entrega:* ${address}`,
+      `📍 *Local de entrega/retirada:* ${address}`,
       `${deliveryTime}${notes}`,
       ``,
-      `Estou preparando seu pedido! Em breve chego até você 🚀`,
+      `Se precisar ajustar algo, me chama por aqui 🤝`,
+      `Obrigado pela preferência! 💚`,
     ]
       .join('\n')
       .trim();

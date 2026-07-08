@@ -16,9 +16,39 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 export class UploadController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
 
+  private static readonly allowedMimeTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+  ];
+
+  private static readonly uploadLimits = {
+    fileSize: 5 * 1024 * 1024, // 5MB
+  };
+
+  private static imageFileFilter(
+    _req: unknown,
+    file: any,
+    callback: (error: Error | null, acceptFile: boolean) => void,
+  ) {
+    if (!UploadController.allowedMimeTypes.includes(file.mimetype)) {
+      return callback(
+        new BadRequestException('Formato inválido. Use JPG, PNG ou WEBP.'),
+        false,
+      );
+    }
+
+    callback(null, true);
+  }
+
   @Post('product-image')
   @UseInterceptors(
-    FileInterceptor('file', { storage: memoryStorage() }),
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      fileFilter: (req, file, callback) =>
+        UploadController.imageFileFilter(req, file, callback),
+      limits: UploadController.uploadLimits,
+    }),
   )
   async uploadProductImage(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
@@ -35,7 +65,12 @@ export class UploadController {
 
   @Post('avatar')
   @UseInterceptors(
-    FileInterceptor('file', { storage: memoryStorage() }),
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      fileFilter: (req, file, callback) =>
+        UploadController.imageFileFilter(req, file, callback),
+      limits: UploadController.uploadLimits,
+    }),
   )
   async uploadAvatar(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
