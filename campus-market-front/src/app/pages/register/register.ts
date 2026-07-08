@@ -68,9 +68,15 @@ export class RegisterComponent {
         this.userId = res.userId;
         this.registeredRole = this.role;
         this.showVerification = true;
+        if (res.message?.includes('cadastro pendente')) {
+          this.errorMessage = '';
+        }
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Erro ao realizar o cadastro. Tente novamente.';
+        const apiMessage = err.error?.message;
+        this.errorMessage = Array.isArray(apiMessage)
+          ? apiMessage.join(', ')
+          : apiMessage || 'Erro ao realizar o cadastro. Tente novamente.';
       }
     });
   }

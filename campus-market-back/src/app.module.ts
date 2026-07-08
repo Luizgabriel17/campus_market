@@ -33,7 +33,7 @@ import { AddressModule } from './address/address.module';
               port: parseInt(url.port || '6379'),
               username: url.username || undefined,
               password: url.password || undefined,
-              enableOfflineQueue: false, // Evita travar a requisição se o Redis cair (falha rápido)
+              enableOfflineQueue: true,
               maxRetriesPerRequest: null, // Necessário para compatibilidade com Bull
             };
             if (url.protocol === 'rediss:') {
@@ -54,7 +54,7 @@ import { AddressModule } from './address/address.module';
             host: configService.get<string>('REDIS_HOST') || 'localhost',
             port: parseInt(configService.get<string>('REDIS_PORT') || '6379'),
             password: configService.get<string>('REDIS_PASSWORD') || undefined,
-            enableOfflineQueue: false, // Evita travar a requisição se o Redis cair (falha rápido)
+            enableOfflineQueue: true,
             maxRetriesPerRequest: null, // Necessário para compatibilidade com Bull
           },
         };

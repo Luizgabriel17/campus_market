@@ -6,8 +6,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
-import { Queue } from 'bull';
-import { InjectQueue } from '@nestjs/bull';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
@@ -18,7 +16,6 @@ export class AuthService {
     private jwtService: JwtService,
     private prisma: PrismaService,
     private mailService: MailService,
-    @InjectQueue('email') private emailQueue: Queue,
   ) {}
 
   private generateToken(user: {
@@ -55,6 +52,19 @@ export class AuthService {
       });
 
     if (existingUser) {
+      if (!existingUser.emailVerified) {
+        await this.sendVerificationCodeAsync(
+          existingUser.id,
+          email,
+        );
+
+        return {
+          message:
+            'Este e-mail já possui cadastro pendente. Enviamos um novo código de verificação.',
+          userId: existingUser.id,
+        };
+      }
+
       throw new BadRequestException(
         'Email já cadastrado.',
       );
@@ -283,42 +293,6 @@ export class AuthService {
     return result;
   }
 
-  // MÉTODO ORIGINAL: Mantido como fallback síncrono
-  private async sendVerificationCode(
-    userId: number,
-    email: string,
-  ) {
-    const code =
-      this.generateOtp();
-
-    const expiresAt = new Date(
-      Date.now() + 15 * 60 * 1000,
-    );
-
-    await this.prisma.emailVerification.deleteMany(
-      {
-        where: { userId },
-      },
-    );
-
-    await this.prisma.emailVerification.create(
-      {
-        data: {
-          userId,
-          code,
-          expiresAt,
-        },
-      },
-    );
-
-    // Envio síncrono (aguarda resposta)
-    await this.mailService.sendVerificationCode(
-      email,
-      code,
-    );
-  }
-
-  // Assíncrono via fila
   private async sendVerificationCodeAsync(
     userId: number,
     email: string,
@@ -328,64 +302,29 @@ export class AuthService {
       Date.now() + 15 * 60 * 1000,
     );
 
-    // Salva o código no banco PRIMEIRO
-    await this.prisma.emailVerification.deleteMany(
-      {
-        where: { userId },
+    await this.prisma.emailVerification.deleteMany({
+      where: { userId },
+    });
+
+    await this.prisma.emailVerification.create({
+      data: {
+        userId,
+        code,
+        expiresAt,
       },
+    });
+
+    console.log(
+      `\n==================================================\n[CÓDIGO DE VERIFICAÇÃO] E-mail: ${email} | Código: ${code}\n==================================================\n`,
     );
 
-    await this.prisma.emailVerification.create(
-      {
-        data: {
-          userId,
-          code,
-          expiresAt,
-        },
-      },
-    );
-
-    // Adiciona à fila para envio assíncrono
-    // Não aguarda - retorna imediatamente
     try {
-      await this.emailQueue.add(
-        'send-verification',
-        {
-          email,
-          code,
-          userId,
-        },
-        {
-          attempts: 3, // Tenta 3 vezes se falhar
-          backoff: {
-            type: 'exponential',
-            delay: 2000, // Começa com 2 segundos
-          },
-          removeOnComplete: true, // Remove da fila após sucesso
-        },
+      await this.mailService.sendVerificationCode(email, code);
+    } catch (mailError) {
+      console.error(
+        `[Email Error] Não foi possível enviar o e-mail para ${email}:`,
+        mailError.message,
       );
-    } catch (error) {
-      console.warn(
-        `[Fallback] Falha ao adicionar à fila de e-mail (Redis indisponível?). Enviando de forma síncrona...`,
-        error.message,
-      );
-
-      // Print do código nos logs para depuração direta no Render
-      console.log(
-        `\n==================================================\n[CÓDIGO DE VERIFICAÇÃO] E-mail: ${email} | Código: ${code}\n==================================================\n`
-      );
-
-      try {
-        // Envio síncrono (aguarda resposta) como fallback
-        await this.mailService.sendVerificationCode(email, code);
-      } catch (mailError) {
-        console.error(
-          `[Email Error] Não foi possível enviar o e-mail para ${email}. Erro original:`,
-          mailError.message
-        );
-        // IMPORTANTE: Não relançamos o erro para que a requisição de cadastro 
-        // complete com sucesso e o usuário possa ver o formulário no Frontend.
-      }
     }
   }
 
