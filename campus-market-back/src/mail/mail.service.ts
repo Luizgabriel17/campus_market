@@ -4,27 +4,24 @@ import * as dns from 'dns';
 
 @Injectable()
 export class MailService {
-  private transporter: nodemailer.Transporter;
+  private async createTransporter(): Promise<nodemailer.Transporter> {
+    const ipv4List = await dns.promises.resolve4('smtp.gmail.com');
+    const smtpIpv4 = ipv4List[0];
 
-  constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
+    return nodemailer.createTransport({
+      // Usa IP IPv4 direto para evitar fallback para IPv6 no host
+      host: smtpIpv4,
       port: 465,
       secure: true,
       auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
       },
-      // Força resolução por IPv4 para evitar ENETUNREACH em ambientes sem IPv6
-      name: 'smtp.gmail.com',
-      lookup: (hostname, _options, callback) => {
-        dns.lookup(hostname, { family: 4 }, callback);
-      },
       tls: {
+        // Mantém SNI/cert valido para o hostname oficial
         servername: 'smtp.gmail.com',
         rejectUnauthorized: true,
       },
-      // Aumenta timeout para evitar falhas intermitentes de rede
       connectionTimeout: 10000,
       socketTimeout: 10000,
     } as any);
@@ -32,7 +29,8 @@ export class MailService {
 
   async sendVerificationCode(to: string, code: string): Promise<void> {
     try {
-      await this.transporter.sendMail({
+      const transporter = await this.createTransporter();
+      await transporter.sendMail({
         from: `"CampusMarket" <${process.env.MAIL_USER}>`,
         to,
         subject: 'Confirme seu cadastro no CampusMarket',
@@ -66,7 +64,8 @@ export class MailService {
 
   async sendPasswordRecoveryCode(to: string, code: string): Promise<void> {
     try {
-      await this.transporter.sendMail({
+      const transporter = await this.createTransporter();
+      await transporter.sendMail({
         from: `"CampusMarket" <${process.env.MAIL_USER}>`,
         to,
         subject: 'Recuperação de Senha - CampusMarket',
