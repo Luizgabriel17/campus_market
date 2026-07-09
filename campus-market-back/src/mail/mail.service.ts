@@ -13,8 +13,8 @@ export class MailService {
     return nodemailer.createTransport({
       // Usa IP IPv4 direto para evitar fallback para IPv6 no host
       host: smtpIpv4,
-      port: 465,
-      secure: true,
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
