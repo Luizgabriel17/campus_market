@@ -20,4 +20,8 @@ export class CartService {
   removeItem(productId: number) {
     return this.http.delete(`${this.apiUrl}/items/${productId}`);
   }
+
+  updateQuantity(productId: number, quantity: number) {
+    return this.http.put(`${this.apiUrl}/items/${productId}`, { quantity });
+  }
 }

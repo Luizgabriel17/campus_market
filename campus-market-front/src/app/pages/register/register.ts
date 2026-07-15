@@ -20,6 +20,7 @@ export class RegisterComponent {
   password = '';
   confirmPassword = '';
   role = '';
+  phone = '';
   errorMessage = '';
 
   showPassword = false;
@@ -41,7 +42,7 @@ export class RegisterComponent {
   onSubmit() {
     this.errorMessage = '';
 
-    if (!this.name.trim() || !this.email.trim() || !this.password || !this.confirmPassword || !this.role) {
+    if (!this.name.trim() || !this.email.trim() || !this.password || !this.confirmPassword || !this.role || !this.phone.trim()) {
       this.errorMessage = 'Por favor, preencha todos os campos obrigatórios.';
       return;
     }
@@ -61,6 +62,7 @@ export class RegisterComponent {
       email: this.email.trim(),
       password: this.password,
       role: this.role,
+      phone: this.phone.trim(),
     };
 
     this.authService.register(payload).subscribe({

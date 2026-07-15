@@ -19,4 +19,8 @@ export class RegisterDto {
   @IsNotEmpty({ message: 'O tipo de usuário é obrigatório' })
   @IsEnum(UserRole, { message: 'Tipo de usuário inválido' })
   role: UserRole;
+
+  @IsString()
+  @IsNotEmpty({ message: 'O número de telefone é obrigatório' })
+  phone: string;
 }

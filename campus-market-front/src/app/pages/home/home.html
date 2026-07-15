@@ -1,4 +1,15 @@
 <div class="cm-dashboard-container">
+
+  <!-- Toast de Notificação de Lanche Adicionado -->
+  <div class="toast-notification-success" [class.show]="showToast()">
+    <div class="toast-body">
+      <span class="toast-icon">🛒</span>
+      <div class="toast-content">
+        <strong class="toast-title">Adicionado com sucesso!</strong>
+        <span class="toast-text">{{ toastProductName() }} foi adicionado à bandeja.</span>
+      </div>
+    </div>
+  </div>
   
   <!-- BARRA DE NAVEGAÇÃO CORPORATIVA -->
   <nav class="cm-navbar" role="navigation" aria-label="Navegação Principal">

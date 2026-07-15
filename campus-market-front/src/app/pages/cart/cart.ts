@@ -39,6 +39,17 @@ export class CartComponent implements OnInit {
   ngOnInit() {
     this.loadCart();
     this.loadAddresses();
+    this.setDefaultDeliveryDateTime();
+  }
+
+  setDefaultDeliveryDateTime() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    this.deliveryDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
   loadCart() {
@@ -66,6 +77,24 @@ export class CartComponent implements OnInit {
     this.cartService.removeItem(productId).subscribe({
       next: () => this.loadCart(),
       error: () => alert('Não foi possível remover o item.')
+    });
+  }
+
+  onIncreaseQuantity(productId: number, currentQuantity: number) {
+    this.cartService.updateQuantity(productId, currentQuantity + 1).subscribe({
+      next: () => this.loadCart(),
+      error: (err) => alert(err.error?.message || 'Não foi possível aumentar a quantidade.')
+    });
+  }
+
+  onDecreaseQuantity(productId: number, currentQuantity: number) {
+    if (currentQuantity <= 1) {
+      this.onRemoveItem(productId);
+      return;
+    }
+    this.cartService.updateQuantity(productId, currentQuantity - 1).subscribe({
+      next: () => this.loadCart(),
+      error: (err) => alert(err.error?.message || 'Não foi possível diminuir a quantidade.')
     });
   }
 

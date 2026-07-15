@@ -768,3 +768,66 @@
 .cm-category-pill:active {
   transform: scale(0.95);
 }
+
+/* TOAST NOTIFICATION */
+.toast-notification-success {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: white;
+  border-radius: var(--cm-radius-md);
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+  padding: 1rem 1.5rem;
+  min-width: 300px;
+  max-width: 450px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transform: translateY(-20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.toast-notification-success.show {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.toast-body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.toast-icon {
+  font-size: 1.75rem;
+  animation: bounceMini 0.6s infinite alternate ease-in-out;
+}
+
+.toast-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toast-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.toast-text {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+@keyframes bounceMini {
+  from { transform: translateY(0); }
+  to { transform: translateY(-4px); }
+}

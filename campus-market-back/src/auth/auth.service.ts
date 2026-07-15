@@ -44,6 +44,7 @@ export class AuthService {
       password,
       name,
       role,
+      phone,
     } = registerDto;
 
     const existingUser =
@@ -80,6 +81,7 @@ export class AuthService {
           password: hashedPassword,
           name,
           role,
+          phone,
           emailVerified: false,
         },
       });
@@ -168,6 +170,7 @@ export class AuthService {
         email: user.email,
         role: user.role,
         avatar: user.avatar,
+        phone: user.phone,
       },
     };
   }
@@ -262,6 +265,7 @@ export class AuthService {
         email: user.email,
         role: user.role,
         avatar: user.avatar,
+        phone: user.phone,
       },
     };
   }

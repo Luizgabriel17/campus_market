@@ -21,6 +21,8 @@ export class HomeComponent implements OnInit {
   products = signal<any[]>([]);
   cartItemCount = signal<number>(0);
   errorMessage = '';
+  showToast = signal(false);
+  toastProductName = signal('');
 
   categories = signal<string[]>([]);
   selectedCategory = signal<string>('Todos');
@@ -113,6 +115,11 @@ export class HomeComponent implements OnInit {
     this.cartService.addToCart(product.id, 1).subscribe({
       next: () => {
         this.cartItemCount.update(count => count + 1);
+        this.toastProductName.set(product.name);
+        this.showToast.set(true);
+        setTimeout(() => {
+          this.showToast.set(false);
+        }, 3000);
       },
       error: (err) => {
         this.errorMessage =
