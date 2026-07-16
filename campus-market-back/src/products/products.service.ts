@@ -51,7 +51,7 @@ export class ProductService {
       where: { id },
       include: { seller: { select: { name: true } }, category: true },
     });
-    if (!product) {
+    if (!product || product.status === 'INATIVO') {
       throw new NotFoundException('Lanche não encontrado.');
     }
     return product;
@@ -88,7 +88,8 @@ export class ProductService {
 ) {
   return this.prisma.product.findMany({
     where: {
-      sellerId
+      sellerId,
+      status: 'ATIVO',
     },
     include: {
       category: true

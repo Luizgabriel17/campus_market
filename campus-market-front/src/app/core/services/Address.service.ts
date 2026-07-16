@@ -40,4 +40,9 @@ export class AddressService {
   deleteAddress(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
+
+  lookupCep(cep: string): Observable<any> {
+    const cleanCep = cep.replace(/\D/g, '');
+    return this.http.get<any>(`https://viacep.com.br/ws/${cleanCep}/json/`);
+  }
 }

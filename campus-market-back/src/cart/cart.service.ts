@@ -10,6 +10,11 @@ export class CartService {
       where: { userId },
       include: {
         items: {
+          where: {
+            product: {
+              status: 'ATIVO',
+            },
+          },
           include: {
             product: {
               include: {
@@ -26,6 +31,11 @@ export class CartService {
         data: { userId },
         include: {
           items: {
+            where: {
+              product: {
+                status: 'ATIVO',
+              },
+            },
             include: {
               product: {
                 include: {
@@ -47,7 +57,7 @@ export class CartService {
     }
 
     const product = await this.prisma.product.findUnique({ where: { id: productId } });
-    if (!product) {
+    if (!product || product.status === 'INATIVO') {
       throw new NotFoundException('Lanche não encontrado.');
     }
 
@@ -93,7 +103,7 @@ export class CartService {
     }
 
     const product = await this.prisma.product.findUnique({ where: { id: productId } });
-    if (!product) {
+    if (!product || product.status === 'INATIVO') {
       throw new NotFoundException('Lanche não encontrado.');
     }
 

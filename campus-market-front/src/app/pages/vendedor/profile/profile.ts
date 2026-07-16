@@ -251,6 +251,36 @@ export class SellerProfileComponent implements OnInit {
     });
   }
 
+  onCepInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
+    if (value.length > 8) {
+      value = value.slice(0, 8);
+    }
+    if (value.length > 5) {
+      value = `${value.slice(0, 5)}-${value.slice(5)}`;
+    }
+    this.newAddress.zipCode = value;
+    input.value = value;
+
+    const cleanCep = value.replace(/\D/g, '');
+    if (cleanCep.length === 8) {
+      this.addressService.lookupCep(cleanCep).subscribe({
+        next: (data) => {
+          if (data && !data.erro) {
+            this.newAddress.street = data.logradouro || '';
+            this.newAddress.neighborhood = data.bairro || '';
+            this.newAddress.city = data.localidade || '';
+            this.newAddress.state = data.uf || '';
+          }
+        },
+        error: (err) => {
+          console.error('Erro ao buscar CEP:', err);
+        }
+      });
+    }
+  }
+
   resetAddressForm() {
     this.showAddressForm = false;
     this.newAddress = {

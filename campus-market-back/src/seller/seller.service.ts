@@ -39,7 +39,9 @@ export class SellerService {
     const seller = await this.prisma.user.findFirst({
       where: { id, role: Role.VENDEDOR },
       include: {
-        products: true,
+        products: {
+          where: { status: 'ATIVO' },
+        },
         reviewsReceived: true,
       },
     });
@@ -69,7 +71,7 @@ export class SellerService {
 
   async getMyProducts(sellerId: number) {
     return this.prisma.product.findMany({
-      where: { sellerId },
+      where: { sellerId, status: 'ATIVO' },
       include: { category: true },
       orderBy: { createdAt: 'desc' },
     });
@@ -88,7 +90,7 @@ export class SellerService {
   }
 
   async getDashboard(sellerId: number) {
-    const products = await this.prisma.product.count({ where: { sellerId } });
+    const products = await this.prisma.product.count({ where: { sellerId, status: 'ATIVO' } });
     const orders = await this.prisma.order.count({ where: { sellerId } });
     const sales = await this.prisma.order.findMany({
       where: { sellerId },
